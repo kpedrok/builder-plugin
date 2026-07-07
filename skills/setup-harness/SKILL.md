@@ -10,6 +10,8 @@ Instrument the current project so work can flow through the `feature` pipeline. 
 
 **Hard rule that governs everything below: run every command before you write it into a skill, mapping, or STATE.md. An unverified command is a liability, not an asset.** If a command you expected to exist doesn't work, stop and ask — never write a guessed command.
 
+**Interactive commands hang autonomous runs.** Some CLIs prompt and block forever (e.g. `prisma migrate dev`, unscoped `git rebase -i`, first-run auth). Prefer the non-interactive variant (`prisma migrate deploy` / `migrate status`), and when you write such a command into a skill, record the non-interactive form + a Gotcha noting the interactive one hangs. If a setup command stalls, don't wait it out — kill it, find the non-interactive path, and move on.
+
 ## Step 1 — Detect (explore before asking)
 
 Read the repo and infer as much as possible. Do NOT ask what you can detect:
