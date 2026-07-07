@@ -1,0 +1,26 @@
+{
+  "_comment": "Merge this into the target project's .claude/settings.json. setup-harness fills in the absolute path to guardrails.sh and tunes the permissions allowlist to the detected stack. The permissions here are a starting point, not the final list.",
+  "permissions": {
+    "allow": [
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": []
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ABSOLUTE_PATH_TO/guardrails.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

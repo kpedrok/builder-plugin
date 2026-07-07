@@ -1,0 +1,6 @@
+{
+  "name": "dev-harness",
+  "description": "Setup-first development harness: instrument any project once, then run features through an ALIGN → PLAN → BUILD → PROVE → REPORT pipeline with deterministic guardrails.",
+  "version": "0.1.0",
+  "author": { "name": "Pedro Kondak" }
+}

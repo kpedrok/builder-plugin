@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feature Report — REPLACE_FEATURE_NAME</title>
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body { font: 15px/1.6 -apple-system, system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1.25rem; }
+  h1 { font-size: 1.7rem; margin-bottom: .25rem; }
+  h2 { font-size: 1.25rem; margin-top: 2.25rem; padding-bottom: .3rem; border-bottom: 1px solid currentColor; }
+  .sub { opacity: .7; margin-top: 0; }
+  table { border-collapse: collapse; width: 100%; margin: .5rem 0; }
+  th, td { border: 1px solid rgba(128,128,128,.4); padding: .45rem .6rem; text-align: left; vertical-align: top; }
+  th { background: rgba(128,128,128,.12); }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  pre { background: rgba(128,128,128,.12); padding: .75rem 1rem; border-radius: 6px; overflow-x: auto; font-size: 13px; }
+  .ok { color: #15803d; } .warn { color: #b45309; } .bad { color: #b91c1c; }
+  .diff-add { color: #15803d; } .diff-del { color: #b91c1c; }
+  img { max-width: 100%; border: 1px solid rgba(128,128,128,.4); border-radius: 6px; }
+  figure { margin: 1rem 0; } figcaption { opacity: .7; font-size: 13px; }
+  .empty { opacity: .6; font-style: italic; }
+  svg { max-width: 100%; height: auto; }
+</style>
+</head>
+<body>
+
+<h1>REPLACE_FEATURE_NAME</h1>
+<p class="sub">Feature report · REPLACE_DATE · branch <code>REPLACE_BRANCH</code></p>
+
+<h2>1. Asked vs. built (spec ↔ diff)</h2>
+<p>One row per acceptance criterion. Map each to the change that satisfies it.</p>
+<table>
+  <thead><tr><th>Acceptance criterion</th><th>Met?</th><th>Where / evidence</th></tr></thead>
+  <tbody>
+    <tr><td>REPLACE</td><td class="ok">✔</td><td>REPLACE</td></tr>
+  </tbody>
+</table>
+
+<h2>2. Changed files</h2>
+<p>Annotated highlights — the lines that matter, not the full diff.</p>
+<pre>REPLACE with annotated diff excerpts (use <span class="diff-add">+ added</span> / <span class="diff-del">- removed</span>)</pre>
+
+<h2>3. Flow diagrams</h2>
+<p>SVG for anything whose behavior changed. Omit if nothing structural changed (say so).</p>
+<figure>
+  <svg viewBox="0 0 600 120" role="img" aria-label="flow diagram placeholder">
+    <rect x="10" y="40" width="140" height="40" rx="6" fill="none" stroke="currentColor"/>
+    <text x="80" y="65" text-anchor="middle" font-size="13">REPLACE</text>
+    <line x1="150" y1="60" x2="230" y2="60" stroke="currentColor" marker-end="url(#a)"/>
+    <rect x="230" y="40" width="140" height="40" rx="6" fill="none" stroke="currentColor"/>
+    <text x="300" y="65" text-anchor="middle" font-size="13">REPLACE</text>
+    <defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
+  </svg>
+  <figcaption>REPLACE — what this flow shows</figcaption>
+</figure>
+
+<h2>4. Proof of work</h2>
+<p>Gate outputs, test counts, screenshots — embedded, not linked.</p>
+<pre>REPLACE with the full-gate command and its output, e.g.:
+$ &lt;full gate command&gt;
+...
+42 passing (exit 0)</pre>
+<figure>
+  <img src="data:image/png;base64,REPLACE" alt="screenshot of the working feature">
+  <figcaption>REPLACE — what this screenshot proves</figcaption>
+</figure>
+
+<h2>5. Decisions &amp; assumptions</h2>
+<p>Non-obvious calls made during the run, and any assumption made without confirmation.</p>
+<ul><li>REPLACE</li></ul>
+
+<h2>6. Docs synced</h2>
+<p>Which docs the run touched (so the human can audit the sync).</p>
+<table>
+  <thead><tr><th>Doc</th><th>Updated?</th><th>What changed</th></tr></thead>
+  <tbody>
+    <tr><td>CLAUDE.md</td><td>REPLACE</td><td>REPLACE / n/a</td></tr>
+    <tr><td>CONTEXT.md</td><td>REPLACE</td><td>REPLACE / n/a</td></tr>
+    <tr><td>docs/adr/</td><td>REPLACE</td><td>REPLACE / n/a</td></tr>
+    <tr><td>docs/agents/ mappings</td><td>REPLACE</td><td>REPLACE / n/a</td></tr>
+    <tr><td>spec</td><td>REPLACE</td><td>REPLACE / n/a</td></tr>
+    <tr><td>.harness/STATE.md</td><td>REPLACE</td><td>REPLACE</td></tr>
+  </tbody>
+</table>
+
+<h2>7. Noticed but not touched</h2>
+<p>Out-of-scope items surfaced during the run — the human decides whether they become tickets.</p>
+<ul><li>REPLACE</li></ul>
+
+<h2>8. Suggested focus areas for the final pass</h2>
+<p>Where the human's taste and trust-boundary judgment is most valuable.</p>
+<ul><li>REPLACE</li></ul>
+
+</body>
+</html>
