@@ -76,6 +76,13 @@ Report: what was detected, what was asked, files scaffolded, skills generated, a
 | "CLAUDE.md needs all the detail so the model has context"  | Pointers only. Detail goes in `docs/agents/`. Keep it under 200 lines.     |
 | "I'll ask everything up front to be safe"                  | Detect first. Only ask what you genuinely can't infer.                     |
 
+## Red Flags
+
+- Writing a command into a skill/mapping/STATE.md without having run it this session
+- A gate command recorded without its expected test count
+- Clobbering an existing `.claude/settings.json` instead of merging
+- CLAUDE.md `## Harness` block growing past a few pointer lines
+
 ## Gotchas
 
 _(empty — populate from pilots)_

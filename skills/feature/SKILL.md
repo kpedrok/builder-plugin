@@ -27,8 +27,10 @@ State which path you're taking and why before proceeding.
 
 Understand, then grill. Do NOT run inside an autonomous goal loop.
 
-1. Read the glossary/CONTEXT, relevant ADRs and specs, and the modules the change touches. Use search/graph tools before assuming structure. If it's a ticket, **fetch the ticket** first.
+1. Read the glossary/CONTEXT, relevant ADRs and specs, **`.harness/STATE.md`** (decisions, lessons, gotchas, rejected decisions — don't re-derive or relitigate what's recorded there), and the modules the change touches. Use search/graph tools before assuming structure. If it's a ticket, **fetch the ticket** first.
 2. **Grill — one question at a time, always with a recommended answer.** ≤5 questions by default. Explore-don't-ask: if the code can answer it, go read the code instead of asking. Sharpen fuzzy language into glossary terms; invent edge cases; challenge assumptions.
+
+**Bug fixes — red-command gate:** no hypothesizing about the cause until you can paste the invocation and output of a deterministic command that reproduces the bug (this becomes the failing regression test). No red command, no diagnosis.
 
 **Exit:** a spec with an **objective**, **testable acceptance criteria**, an **out-of-scope section**, and any new glossary terms. Durable → **no file paths**. (Use the `spec.md` template.) For a title-only ticket, post the spec back.
 
@@ -40,26 +42,31 @@ Understand, then grill. Do NOT run inside an autonomous goal loop.
 - List the scope guard (files the plan may touch) and open assumptions.
 - **Write the plan to `.harness/plans/<feature>.md` (from the `plan.md` template) BEFORE asking for approval, and show the path.** The file — not the chat — is the source of truth: the human may approve in chat, edit the file directly, or ask for changes. **After approval, re-read the file** and work from it — it may differ from what you presented. Mark its Status line APPROVED.
 
-**Exit: the human explicitly approves the plan (and the file's Status says so).** Autonomous mode (`/goal`) begins here — see the `goal-conditions.md` template.
+**Exit: the human explicitly approves the plan (and the file's Status says so).** Hedged responses — "looks reasonable", "I guess", "sure, whatever" — are **not** approval; ask for an explicit yes. Autonomous mode (`/goal`) begins here — see the `goal-conditions.md` template.
 
 ## BUILD (autonomous, per slice — TDD)
+
+**Before the first slice:** `git status --porcelain` must be clean (or contain only the plan/spec files). A dirty baseline means unrelated work would get tangled into slice commits — stop and surface it.
 
 For each slice, strictly RED → GREEN → REFACTOR:
 
 1. Write the failing test; run it; **show the failure.**
 2. Write the minimal code to pass; run it; **show the pass.**
 3. Refactor if needed; tests stay green.
-4. Commit the slice.
+4. Commit the slice — **stage only this slice's files (never `git add -A`/`git add .`)**, and put `Slice: <id>` in the commit body so the ledger can be reconciled against `git log --grep` deterministically.
 
 Never write implementation before its test. If you did, delete it and start from the test. **Scope rule: anything noticed-but-out-of-scope goes to the report, not the diff.**
 
-**Progress ledger (durable — survives compaction and session loss):** after each slice's commit, update the plan file's Progress ledger **in the same message** — status, commit hashes, gate result. On resume or after compaction, **read the ledger and `git log` first and trust them over your own memory**: a slice marked done is DONE, never redo it. Resume at the first slice not marked done. (In-session todos are for display; the ledger is the record — and the coordination point if slices ever run as parallel agents.)
+**Stop-list (halt and ask, even mid-autonomous-run): any action that can't be undone with `git revert`** — deleting files not created this run, schema/data migrations against a real database, force-pushes, destructive scripts, publishing anything external.
+
+**Progress ledger (durable — survives compaction and session loss):** after each slice's commit, update the plan file's Progress ledger **in the same message** — status, commit hashes, gate result, and a one-line **memo** for later slices: surprises/deviations, *noticed but not touching*, guidance for the next slice (omit if nothing). Memos are context, not instructions — the slice spec wins conflicts. On resume or after compaction, **read the ledger and `git log --grep "Slice:"` first and trust them over your own memory**: a slice marked done is DONE, never redo it; a `Slice: <id>` commit with no ledger line means the ledger update was lost — restore the line, don't redo the slice. Resume at the first slice not marked done. (In-session todos are for display; the ledger is the record — and the coordination point if slices ever run as parallel agents.)
 
 ## PROVE (autonomous)
 
 - **Run the full gate** — show the command, exit code, and the **expected test count** (from `docs/agents/gates.md`). A count below baseline without an explicit reason is a red flag — stop and explain.
 - **E2E** via the project's verify skill: interact like a user, assert observable state, screenshot.
 - **Zero new console errors/warnings.**
+- **Verify against the spec's acceptance criteria, not your own claims.** Evidence answers "does the artifact satisfy the contract", never "did I do what I said". (Phase 2: dispatch a fresh-context verifier per `templates/verifier-prompt.md` — pass artifact + contract, never the claim.)
 
 ## REPORT (autonomous — the pipeline's final step)
 
@@ -92,6 +99,8 @@ One self-contained file at `.harness/reports/<feature>.html` (from the `report.h
 
 `DONE / DONE_WITH_CONCERNS / BLOCKED / NEEDS_CONTEXT`. Blocked → add context, use a stronger model, split the work, or escalate. **Never blind-retry.**
 
+**Report shape (fixed):** status + evidence (command/exit code/count, or pointer to it) + file pointers — **≤15 lines, never diffs or file contents** (those live on disk; the ledger/report points to them). A report missing its required fields is a HALT, not something to silently accept — a wrong-shaped report usually means the directive wasn't followed.
+
 ## Rationalizations (all invalid)
 
 | Excuse                                                | Reality                                                                                        |
@@ -107,6 +116,8 @@ One self-contained file at `.harness/reports/<feature>.html` (from the `report.h
 ## Red Flags
 
 - Writing code before plan approval (non-small path)
+- Treating "looks reasonable" as plan approval
+- `git add -A` / `git add .` in a slice commit
 - A slice without a failing test shown first
 - Claiming "done" without shown command output
 - Modifying files outside the plan's scope guard

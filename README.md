@@ -9,7 +9,7 @@ The harness is **prompts + files, never orchestration code.** The workflow graph
 - **`setup-harness`** skill — the installer. Detects the stack, interviews for the gaps, scaffolds config/state, generates project-owned skills, and proves the gates actually work.
 - **`feature`** skill — the pipeline: ALIGN → PLAN → BUILD → PROVE → REPORT, sized to the work, stopping at a self-contained HTML report for your review.
 - **`ship`** skill — reads the report, commits, opens a PR linking the evidence, updates the tracker.
-- **`templates/`** — spec, plan, STATE, HTML report skeleton, goal conditions, and the project-skill templates setup instantiates.
+- **`templates/`** — spec, plan, STATE, HTML report skeleton, goal conditions, verifier/reviewer subagent prompts (written for Phase 2, doubt-protocol discipline applies from Phase 1), and the project-skill templates setup instantiates.
 
 ## Install
 

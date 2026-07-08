@@ -23,6 +23,21 @@ Canonical verbs ("update the tracker") resolve through `docs/agents/` mappings; 
 - Don't re-run the whole pipeline here; if something's missing, hand back to `feature`.
 - One PR per feature. If scope split mid-run, ship the completed slice and note the rest in the tracker.
 
+## Rationalizations (all invalid)
+
+| Excuse                                              | Reality                                                                     |
+| --------------------------------------------------- | ---------------------------------------------------------------------------- |
+| "The report is basically fine, I'll PR without it"  | No report = the pipeline didn't finish. Hand back to `feature`.              |
+| "The human said 'looks good' about something else"  | Ship only on an explicit ship instruction about THIS feature's report.       |
+| "I'll clean up these stray files while I'm here"    | Shipping commits the run's work, nothing else. Stray changes → ask.          |
+
+## Red Flags
+
+- Opening a PR with no report file to reference
+- Committing files the feature run didn't create or touch
+- Any force-push, reset, or branch deletion
+- Updating the tracker before the PR exists
+
 ## Gotchas
 
 _(empty — populate from pilots)_

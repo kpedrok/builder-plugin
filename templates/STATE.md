@@ -22,6 +22,12 @@ Non-obvious things learned the hard way. `L-NNN — <lesson> (date)`.
 
 _(none yet)_
 
+## Rejected (don't relitigate)
+
+Approaches considered and deliberately rejected. `R-NNN — <rejected approach>: <why> (date)`. Checked during ALIGN — re-proposing one of these without new evidence is a red flag.
+
+_(none yet)_
+
 ## Gotchas
 
 Where the harness/workflow itself failed. Symptom → cause → what to do instead. Every stall becomes a row here.
