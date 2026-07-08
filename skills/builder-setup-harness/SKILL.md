@@ -81,7 +81,7 @@ Fill every `<!-- setup fills -->` marker and ALLCAPS placeholder with the real c
 
 ## Step 6 — Commit the install
 
-An unstaged improvement didn't happen. Stage everything the setup wrote (`.harness/agents/`, `.harness/product.md`, `.harness/`, `.claude/skills/`, CLAUDE.md, settings) and commit: `chore: install builder harness v<version>`. If anything (including this skill's own later edits in the same session) changes a harness file after this commit, re-stage and amend or add a follow-up commit — never leave harness files drifting between index and worktree.
+An unstaged improvement didn't happen. Stage everything the setup wrote (`.harness/`, `.claude/skills/`, CLAUDE.md, settings) and commit: `chore: install builder harness v<version>`. If anything (including this skill's own later edits in the same session) changes a harness file after this commit, re-stage and amend or add a follow-up commit — never leave harness files drifting between index and worktree.
 
 ## Done
 

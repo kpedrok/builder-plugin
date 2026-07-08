@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.1 — 2026-07-08
+
+Internal-alignment review pass before first post-v0.5.0 use. All findings were v0.4.0's review lane not fully propagated into templates:
+
+- `templates/goal-conditions.md`: all three goal templates now name the review gate ("review gate run with verdicts shown") — before, an autonomous run could skip PROVE's first step and still satisfy `/goal`.
+- `templates/plan.md`: PROVE ledger row gains the review gate + a `review:` field — the feature skill says verdicts and fix commits go there, but the template had no slot.
+- `templates/report.html`: docs-synced table gains the CONTEXT.md/glossary and docs/adr/ rows from the skill's doc-sync checklist; footer template stamp updated (it had lagged at v0.3.2 through the v0.4.0 pill change — exactly the drift it exists to catch).
+- `builder-setup-harness` Step 6: pruned redundant path listing (`.harness/` subsumes its children).
+
 ## 0.5.0 — 2026-07-08
 
 Plugin skills renamed with the `builder-` prefix: `setup-harness` → `builder-setup-harness`, `feature` → `builder-feature`, `ship` → `builder-ship`, `improve` → `builder-improve`. Rationale: builder installs two kinds of skills — these plugin skills (namespaced `builder:` by Claude Code) and the `builder-*` project skills that setup generates into `.claude/skills/`. Before, the harness surface was split in the `/` typeahead — `/builder-` found the project skills, `/builder:` found the plugin skills, and the plugin origin of a bare row (`feature`, `ship`) was only visible on hover. Now a single `/builder-` filter surfaces the entire harness and every row shows its origin. Trade-off accepted: the fully-qualified form is now `/builder:builder-feature` (redundant, but rarely typed — the menu shows `builder-feature`). Directories, frontmatter `name:` fields, all in-doc invocation/skill references, and the README updated; CHANGELOG history left as-is (those versions really used the old names). **Breaking:** anyone who scripted `/builder:feature` etc. must update to `/builder-feature`.

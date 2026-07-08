@@ -49,5 +49,5 @@ The **memo** is the only carry-over later slices read: surprises/deviations, not
 
 - [ ] Slice 1 — <name> · status: pending | in-progress | done | BLOCKED(<why>) · commits: <hashes> · gate: <result + count> · memo: <one line or —>
 - [ ] Slice 2 — <name> · status: pending · commits: — · gate: — · memo: —
-- [ ] PROVE — full gate + e2e · evidence: —
+- [ ] PROVE — review gate + full gate + e2e · review: <verdicts + fix commits, or —> · evidence: —
 - [ ] REPORT — doc sync + HTML written · path: —
