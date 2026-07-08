@@ -2,7 +2,7 @@
 
 A setup-first development harness, packaged as a Claude Code plugin. Instrument any project once, then run work through a pipeline that fixes the recurring failure modes of agentic coding — misalignment, premature "done", unverified claims, context rot, scope creep, and dangerous actions.
 
-The harness is **prompts + files, never orchestration code.** The workflow graph lives in skills; state lives in markdown on disk.
+The harness is **prompts + files — scripts may transform, never decide.** The workflow graph lives in skills and state lives in markdown on disk, never in a code-driven state machine. Deterministic mechanical steps (extracting a task brief, packaging a diff for review, reconciling the ledger against `git log`) may be small scripts a skill calls; a script never decides control flow — which slice is next, whether to proceed, what to dispatch.
 
 ## What's in Phase 1 (Crawl)
 

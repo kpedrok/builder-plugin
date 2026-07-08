@@ -1,6 +1,7 @@
 ---
 name: ship
 description: Use after the human has reviewed the feature's HTML report and wants to ship it — "ship it", "/ship", "open the PR", "commit and PR this", "raise the pull request". Reads the report, commits the work, opens a PR linking the report's evidence, and updates the tracker. Runs only after the human's review pass.
+disable-model-invocation: true
 ---
 
 # Ship (Phase 1)
