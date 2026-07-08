@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.1 — 2026-07-08
+
+Deploy-readiness + prune pass (two fresh-context reviewers over the whole repo). Four gap fixes, then cuts — net smaller than v0.5.1:
+
+- `builder-feature`: **not-instrumented guard** (no `.harness/` → offer setup, handle as a normal task); **small path now explicitly gets a run folder + report** (was contradictory — Small said "no plan file" while REPORT/ship required run artifacts; codified pilot 4's working behavior); report-staging rationale corrected.
+- `builder-setup-harness` + `builder-ship`: **workspace-root git semantics defined** — setup records whether the root is a git repo (plain folder → recommend `git init` or record `no root repo`) and whether its remote is shared; ship pushes a private root, **asks before pushing a shared root's default branch**, skips root commits when there's no root repo.
+- **Pruned (shipped-but-never-executed cargo, ~1,100 words):** `templates/verifier-prompt.md` deleted (only referenced by a Phase-2 parenthetical; `reviewer-prompt.md` is the wired one) · `hooks/guardrails.sh` deleted (unwired since Phase 1; returns when Phase 4 wires it) · both legacy-migration paragraphs (≤0.3 layouts; no such installs remain, and the described paths were wrong) · triple-stated rules in builder-feature deduped (Rationalizations rows that restated bolded inline rules) · per-step workspace reminders folded into the one header invariant · goal-conditions' Stop-hook roadmap note · plugin-outbox's third copy of the routing rule · setup's doc-sync enumeration replaced with a pointer to the feature skill's table.
+- Plugin-internal paths now use `${CLAUDE_PLUGIN_ROOT}`; README workspace claim tightened ("no harness files land in your work repos").
+- **Deferred, deliberately (don't relitigate without new evidence):** `templates/agents/` files for the gates/tracker/review/docs mappings — the prose specs in setup have produced compatible files across both live installs, and the feature skill depends only on loose anchors (repo registry, verb blocks); revisit if a third install drifts. Also deferred: narrowing the `git add:*` allow rule (the `git add -A` ban stays prose-only until Phase 4 hooks — commits are revertible).
+
 ## 0.6.0 — 2026-07-08
 
 Multi-repo workspace support (design: `Design/Multi-Repo Workspace Support - large-codebases doc applied.md` in the ai vault; evidence: pilot 4 on momentus + the Claude Code large-codebases guide). Builder now handles three deployment shapes — `single` (unchanged), `monorepo`, and `workspace` (a root hosting nested git repos with their own remotes, e.g. backend + frontend side by side):

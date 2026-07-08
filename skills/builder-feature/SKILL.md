@@ -11,17 +11,17 @@ ALIGN ──────── PLAN ─┃─ BUILD ── PROVE ── REPORT  
                  human gate
 ```
 
+**Not instrumented?** No `.harness/` directory here → say so in one line, offer `/builder-setup-harness`, and handle the request as a normal coding task — don't improvise the pipeline without the harness.
+
 Every phase has an exit criterion that must appear **in the conversation** — shown output, file contents, test results, screenshots — not merely exist on disk. Canonical verbs below ("run the full gate", "fetch the ticket") resolve through `.harness/agents/` mappings; never hardcode a real command here.
 
 **Context hygiene at entry:** if a long scoping conversation precedes this invocation (ticket triage, screenshots, exploration), suggest the human compact or start a fresh session with just the ticket key/description — the pipeline needs the context window more than the scoping chat does (pilot 4: scoping exhausted the window before the pipeline started).
 
-**Workspace shape** (gates.md opens with a repo registry — a root hosting nested git repos with their own remotes): every git action, gate, and baseline below is **per-repo**. The sizing line names the target repo(s); slices name theirs; branches are created in each touched repo; "run the gate" resolves to the named repo's block in gates.md and its baseline in STATE.md. Harness artifacts (run folder, report, STATE, outbox) always live in the **workspace root** — never inside a nested repo. Single-repo installs: ignore this paragraph, nothing changes.
+**Workspace shape** (gates.md opens with a repo registry — a root hosting nested git repos with their own remotes): every git action, gate, and baseline below is **per-repo**: the sizing line names the target repo(s); slices name theirs; the clean-tree/branch checks and the same-named feature branch happen in each touched repo; "run the gate" resolves to the named repo's block in gates.md and **its own** baseline in STATE.md; review scope is the merge-base diff per touched repo (default branches from the registry), reviewers get the combined file list. Harness artifacts (run folder, report, STATE, outbox) always live in the **workspace root** — never inside a nested repo. Single-repo installs: ignore this paragraph, nothing changes.
 
 ## Run folder (one folder per run holds all its artifacts)
 
-Each run owns `.harness/runs/<YYYY-MM-DD>-<feature-slug>/` — created when the spec is written, date = the day ALIGN starts, fixed inner filenames `spec.md` / `plan.md` / `report.html` (the folder name carries identity; `<run>` below means this folder). A re-run of the same feature gets a new dated folder — never overwrite an old run's files. `/builder-ship` moves the whole folder to `.harness/archive/`, so everything under `runs/` is by definition in flight. Cross-run singletons (`STATE.md`, `plugin-outbox.md`) stay at the `.harness/` root.
-
-**Legacy layout** (type-grouped `.harness/specs|plans|reports/` from harness ≤0.2): migrate before proceeding — `git mv` each feature's spec/plan/report into `.harness/runs/<date>-<slug>/` (date from the spec's first commit; runs whose plan Status is DONE go to `.harness/archive/` instead), remove the emptied dirs, update the specs write path in `.harness/agents/docs.md`, commit `chore: migrate .harness to run-folder layout`.
+Each run owns `.harness/runs/<YYYY-MM-DD>-<feature-slug>/` — created when the spec is written (small path: at step go-ahead), date = the day ALIGN starts, fixed inner filenames `spec.md` / `plan.md` / `report.html` (the folder name carries identity; `<run>` below means this folder). A re-run of the same feature gets a new dated folder — never overwrite an old run's files. `/builder-ship` moves the whole folder to `.harness/archive/`, so everything under `runs/` is by definition in flight. Cross-run singletons (`STATE.md`, `plugin-outbox.md`) stay at the `.harness/` root.
 
 ## Resume check (before anything else)
 
@@ -29,7 +29,7 @@ Scan `.harness/runs/*/plan.md` for a plan with Status APPROVED and an unfinished
 
 ## Sizing (decide first, state it in one line)
 
-- **Small** — ≤3 files, clear unambiguous ask → skip the ALIGN grill and the formal plan, **but list the atomic steps inline first and get the human's go-ahead on them** (small gate for small work). No plan file or ledger on this path — the confirmed list + slice commits are the record. Safety valve: **>5 steps or any hidden dependency emerges → STOP, do the full ALIGN + write the real plan.**
+- **Small** — ≤3 files, clear unambiguous ask → skip the ALIGN grill and the formal plan, **but list the atomic steps inline first and get the human's go-ahead on them** (small gate for small work). No spec, plan file, or ledger on this path — the confirmed list + slice commits are the record. **The run folder and REPORT still happen:** create `<run>/` at go-ahead (it will hold only `report.html`) — `/builder-ship` requires the report (pilot 4 ran exactly this way). Safety valve: **>5 steps or any hidden dependency emerges → STOP, do the full ALIGN + write the real plan.**
 - **Well-defined ticket** — its acceptance criteria seed the spec; grill only the gaps.
 - **Title-only / fuzzy** — full ALIGN; post the spec back to the tracker.
 
@@ -63,7 +63,7 @@ Understand, then grill. Do NOT run inside an autonomous goal loop.
 
 ## BUILD (autonomous, per slice — TDD)
 
-**Before the first slice:** `git status --porcelain` must be clean (or contain only the plan/spec files) — a dirty baseline means unrelated work would get tangled into slice commits; stop and surface it. **And never build on the default branch:** create/checkout the feature branch named in the plan's `Branch:` line first. Workspace shape: run both checks **in each repo the sizing line names**, and create the same-named feature branch in each touched repo.
+**Before the first slice:** `git status --porcelain` must be clean (or contain only the plan/spec files) — a dirty baseline means unrelated work would get tangled into slice commits; stop and surface it. **And never build on the default branch:** create/checkout the feature branch named in the plan's `Branch:` line first.
 
 For each slice, strictly RED → GREEN → REFACTOR:
 
@@ -80,12 +80,12 @@ Never write implementation before its test. If you did, delete it and start from
 
 ## PROVE (autonomous)
 
-- **Review gate first** — fresh-context reviewers are cheaper than a wasted e2e. Resolve "run the code review" via `.harness/agents/review.md` (preferred: `pr-review-toolkit` agents; fallback: `general-purpose` + the plugin's `reviewer-prompt.md`). Scope = `git diff $(git merge-base <default-branch> HEAD)...HEAD` — never `HEAD~1`; empty diff → skip and say so. Workspace shape: compute the scope **per touched repo** (each repo's default branch from gates.md's registry) and hand reviewers the combined file list. Dispatch the applicable reviewers **in parallel, one message**, each given the exact file list + the spec's acceptance criteria — never the builder's narrative, and never a "do not flag X" instruction: `code-reviewer` and `pr-test-analyzer` always; `silent-failure-hunter` if error handling changed; `type-design-analyzer` if types were added/changed. Reviewers are read-only — never dispatch `code-simplifier` here. **Fix loop, max 2 rounds:** fix Critical + Important findings (normal slice-style commits), re-dispatch only the agents that had findings. Still dirty after round 2 → proceed, but the run is DONE_WITH_CONCERNS and the open findings go in the report. Minor/suggestions → report, never the diff. Verdicts + fix commits go in the PROVE ledger row.
-- **Run the full gate** — show the command, exit code, and the **expected test count** (from `.harness/agents/gates.md`). A count below baseline without an explicit reason is a red flag — stop and explain. Workspace shape: run **each touched repo's** full gate against **its own** baseline block.
+- **Review gate first** — fresh-context reviewers are cheaper than a wasted e2e. Resolve "run the code review" via `.harness/agents/review.md` (preferred: `pr-review-toolkit` agents; fallback: `general-purpose` + `${CLAUDE_PLUGIN_ROOT}/templates/reviewer-prompt.md`). Scope = `git diff $(git merge-base <default-branch> HEAD)...HEAD` — never `HEAD~1`; empty diff → skip and say so. Dispatch the applicable reviewers **in parallel, one message**, each given the exact file list + the spec's acceptance criteria — never the builder's narrative, and never a "do not flag X" instruction: `code-reviewer` and `pr-test-analyzer` always; `silent-failure-hunter` if error handling changed; `type-design-analyzer` if types were added/changed. Reviewers are read-only — never dispatch `code-simplifier` here. **Fix loop, max 2 rounds:** fix Critical + Important findings (normal slice-style commits), re-dispatch only the agents that had findings. Still dirty after round 2 → proceed, but the run is DONE_WITH_CONCERNS and the open findings go in the report. Minor/suggestions → report, never the diff. Verdicts + fix commits go in the PROVE ledger row.
+- **Run the full gate** — show the command, exit code, and the **expected test count** (from `.harness/agents/gates.md`). A count below baseline without an explicit reason is a red flag — stop and explain.
 - **E2E** via the project's verify skill when one exists: interact like a user, assert observable state, screenshot. No verify skill (CLI/library repos) → demonstrate a real invocation of the changed behavior and show its output — the gate alone is not proof of usability. Two evidence-capture gotchas (pilot 4): a Node helper script that imports a project dep must live **inside that repo's directory** (copy in, run, `rm`) — ESM resolves bare specifiers from the script's location, not cwd, so a scratchpad-located helper fails with `ERR_MODULE_NOT_FOUND`; and transient UI (hover cards, toasts) vanishes before a separate screenshot call — pin the state via eval or capture within the same eval, don't hover-then-screenshot.
 - **Zero new console errors/warnings** (UI surfaces).
 - Tick the ledger's PROVE row with the evidence pointer.
-- **Verify against the spec's acceptance criteria, not your own claims.** Evidence answers "does the artifact satisfy the contract", never "did I do what I said". (Phase 2: dispatch a fresh-context verifier per `templates/verifier-prompt.md` — pass artifact + contract, never the claim.)
+- **Verify against the spec's acceptance criteria, not your own claims.** Evidence answers "does the artifact satisfy the contract", never "did I do what I said".
 
 ## REPORT (autonomous — the pipeline's final step)
 
@@ -118,7 +118,7 @@ One self-contained file at `<run>/report.html` from the `report.html` template �
 
 Sections (numbers = template order): header + lede + **status pills** (gate, e2e, review, baseline delta — verdict readable in 5 seconds) · **1 The story** (prose narrative: problem → shape of solution → data flow; no tables) · 2 Asked-vs-built (spec↔evidence) · 3 What changed (one card per slice with diffstat and ±/~ annotated rows) · **4 How it works** (2–4 real code excerpts ≤20 lines with the key lines marked, + a sequence diagram of the actual user action with real names) · 5 Proof of work (terminal blocks with real output, persistence table, captioned screenshots) · 6 Decisions & deviations (deviations as amber callouts, fixed-in-passing as green) · 7 Docs synced · 8 Noticed-but-not-touched · 9 How to ship it (deploy-order/migration risk callout + what `/builder-ship` will do) · **10 To internalize** (3–5 reviewer questions, one-line answers in `<details>`).
 
-Hard rules: terminal blocks show **real output, never fabricated**; screenshots resized to ≤1200px and re-encoded JPEG ~70 before embedding (<150 KB each); code excerpts are real code. When done: **`git add` the report** (an untracked report doesn't travel with the branch — `/builder-ship` commits it), **show the report's path**, tick the ledger's REPORT row with the path, and set the plan's Status line to DONE.
+Hard rules: terminal blocks show **real output, never fabricated**; screenshots resized to ≤1200px and re-encoded JPEG ~70 before embedding (<150 KB each); code excerpts are real code. When done: **`git add` the report** (staged so `/builder-ship` step 2 commits it — an untracked report gets orphaned; pilot 3), **show the report's path**, and tick the ledger's REPORT row with the path and set the plan's Status line to DONE (small path: no ledger/plan — skip, the report is the record).
 
 **STOP HERE.** The human reviews the HTML, then decides to `/builder-ship`. Do not commit-to-main, open a PR, or update the tracker in this skill. `/builder-ship` is human-invoke-only — if the human asks to ship in prose ("ship it", "open the PR"), tell them to type `/builder-ship`; **never improvise the shipping steps yourself.**
 
@@ -137,10 +137,7 @@ Hard rules: terminal blocks show **real output, never fabricated**; screenshots 
 | "This change is too small for a spec/steps"           | Small changes get small ones. Listing 3 steps costs nothing. Skipping hides the >5-step trap.  |
 | "I'll add tests after it works"                       | That's not TDD. Delete the code, write the test first.                                         |
 | "Tests pass, I can skip the e2e/screenshot"           | Unit tests don't prove it's usable. Proof of work is for the human's eyes.                     |
-| "The gate count dropped but it's fine"                | A silent test-count drop is exactly what the baseline exists to catch. Explain it or fix it.   |
 | "The human is away, I'll assume and keep going"       | In ALIGN/PLAN, wait. Post-approval, an assumption worth making is worth writing in the report. |
-| "I noticed a nearby bug, I'll just fix it too"        | Out of scope → report it, don't touch it. Scope creep is a second bug.                         |
-| "I'll write the plan with a TODO for the tricky part" | A TODO in the plan means you haven't planned it. Resolve it or grill for it.                   |
 
 ## Red Flags
 

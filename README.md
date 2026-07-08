@@ -14,7 +14,7 @@ ships until you say so.
 
 ## Where it can live
 
-Three shapes, detected at setup: a **single repo** (the default), a **monorepo** (one git, many packages), or a **multi-repo workspace** — a root folder hosting nested git repos with their own remotes (say, a backend repo and a frontend repo side by side). In a workspace, gates and baselines are tracked per repo, a cross-repo feature ships one cross-linked PR per touched repo, and everything the harness itself writes stays at the workspace root — nothing is added to your work repos.
+Three shapes, detected at setup: a **single repo** (the default), a **monorepo** (one git, many packages), or a **multi-repo workspace** — a root folder hosting nested git repos with their own remotes (say, a backend repo and a frontend repo side by side). In a workspace, gates and baselines are tracked per repo, a cross-repo feature ships one cross-linked PR per touched repo, and everything the harness itself writes stays at the workspace root — no harness files land in your work repos (your feature branches, commits, and PRs do, as intended).
 
 ## Requirements
 
@@ -81,4 +81,4 @@ ALIGN → PLAN → [ you approve ] → BUILD → PROVE → REPORT → [ you revi
 
 - **Plugin = process, project = facts.** The four skills are identical in every repo. Anything repo-specific — test commands, doc locations, the product itself — lives in the project under `.harness/`, reached through a thin indirection layer. Universal lessons go into `templates/` so future installs inherit them.
 - **Prompts + files, not code.** The workflow lives in skill instructions and state lives in markdown on disk; scripts may do mechanical work but never decide what happens next.
-- **Phase 1 (Crawl).** Completion verifiers, ticket routing, safety hooks, and worktrees are later phases; `hooks/guardrails.sh` ships but isn't wired yet.
+- **Phase 1 (Crawl).** Completion verifiers, ticket routing, safety hooks, and worktrees are later phases — nothing speculative ships before its phase wires it up.

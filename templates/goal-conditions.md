@@ -63,7 +63,3 @@ Stop after 30 turns.
 - ❌ "the spec is written" as a goal clause for autonomous mode — spec is an interactive phase; approve it before setting the goal
 - ❌ Restating the whole workflow in the condition — the skill carries the process; the goal only names the artifacts
 - ❌ No turn bound — always cap it
-
-## Graduating to a Stop hook (Phase 2 — not built yet)
-
-Once the condition stabilizes, move the check into `.claude/settings.json` as a Stop hook so every session enforces it without typing `/goal`. Agent Stop hooks can actually run the gates (unlike the `/goal` evaluator). Deferred to Phase 2.

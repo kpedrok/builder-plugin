@@ -10,7 +10,7 @@ The pipeline stopped at the HTML report for the human's review. This skill takes
 
 Canonical verbs ("update the tracker") resolve through `.harness/agents/` mappings; never hardcode a real command here.
 
-**Workspace shape** (gates.md opens with a repo registry): steps 2–4 run **per touched repo** (the repos the run's sizing line/slices named — the report's "How to ship it" section lists them). Code PRs come from the nested repos; harness artifacts (report, STATE, outbox, run archive) commit to the **workspace root**, which gets no PR — direct to its default branch. Single-repo installs: ignore this paragraph.
+**Workspace shape** (gates.md opens with a repo registry): steps 2–4 run **per touched repo** (the repos the run's sizing line/slices named — the report's "How to ship it" section lists them). Code PRs come from the nested repos; harness artifacts (report, STATE, outbox, run archive) commit to the **workspace root**, which gets no PR — direct to its default branch. Whether that root commit is **pushed** follows gates.md's registry: private root remote → push; **shared** root (other contributors) → ask the human first; no remote → local commit only; `no root repo` recorded → skip root commits and the archive move, and say so. Single-repo installs: ignore this paragraph.
 
 ## Steps
 
