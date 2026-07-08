@@ -91,7 +91,7 @@ Fix wrong content immediately (a wrong CLAUDE.md is worse than a missing one). R
 
 One self-contained file at `.harness/reports/<feature>.html` (from the `report.html` template), opens in any browser. Sections: asked-vs-built (spec↔diff) · annotated changed files · SVG flow diagrams for changed behavior · embedded proof of work (gate output, test counts, screenshots) · decisions & assumptions · **docs synced** (which the doc-sync step touched) · noticed-but-not-touched · suggested focus areas for the final pass. **Show the report's path.**
 
-**STOP HERE.** The human reviews the HTML, then decides to `/ship`. Do not commit-to-main, open a PR, or update the tracker in this skill.
+**STOP HERE.** The human reviews the HTML, then decides to `/ship`. Do not commit-to-main, open a PR, or update the tracker in this skill. `/ship` is human-invoke-only — if the human asks to ship in prose ("ship it", "open the PR"), tell them to type `/ship`; **never improvise the shipping steps yourself.**
 
 ---
 

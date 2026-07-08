@@ -1,6 +1,6 @@
 ---
 name: setup-harness
-description: Run once per project to install the dev-harness. Triggers only on explicit invocation ("/setup-harness", "set up the harness", "instrument this project", "install the harness here"). Detects the stack, interviews for what detection can't answer, scaffolds config + state, generates project-owned skills, and proves the gates work.
+description: Run once per project to install the dev-harness. Human-invoke-only (type /setup-harness); the model cannot trigger it. Detects the stack, interviews for what detection can't answer, scaffolds config + state, generates project-owned skills, and proves the gates work.
 disable-model-invocation: true
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Use after the human has reviewed the feature's HTML report and wants to ship it — "ship it", "/ship", "open the PR", "commit and PR this", "raise the pull request". Reads the report, commits the work, opens a PR linking the report's evidence, and updates the tracker. Runs only after the human's review pass.
+description: Ship a reviewed feature — reads the HTML report, commits remaining work, opens a PR linking the report's evidence, and updates the tracker. Human-invoke-only by design (type /ship after reviewing the report); the model cannot trigger it, so nothing ships without your review.
 disable-model-invocation: true
 ---
 
