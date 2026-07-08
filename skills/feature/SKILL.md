@@ -13,6 +13,10 @@ ALIGN ──────── PLAN ─┃─ BUILD ── PROVE ── REPORT  
 
 Every phase has an exit criterion that must appear **in the conversation** — shown output, file contents, test results, screenshots — not merely exist on disk. Canonical verbs below ("run the full gate", "fetch the ticket") resolve through `docs/agents/` mappings; never hardcode a real command here.
 
+## Resume check (before anything else)
+
+Scan `.harness/plans/*.md` for a plan with Status APPROVED and an unfinished Progress ledger. If one matches the ask (or the invocation names it), confirm with the human — "resume `<feature>` at slice N?" — then skip ALIGN/PLAN and go straight to BUILD's ledger reconciliation (`git log --grep "Slice:"` + ledger, trusted over memory). **Never re-grill or rewrite an approved plan on resume.** No in-flight plan, or the human says it's new work → proceed to Sizing.
+
 ## Sizing (decide first, state it in one line)
 
 - **Small** — ≤3 files, clear unambiguous ask → skip the ALIGN grill and the formal plan, **but list the atomic steps inline first.** Safety valve: **>5 steps or any hidden dependency emerges → STOP, do the full ALIGN + write the real plan.**
@@ -32,7 +36,7 @@ Understand, then grill. Do NOT run inside an autonomous goal loop.
 
 **Bug fixes — red-command gate:** no hypothesizing about the cause until you can paste the invocation and output of a deterministic command that reproduces the bug (this becomes the failing regression test). No red command, no diagnosis.
 
-**Exit:** a spec with an **objective**, **testable acceptance criteria**, an **out-of-scope section**, and any new glossary terms. Durable → **no file paths**. (Use the `spec.md` template.) For a title-only ticket, post the spec back.
+**Exit:** a spec with an **objective**, **user stories**, **testable acceptance criteria** (each traceable to a story), an **out-of-scope section**, and any new glossary terms. Durable → **no file paths**. (Use the `spec.md` template.) For a title-only ticket, post the spec back.
 
 ## PLAN (interactive — the human gate)
 
@@ -115,6 +119,7 @@ One self-contained file at `.harness/reports/<feature>.html` (from the `report.h
 
 ## Red Flags
 
+- Re-running ALIGN/PLAN when an approved plan with an unfinished ledger exists (resume, don't restart)
 - Writing code before plan approval (non-small path)
 - Treating "looks reasonable" as plan approval
 - `git add -A` / `git add .` in a slice commit
