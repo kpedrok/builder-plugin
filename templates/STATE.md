@@ -6,8 +6,9 @@ Typed, durable memory for this project. Survives compaction and sessions. Keep e
 
 Recorded by `/setup-harness`. Later sessions diff against this — a drop in the test count without an explicit reason is a red flag.
 
+- **Installed harness:** `builder v<version>` (from the plugin's `plugin.json`; makes drift vs the plugin source visible)
 - **Quick gate:** `<command>` → exit 0, `<N>` tests passing (recorded <date>)
-- **Full gate:** `<command>` → exit 0, `<N>` tests passing (recorded <date>)
+- **Full gate:** `<command>` → exit 0, `<N>` tests passing (recorded <date>) — the literal command run once as-is, not assembled from its components
 - **Build:** `<command>` → exit 0 (recorded <date>)
 
 ## Decisions (AD)
@@ -30,6 +31,6 @@ _(none yet)_
 
 ## Gotchas
 
-Where the harness/workflow itself failed. Symptom → cause → what to do instead. Every stall becomes a row here.
+Where the harness/workflow itself failed. Symptom → cause → what to do instead. Every stall becomes a row here. **Routing:** a gotcha that would bite in a different repo also gets a row in `.harness/plugin-outbox.md` (ingested into the plugin via `/builder:improve`).
 
 _(none yet)_

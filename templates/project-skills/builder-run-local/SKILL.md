@@ -26,4 +26,4 @@ Bring the whole stack up so end-to-end verification actually works — the order
 
 ## Gotchas
 
-_(empty — populate from pilots)_
+- **A destructive CLI refuses to run for an AI agent** → some tools (e.g. `prisma migrate reset|dev`) detect agent invocation and block without explicit human consent → setup must record the non-interactive/non-destructive variant here (e.g. `migrate deploy` + a plain seed script) and note the blocked form. Run the destructive form only with the human's explicit consent. (pilot 2, 2026-07-08)

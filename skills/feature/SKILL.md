@@ -93,8 +93,13 @@ Walk this checklist (doc locations resolve via `docs/agents/docs.md`); update wh
 | docs/product.md       | A new persona surfaced, or a non-goal was added/crossed (with the human's OK)  |
 | spec                  | Scope shifted during build (spec must match what was actually built)           |
 | .harness/STATE.md     | **Always** — decisions (AD), lessons (L), gotcha if the workflow itself failed |
+| .harness/plugin-outbox.md | A gotcha is **universal** (would bite in a different repo) — see routing below |
 
 Fix wrong content immediately (a wrong CLAUDE.md is worse than a missing one). Respect purity: glossary stays glossary; CLAUDE.md stays <200 lines (push detail into pointed-to docs).
+
+**Gotcha routing:** before writing any gotcha, ask *"would this bite in a different repo?"* Repo-specific → the relevant project skill's Gotchas or STATE.md. Universal (about the process, Claude Code, or common tooling) → *also* append a row to `.harness/plugin-outbox.md` (date · symptom → cause → fix · target plugin file · status `queued`; create from the `plugin-outbox.md` template if missing). The installed plugin is a frozen snapshot — the human runs `/builder:improve` against the plugin source to ingest the outbox.
+
+**Mapping self-heal:** if this run successfully used a tool that a `docs/agents/` mapping says is "not wired" or "manual" (e.g. a tracker MCP that has since connected), update that mapping now with the verb → real command you actually ran.
 
 ### 2. Write the HTML report
 
@@ -139,4 +144,4 @@ One self-contained file at `.harness/reports/<feature>.html` (from the `report.h
 
 Highest-signal section — one entry per real pilot failure. Format: symptom → cause → what to do instead.
 
-_(empty — populate from pilots)_
+- **A gate "passed" but actually failed** → `cmd > log 2>&1; echo "EXIT=$?"` reports the `echo`'s exit code (always 0), masking the command's → never chain `; echo` after a gate command; check `$?` directly or read the exit code from the harness's task result. Nearly recorded two false green baselines in pilot 2 (2026-07-08).
