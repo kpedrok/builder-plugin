@@ -1,11 +1,11 @@
 {
-  "name": "dev-harness",
+  "name": "builder",
   "owner": { "name": "Pedro Kondak" },
   "plugins": [
     {
-      "name": "dev-harness",
+      "name": "builder",
       "source": "./",
-      "description": "Setup-first development harness: instrument any project once, then run features through an ALIGN → PLAN → BUILD → PROVE → REPORT pipeline."
+      "description": "Builder harness — product, design, and software in one pipeline. Instrument any project once, then run features through ALIGN → PLAN → BUILD → PROVE → REPORT."
     }
   ]
 }

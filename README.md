@@ -1,6 +1,6 @@
-# dev-harness
+# builder
 
-A setup-first development harness, packaged as a Claude Code plugin. Instrument any project once, then run work through a pipeline that fixes the recurring failure modes of agentic coding — misalignment, premature "done", unverified claims, context rot, scope creep, and dangerous actions.
+The builder harness, packaged as a Claude Code plugin: an agent that builds products must understand the product (personas, non-goals), the design (spec, plan, human gates), and the software (TDD slices, gates, proof) — not just emit code. Instrument any project once, then run work through a pipeline that fixes the recurring failure modes of agentic coding — misalignment, premature "done", unverified claims, context rot, scope creep, and dangerous actions.
 
 The harness is **prompts + files — scripts may transform, never decide.** The workflow graph lives in skills and state lives in markdown on disk, never in a code-driven state machine. Deterministic mechanical steps (extracting a task brief, packaging a diff for review, reconciling the ledger against `git log`) may be small scripts a skill calls; a script never decides control flow — which slice is next, whether to proceed, what to dispatch.
 
@@ -16,8 +16,8 @@ The harness is **prompts + files — scripts may transform, never decide.** The 
 ### Via marketplace
 
 ```
-/plugin marketplace add <owner>/dev-harness
-/plugin install dev-harness
+/plugin marketplace add <owner>/builder
+/plugin install builder
 ```
 
 ### Local dev flow
@@ -25,7 +25,7 @@ The harness is **prompts + files — scripts may transform, never decide.** The 
 Point Claude Code at this directory:
 
 ```
-claude --plugin-dir /path/to/dev-harness
+claude --plugin-dir /path/to/builder
 ```
 
 The `setup-harness`, `feature`, and `ship` skills then appear in `/help` and via the Skill tool.

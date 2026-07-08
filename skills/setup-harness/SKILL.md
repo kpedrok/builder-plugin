@@ -1,6 +1,6 @@
 ---
 name: setup-harness
-description: Run once per project to install the dev-harness. Human-invoke-only (type /setup-harness); the model cannot trigger it. Detects the stack, interviews for what detection can't answer, scaffolds config + state, generates project-owned skills, and proves the gates work.
+description: Run once per project to install the builder harness. Human-invoke-only (type /setup-harness); the model cannot trigger it. Detects the stack, interviews for what detection can't answer, scaffolds config + state, generates project-owned skills, and proves the gates work.
 disable-model-invocation: true
 ---
 
@@ -48,7 +48,7 @@ Create in the target project:
 - **`docs/product.md`** — from the `product.md` template: purpose, personas, non-goals ("not doing, and why"), as confirmed in Step 2. One page max. If the project already has an equivalent doc, point to it from here instead of duplicating.
 - **`.harness/STATE.md`** — from the `STATE.md` template. Leave the baseline section for Step 5.
 - **Permissions** — merge `templates/settings-snippet.json` into the project's `.claude/settings.json`. Tune the permissions allowlist to the detected stack (add the gate commands so they don't prompt). Merge — never clobber an existing settings.json; show the diff.
-- **`## Harness` block in CLAUDE.md** — pointers only, not content. A few lines: "this project uses dev-harness; run features via the `feature` skill; gate commands live in `docs/agents/gates.md`; state in `.harness/STATE.md`." Keep CLAUDE.md under 200 lines — push detail into the pointed-to docs.
+- **`## Harness` block in CLAUDE.md** — pointers only, not content. A few lines: "this project uses the builder harness; run features via the `feature` skill; gate commands live in `docs/agents/gates.md`; state in `.harness/STATE.md`." Keep CLAUDE.md under 200 lines — push detail into the pointed-to docs.
 
 ## Step 4 — Generate project-owned skills
 
