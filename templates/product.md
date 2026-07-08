@@ -1,6 +1,6 @@
 # Product — <name>
 
-Durable, product-wide. One page max. This is where user stories get their roles and out-of-scope calls get their backbone — if a persona or non-goal isn't here, it doesn't exist. Updated via the REPORT doc-sync step when a feature surfaces a new persona or non-goal.
+Durable, product-wide. One page max. This is where user stories get their roles, out-of-scope calls get their backbone, and features get challenged — if a persona, non-goal, or success signal isn't here, it doesn't exist. Updated via the REPORT doc-sync step when a feature surfaces a new persona, non-goal, or signal.
 
 ## Purpose
 
@@ -12,6 +12,12 @@ Roles used in every spec's user stories. Real roles only — delete the examples
 
 - **<persona>** — who they are, and what they're trying to get done with this product.
 - **<persona>** — …
+
+## Success
+
+One or two measurable signals that say the product is working — the third challenge axis at ALIGN (a feature that serves no persona, crosses a non-goal, or moves no signal here gets questioned).
+
+- <signal — e.g. "weekly active <persona>s", "time from X to Y under N minutes">
 
 ## Not doing (and why)
 

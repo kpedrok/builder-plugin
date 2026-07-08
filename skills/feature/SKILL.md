@@ -31,8 +31,10 @@ State which path you're taking and why before proceeding.
 
 Understand, then grill. Do NOT run inside an autonomous goal loop.
 
-1. Read **`docs/product.md`** (purpose, personas, non-goals — user stories take their roles from here, never invented; a feature serving no listed persona or crossing a non-goal is an ALIGN question, not a silent assumption), the glossary/CONTEXT, relevant ADRs and specs, **`.harness/STATE.md`** (decisions, lessons, gotchas, rejected decisions — don't re-derive or relitigate what's recorded there), and the modules the change touches. Use search/graph tools before assuming structure. If it's a ticket, **fetch the ticket** first.
+1. Read **`docs/product.md`** (purpose, personas, success signals, non-goals — user stories take their roles from here, never invented; a feature serving no listed persona, crossing a non-goal, or moving no success signal is an ALIGN question, not a silent assumption), the glossary/CONTEXT, relevant ADRs and specs, **`.harness/STATE.md`** (decisions, lessons, gotchas, rejected decisions — don't re-derive or relitigate what's recorded there), and the modules the change touches. Use search/graph tools before assuming structure. If it's a ticket, **fetch the ticket** first.
 2. **Grill — one question at a time, always with a recommended answer.** ≤5 questions by default. Explore-don't-ask: if the code can answer it, go read the code instead of asking. Sharpen fuzzy language into glossary terms; invent edge cases; challenge assumptions.
+
+**UI-facing feature?** If the change adds or reshapes a visual surface and the direction isn't already settled (mockup in the ticket, an existing pattern to copy), route through the project's `prototype` skill before PLAN: a few genuinely distinct variations on the throwaway route, the human picks, then plan only the winner. Reuse the design system per `docs/agents/design.md` — never invent components that already exist. Trivial UI (a field in an existing form) skips this — say so in one line.
 
 **Bug fixes — red-command gate:** no hypothesizing about the cause until you can paste the invocation and output of a deterministic command that reproduces the bug (this becomes the failing regression test). No red command, no diagnosis.
 
@@ -40,6 +42,7 @@ Understand, then grill. Do NOT run inside an autonomous goal loop.
 
 ## PLAN (interactive — the human gate)
 
+- **Non-trivial feature? Weigh 2–3 candidate approaches first** — one line each with the key trade-off, then state the pick and why in one line. No essay; the losing one-liners go in the plan's Approach section so they aren't re-derived later. (Small-path work skips this.)
 - Break the spec into **vertical slices**, each independently testable and committable.
 - Each slice: exact files, the acceptance criterion it satisfies, the verification step (which gate + expected test count).
 - **Exact paths, no placeholders. A TBD/TODO in the plan is a failure.**

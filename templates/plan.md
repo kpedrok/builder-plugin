@@ -28,6 +28,13 @@ Files this plan is allowed to touch (the goal condition enforces "no files outsi
 
 - `path/...`
 
+## Approach (non-trivial features)
+
+2–3 candidates weighed, one line each with the key trade-off; the pick and why in one line. Losing options stay here so they aren't re-derived later. Small-path work: delete this section.
+
+- **Picked: <approach>** — <why, one line>.
+- Rejected: <approach> — <trade-off that killed it>.
+
 ## Open assumptions
 
 Decisions made without confirmation during planning — carried into the report's decisions section.

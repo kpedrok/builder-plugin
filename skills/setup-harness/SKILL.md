@@ -22,6 +22,7 @@ Read the repo and infer as much as possible. Do NOT ask what you can detect:
 - **Git remote + tracker** — `git remote -v`; GitHub → likely `gh`/Issues, GitLab → `glab`, Jira/Linear/etc. from remote or existing config.
 - **Existing docs** — CLAUDE.md / AGENTS.md, `docs/`, ADRs, CI workflows.
 - **Product context** — README intro, landing/marketing pages, an existing PRD or pitch doc: what the software is for and who uses it. Draft a purpose + candidate personas from what you find.
+- **Design system (frontend/fullstack repos)** — component library (a `components/` or `ui/` dir, deps like shadcn/MUI/Chakra), design tokens (Tailwind config, CSS variables, theme files), Storybook. This grounds the "reuse, never reinvent components" rule.
 
 Summarize what you found in chat before asking anything.
 
@@ -33,7 +34,7 @@ For each thing detection couldn't settle, ask ONE question with a recommended de
 - Gate commands: **quick**, **full**, **build** — and the current expected test count for each.
 - Protected paths and forbidden actions (recorded in `docs/agents/paths.md`; deterministic hook enforcement is Phase 4).
 - Where docs live (specs, ADRs, glossary).
-- **Product: who uses this and for what?** Present the drafted purpose + personas from detection as the recommended answer; ask for corrections, missing personas, and explicit non-goals. **Do not finish setup without a confirmed purpose and at least one persona** — every future spec's user stories draw their roles from this.
+- **Product: who uses this, for what, and what does success look like?** Present the drafted purpose + personas from detection as the recommended answer; ask for corrections, missing personas, explicit non-goals, and 1–2 measurable success signals. **Do not finish setup without a confirmed purpose, at least one persona, and at least one success signal** — user stories draw their roles from this, and ALIGN challenges features against the signals.
 
 Stop asking as soon as the gaps are closed.
 
@@ -45,7 +46,8 @@ Create in the target project:
   - `docs/agents/tracker.md` — "fetch the ticket", "post the spec back", "mark ready", label vocabulary → the real MCP tool / CLI.
   - `docs/agents/gates.md` — "run the quick gate" / "run the full gate" / "run the build" → the real commands, each with its expected test count.
   - `docs/agents/paths.md` — protected/append-only paths, forbidden actions.
-- **`docs/product.md`** — from the `product.md` template: purpose, personas, non-goals ("not doing, and why"), as confirmed in Step 2. One page max. If the project already has an equivalent doc, point to it from here instead of duplicating.
+  - `docs/agents/design.md` *(frontend/fullstack only)* — where components live, which library/tokens to reuse, Storybook URL if any. Pointers to the detected inventory, not a style guide — this is what "reuse the design system" resolves to.
+- **`docs/product.md`** — from the `product.md` template: purpose, personas, success signals, non-goals ("not doing, and why"), as confirmed in Step 2. One page max. If the project already has an equivalent doc, point to it from here instead of duplicating.
 - **`.harness/STATE.md`** — from the `STATE.md` template. Leave the baseline section for Step 5.
 - **Permissions** — merge `templates/settings-snippet.json` into the project's `.claude/settings.json`. Tune the permissions allowlist to the detected stack (add the gate commands so they don't prompt). Merge — never clobber an existing settings.json; show the diff.
 - **`## Harness` block in CLAUDE.md** — pointers only, not content. A few lines: "this project uses the builder harness; run features via the `feature` skill; gate commands live in `docs/agents/gates.md`; state in `.harness/STATE.md`." Keep CLAUDE.md under 200 lines — push detail into the pointed-to docs.
