@@ -34,6 +34,7 @@
     --fail: #b91c1c;   --fail-soft: #f9e9e7;
     --term-bg: #10141c; --term-ink: #d6dce6;
     --code-bg: #f0f1f4;
+    --mark: #f6e3a1;
     --radius: 10px;
     --shadow: 0 1px 2px rgba(16,20,28,.05), 0 1px 6px rgba(16,20,28,.04);
   }
@@ -50,6 +51,7 @@
       --fail: #f87171;   --fail-soft: #321a18;
       --term-bg: #0a0d13; --term-ink: #cdd5e0;
       --code-bg: #1c222d;
+      --mark: #4a3d12;
       --shadow: none;
     }
   }
@@ -145,7 +147,7 @@
     background: var(--code-bg); padding: .85rem 1rem; border-radius: 8px;
     overflow-x: auto; font-size: 12.5px; line-height: 1.55;
   }
-  pre mark { background: var(--warn-soft); color: inherit; border-radius: 3px; padding: 0 .15em; }
+  pre mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 .15em; }
 
   /* Terminal blocks */
   .term {
@@ -174,10 +176,12 @@
   figcaption { font-size: .82rem; color: var(--muted); margin-top: .5rem; }
   figcaption .fig-n { font-weight: 700; color: var(--ink); margin-right: .3rem; }
   svg { max-width: 100%; height: auto; }
-  .diagram { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1rem; }
+  .diagram { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1rem; overflow-x: auto; }
+  .diagram svg { min-width: 640px; }
   .diagram text { fill: currentColor; font-family: Inter, sans-serif; }
-  .diagram .box { fill: none; stroke: currentColor; stroke-width: 1.2; rx: 6; }
+  .diagram .box { fill: none; stroke: currentColor; stroke-width: 1.2; }
   .diagram .flow { stroke: currentColor; stroke-width: 1.2; fill: none; }
+  .diagram .dim { opacity: .65; }
 
   /* Internalize */
   details { border-bottom: 1px solid var(--line); padding: .55rem 0; }
@@ -197,13 +201,15 @@
 
 <p class="eyebrow">REPORT · REPLACE_FEATURE_SLUG · REPLACE_DATE · <span class="path">REPLACE_BRANCH</span> · REPLACE_TICKET</p>
 <h1>REPLACE_FEATURE_NAME</h1>
-<p class="lede">REPLACE — three sentences max: <strong>what</strong> was built and for whom, <strong>where</strong> it lives (layers touched), and the <strong>status</strong> (e.g. "committed on the branch, report pending review, ready for /ship").</p>
+<p class="lede">REPLACE — three sentences max: <strong>what</strong> was built and for whom, <strong>where</strong> it lives (layers touched), and the <strong>status</strong> (e.g. "committed on the branch, report pending review, ready for /ship"). Do NOT preview the mechanism — that's section 1's job.</p>
 
 <div class="pills">
   <span class="pill pass">✓ Full gate · REPLACE_N tests</span>
   <span class="pill pass">✓ E2E in browser</span>
   <span class="pill pass">Baseline REPLACE_OLD → REPLACE_NEW</span>
-  <!-- add one pill per notable fact; use .warn for deviations ("1 test dropped"), .fail only for real failures -->
+  <!-- 3–6 pills MAX (more kills the 5-second verdict); use .warn for deviations ("1 test dropped"),
+       .fail only for real failures. The pills OWN the gate/baseline facts — don't restate them in
+       sections 2 or 3. -->
 </div>
 
 <h2><span class="n">1</span>The story</h2>
@@ -215,6 +221,8 @@
 </div>
 
 <h2><span class="n">2</span>Asked vs. built</h2>
+<!-- PRODUCT acceptance criteria only — gate/baseline is a pill, not a row here. Evidence column is a
+     SHORT pointer (test file, "§5 e2e", component name), never a re-narration of what section 5 shows. -->
 <div class="card twrap">
   <table>
     <thead><tr><th>Acceptance criterion</th><th>Met</th><th>Where / evidence</th></tr></thead>
@@ -250,13 +258,16 @@
 
 <figure class="diagram">
   <svg viewBox="0 0 720 200" role="img" aria-label="sequence of the user action">
-    <!-- REPLACE: redraw as the real sequence — lifelines for the actual actors
-         (User → Component → Server action → DB → UI), arrows labeled with the real
-         function/route names. Keep stroke/fill as currentColor via the CSS classes. -->
-    <rect class="box" x="10" y="10" width="130" height="34"/><text x="75" y="32" text-anchor="middle" font-size="12">REPLACE actor</text>
-    <line class="flow" x1="140" y1="27" x2="240" y2="27" marker-end="url(#arr)"/>
-    <text x="190" y="20" text-anchor="middle" font-size="11">REPLACE call()</text>
-    <rect class="box" x="240" y="10" width="130" height="34"/><text x="305" y="32" text-anchor="middle" font-size="12">REPLACE step</text>
+    <!-- REPLACE: redraw as the real sequence — actor boxes on top, dashed lifelines below them,
+         arrows labeled with the real function/route names. Keep stroke/fill as currentColor via
+         the CSS classes. Self-calls: draw a short loop-back arrow or leave them out — never a
+         zero-length line. Size the viewBox to fit; the container scrolls horizontally on mobile. -->
+    <rect class="box" x="10" y="10" width="130" height="34" rx="6"/><text x="75" y="32" text-anchor="middle" font-size="12">REPLACE actor</text>
+    <rect class="box" x="240" y="10" width="130" height="34" rx="6"/><text x="305" y="32" text-anchor="middle" font-size="12">REPLACE step</text>
+    <line class="flow dim" x1="75" y1="44" x2="75" y2="180" stroke-dasharray="3 4"/>
+    <line class="flow dim" x1="305" y1="44" x2="305" y2="180" stroke-dasharray="3 4"/>
+    <line class="flow" x1="75" y1="80" x2="305" y2="80" marker-end="url(#arr)"/>
+    <text x="190" y="73" text-anchor="middle" font-size="11">REPLACE call()</text>
     <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
   </svg>
   <figcaption><span class="fig-n">Diagram</span>REPLACE — what this sequence shows.</figcaption>
@@ -312,9 +323,13 @@ REPLACE</pre>
 </div>
 
 <h2><span class="n">8</span>Noticed but not touched</h2>
-<ul><li>REPLACE — out-of-scope finding; the human decides whether it becomes a ticket.</li></ul>
+<!-- End every item with a recommendation so next steps are scannable. Also list here any behavior
+     deliberately descoped in section 6 that could become a follow-up ticket. -->
+<ul><li>REPLACE — out-of-scope finding. <em>Suggested: ticket / ignore / monitor.</em></li></ul>
 
 <h2><span class="n">9</span>How to ship it</h2>
+<!-- Shipping MECHANICS only: risk callout + what /ship will do. Review pointers live in sections 4/6 —
+     don't repeat them here. -->
 <div class="callout ship"><strong>REPLACE if relevant (else omit):</strong> deploy-order / migration / feature-flag risk the shipper must know.</div>
 <ol>
   <li>REPLACE — what <code>/ship</code> will do here (PR target, tracker move, migration step).</li>
@@ -331,7 +346,7 @@ REPLACE</pre>
 <div class="meta">
   <p><strong>Left running:</strong> REPLACE (dev server, DB, mocks) / nothing.</p>
   <p><strong>Related:</strong> REPLACE — ticket links, STATE entries, ADRs, predecessor branches.</p>
-  <p>Generated by the builder harness · REPLACE_DATE</p>
+  <p>Generated by the builder harness · report template v0.3.2 · REPLACE_DATE</p>
 </div>
 
 </body>

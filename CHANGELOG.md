@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.2 — 2026-07-08
+
+Fresh-context review of the v0.3.0 report template + its pilot-3 instance (12 findings). Template fixes:
+
+- **`<mark>` contrast fixed** (HIGH): dedicated `--mark` token light/dark — the highlighted "load-bearing lines" in How-it-works were invisible in dark mode.
+- Sequence diagram scrolls on mobile (`.diagram { overflow-x: auto }` + `min-width: 640px`) instead of shrinking labels to ~5px; `.dim` lifeline class + dashed-lifeline placeholder added (every real diagram needed it); self-call guidance (no zero-length lines); `rx` inline (CSS `rx` misses older Safari).
+- **Fact-ownership rules** in the instruction comments (the same fact was echoing across 4 sections): pills own gate/baseline (3–6 pills max); asked-vs-built holds product criteria only with pointer-style evidence; lede never previews the mechanism (section 1's job); section 9 is shipping mechanics only.
+- **Next-steps sharpened**: every noticed-but-not-touched item ends with <em>Suggested: ticket / ignore / monitor</em>; descoped behavior from Decisions gets listed there too.
+- Template version stamp in the footer meta (drift between installs now traceable).
+
+Kept deliberately: Google Fonts links (internet assumed per Pedro; system fallbacks cover offline).
+
 ## 0.3.1 — 2026-07-08
 
 - **Everything the harness installs now lives under `.harness/`**: `docs/agents/` → `.harness/agents/`, `docs/product.md` → `.harness/product.md` (Kiro precedent — its steering docs live inside `.kiro/steering/`). One root = simple navigation, obvious ownership, one-directory uninstall; the "point to an existing PRD instead of duplicating" rule stays. `setup-harness` carries a one-line upgrade migration for ≤0.3.0 installs. Only `.claude/skills/` and the CLAUDE.md pointer block remain outside — Claude Code dictates those locations.
