@@ -1,6 +1,6 @@
 ---
 name: setup-harness
-description: Run once per project to install the dev-harness. Triggers only on explicit invocation ("/setup-harness", "set up the harness", "instrument this project", "install the harness here"). Detects the stack, interviews for what detection can't answer, scaffolds config + state + guardrails, generates project-owned skills, and proves the gates and hooks work.
+description: Run once per project to install the dev-harness. Triggers only on explicit invocation ("/setup-harness", "set up the harness", "instrument this project", "install the harness here"). Detects the stack, interviews for what detection can't answer, scaffolds config + state, generates project-owned skills, and proves the gates work.
 disable-model-invocation: true
 ---
 
@@ -30,12 +30,12 @@ For each thing detection couldn't settle, ask ONE question with a recommended de
 
 - Tracker + label vocabulary (which verbs mean "fetch the ticket", "post the spec back", "mark ready").
 - Gate commands: **quick**, **full**, **build** — and the current expected test count for each.
-- Protected paths and forbidden actions (beyond the built-in guardrails).
+- Protected paths and forbidden actions (recorded in `docs/agents/paths.md`; deterministic hook enforcement is Phase 4).
 - Where docs live (specs, ADRs, glossary).
 
 Stop asking as soon as the gaps are closed.
 
-## Step 3 — Scaffold (write config, state, guardrails, pointers)
+## Step 3 — Scaffold (write config, state, pointers)
 
 Create in the target project:
 
@@ -44,7 +44,7 @@ Create in the target project:
   - `docs/agents/gates.md` — "run the quick gate" / "run the full gate" / "run the build" → the real commands, each with its expected test count.
   - `docs/agents/paths.md` — protected/append-only paths, forbidden actions.
 - **`.harness/STATE.md`** — from the `STATE.md` template. Leave the baseline section for Step 5.
-- **Guardrails + permissions** — merge `templates/settings-snippet.json` into the project's `.claude/settings.json`. Replace `ABSOLUTE_PATH_TO/guardrails.sh` with the real absolute path to this plugin's `hooks/guardrails.sh`. Tune the permissions allowlist to the detected stack (add the gate commands so they don't prompt). Merge — never clobber an existing settings.json; show the diff.
+- **Permissions** — merge `templates/settings-snippet.json` into the project's `.claude/settings.json`. Tune the permissions allowlist to the detected stack (add the gate commands so they don't prompt). Merge — never clobber an existing settings.json; show the diff.
 - **`## Harness` block in CLAUDE.md** — pointers only, not content. A few lines: "this project uses dev-harness; run features via the `feature` skill; gate commands live in `docs/agents/gates.md`; state in `.harness/STATE.md`." Keep CLAUDE.md under 200 lines — push detail into the pointed-to docs.
 
 ## Step 4 — Generate project-owned skills
@@ -62,19 +62,17 @@ Fill every `SETUP_FILLS` / placeholder marker with the real commands and URLs fo
 
 ## Step 5 — Verify itself (prove it works, don't assert it)
 
-1. **Baseline** — run the quick gate and the full gate. Confirm exit 0. Record the command, exit code, and passing test count into `.harness/STATE.md`'s baseline section, with the date. This is what later sessions diff against ("no silent test deletions").
-2. **Trip a guardrail on purpose** — issue a forged/dry dangerous command (e.g. attempt a `git push --force` on a throwaway, or pipe a forged tool-call JSON to `hooks/guardrails.sh`) and confirm it is BLOCKED (exit 2, `BLOCKED:` message). Show the output. If the hook doesn't fire, setup is not done — fix the settings path and retry.
+**Baseline** — run the quick gate and the full gate. Confirm exit 0. Record the command, exit code, and passing test count into `.harness/STATE.md`'s baseline section, with the date. This is what later sessions diff against ("no silent test deletions").
 
 ## Done
 
-Report: what was detected, what was asked, files scaffolded, skills generated, the recorded baseline, and the proof the guardrail fired. Then point the human at `/feature <description or ticket>`.
+Report: what was detected, what was asked, files scaffolded, skills generated, and the recorded baseline. Then point the human at `/feature <description or ticket>`.
 
 ## Rationalizations (all invalid)
 
 | Excuse                                                     | Reality                                                                    |
 | ---------------------------------------------------------- | -------------------------------------------------------------------------- |
 | "The command probably works, I'll write it in"             | Run it first. An unverified gate command breaks every future run silently. |
-| "I'll skip tripping the guardrail, the config looks right" | A hook that isn't proven to fire is a hook that doesn't exist. Trip it.    |
 | "CLAUDE.md needs all the detail so the model has context"  | Pointers only. Detail goes in `docs/agents/`. Keep it under 200 lines.     |
 | "I'll ask everything up front to be safe"                  | Detect first. Only ask what you genuinely can't infer.                     |
 

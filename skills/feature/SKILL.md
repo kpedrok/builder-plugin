@@ -69,14 +69,14 @@ Two mandatory sub-steps, in order:
 
 Walk this checklist; update whatever the session invalidated, or mark n/a:
 
-| Doc | Update when |
-|---|---|
-| CLAUDE.md / AGENTS.md | New convention/command/structure emerged, or something in it became wrong |
-| CONTEXT.md | New domain terms coined or sharpened |
-| docs/adr/ | A decision passed the three-gate test (irreversible ∧ surprising ∧ tradeoff) |
-| docs/agents/ mappings | A gate command, tracker verb, or expected test count changed |
-| spec | Scope shifted during build (spec must match what was actually built) |
-| .harness/STATE.md | **Always** — decisions (AD), lessons (L), gotcha if the workflow itself failed |
+| Doc                   | Update when                                                                    |
+| --------------------- | ------------------------------------------------------------------------------ |
+| CLAUDE.md / AGENTS.md | New convention/command/structure emerged, or something in it became wrong      |
+| CONTEXT.md            | New domain terms coined or sharpened                                           |
+| docs/adr/             | A decision passed the three-gate test (irreversible ∧ surprising ∧ tradeoff)   |
+| docs/agents/ mappings | A gate command, tracker verb, or expected test count changed                   |
+| spec                  | Scope shifted during build (spec must match what was actually built)           |
+| .harness/STATE.md     | **Always** — decisions (AD), lessons (L), gotcha if the workflow itself failed |
 
 Fix wrong content immediately (a wrong CLAUDE.md is worse than a missing one). Respect purity: glossary stays glossary; CLAUDE.md stays <200 lines (push detail into pointed-to docs).
 
@@ -94,15 +94,15 @@ One self-contained file at `.harness/reports/<feature>.html` (from the `report.h
 
 ## Rationalizations (all invalid)
 
-| Excuse | Reality |
-|---|---|
-| "This change is too small for a spec/steps" | Small changes get small ones. Listing 3 steps costs nothing. Skipping hides the >5-step trap. |
-| "I'll add tests after it works" | That's not TDD. Delete the code, write the test first. |
-| "Tests pass, I can skip the e2e/screenshot" | Unit tests don't prove it's usable. Proof of work is for the human's eyes. |
-| "The gate count dropped but it's fine" | A silent test-count drop is exactly what the baseline exists to catch. Explain it or fix it. |
-| "The human is away, I'll assume and keep going" | In ALIGN/PLAN, wait. Post-approval, an assumption worth making is worth writing in the report. |
-| "I noticed a nearby bug, I'll just fix it too" | Out of scope → report it, don't touch it. Scope creep is a second bug. |
-| "I'll write the plan with a TODO for the tricky part" | A TODO in the plan means you haven't planned it. Resolve it or grill for it. |
+| Excuse                                                | Reality                                                                                        |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| "This change is too small for a spec/steps"           | Small changes get small ones. Listing 3 steps costs nothing. Skipping hides the >5-step trap.  |
+| "I'll add tests after it works"                       | That's not TDD. Delete the code, write the test first.                                         |
+| "Tests pass, I can skip the e2e/screenshot"           | Unit tests don't prove it's usable. Proof of work is for the human's eyes.                     |
+| "The gate count dropped but it's fine"                | A silent test-count drop is exactly what the baseline exists to catch. Explain it or fix it.   |
+| "The human is away, I'll assume and keep going"       | In ALIGN/PLAN, wait. Post-approval, an assumption worth making is worth writing in the report. |
+| "I noticed a nearby bug, I'll just fix it too"        | Out of scope → report it, don't touch it. Scope creep is a second bug.                         |
+| "I'll write the plan with a TODO for the tricky part" | A TODO in the plan means you haven't planned it. Resolve it or grill for it.                   |
 
 ## Red Flags
 
@@ -111,7 +111,7 @@ One self-contained file at `.harness/reports/<feature>.html` (from the `report.h
 - Claiming "done" without shown command output
 - Modifying files outside the plan's scope guard
 - Gate test count below baseline with no explanation
-- >2 turns stuck on the same error without changing strategy — step back or flag it in the report
+- > 2 turns stuck on the same error without changing strategy — step back or flag it in the report
 - Ending with stale docs
 
 ## Gotchas

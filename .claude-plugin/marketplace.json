@@ -5,7 +5,7 @@
     {
       "name": "dev-harness",
       "source": "./",
-      "description": "Setup-first development harness: instrument any project once, then run features through an ALIGN → PLAN → BUILD → PROVE → REPORT pipeline with deterministic guardrails."
+      "description": "Setup-first development harness: instrument any project once, then run features through an ALIGN → PLAN → BUILD → PROVE → REPORT pipeline."
     }
   ]
 }
