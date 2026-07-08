@@ -31,7 +31,7 @@ State which path you're taking and why before proceeding.
 
 Understand, then grill. Do NOT run inside an autonomous goal loop.
 
-1. Read the glossary/CONTEXT, relevant ADRs and specs, **`.harness/STATE.md`** (decisions, lessons, gotchas, rejected decisions — don't re-derive or relitigate what's recorded there), and the modules the change touches. Use search/graph tools before assuming structure. If it's a ticket, **fetch the ticket** first.
+1. Read **`docs/product.md`** (purpose, personas, non-goals — user stories take their roles from here, never invented; a feature serving no listed persona or crossing a non-goal is an ALIGN question, not a silent assumption), the glossary/CONTEXT, relevant ADRs and specs, **`.harness/STATE.md`** (decisions, lessons, gotchas, rejected decisions — don't re-derive or relitigate what's recorded there), and the modules the change touches. Use search/graph tools before assuming structure. If it's a ticket, **fetch the ticket** first.
 2. **Grill — one question at a time, always with a recommended answer.** ≤5 questions by default. Explore-don't-ask: if the code can answer it, go read the code instead of asking. Sharpen fuzzy language into glossary terms; invent edge cases; challenge assumptions.
 
 **Bug fixes — red-command gate:** no hypothesizing about the cause until you can paste the invocation and output of a deterministic command that reproduces the bug (this becomes the failing regression test). No red command, no diagnosis.
@@ -86,6 +86,7 @@ Walk this checklist; update whatever the session invalidated, or mark n/a:
 | CONTEXT.md            | New domain terms coined or sharpened                                           |
 | docs/adr/             | A decision passed the three-gate test (irreversible ∧ surprising ∧ tradeoff)   |
 | docs/agents/ mappings | A gate command, tracker verb, or expected test count changed                   |
+| docs/product.md       | A new persona surfaced, or a non-goal was added/crossed (with the human's OK)  |
 | spec                  | Scope shifted during build (spec must match what was actually built)           |
 | .harness/STATE.md     | **Always** — decisions (AD), lessons (L), gotcha if the workflow itself failed |
 
