@@ -11,13 +11,13 @@ ALIGN ──────── PLAN ─┃─ BUILD ── PROVE ── REPORT  
                  human gate
 ```
 
-Every phase has an exit criterion that must appear **in the conversation** — shown output, file contents, test results, screenshots — not merely exist on disk. Canonical verbs below ("run the full gate", "fetch the ticket") resolve through `docs/agents/` mappings; never hardcode a real command here.
+Every phase has an exit criterion that must appear **in the conversation** — shown output, file contents, test results, screenshots — not merely exist on disk. Canonical verbs below ("run the full gate", "fetch the ticket") resolve through `.harness/agents/` mappings; never hardcode a real command here.
 
 ## Run folder (one folder per run holds all its artifacts)
 
 Each run owns `.harness/runs/<YYYY-MM-DD>-<feature-slug>/` — created when the spec is written, date = the day ALIGN starts, fixed inner filenames `spec.md` / `plan.md` / `report.html` (the folder name carries identity; `<run>` below means this folder). A re-run of the same feature gets a new dated folder — never overwrite an old run's files. `/ship` moves the whole folder to `.harness/archive/`, so everything under `runs/` is by definition in flight. Cross-run singletons (`STATE.md`, `plugin-outbox.md`) stay at the `.harness/` root.
 
-**Legacy layout** (type-grouped `.harness/specs|plans|reports/` from harness ≤0.2): migrate before proceeding — `git mv` each feature's spec/plan/report into `.harness/runs/<date>-<slug>/` (date from the spec's first commit; runs whose plan Status is DONE go to `.harness/archive/` instead), remove the emptied dirs, update the specs write path in `docs/agents/docs.md`, commit `chore: migrate .harness to run-folder layout`.
+**Legacy layout** (type-grouped `.harness/specs|plans|reports/` from harness ≤0.2): migrate before proceeding — `git mv` each feature's spec/plan/report into `.harness/runs/<date>-<slug>/` (date from the spec's first commit; runs whose plan Status is DONE go to `.harness/archive/` instead), remove the emptied dirs, update the specs write path in `.harness/agents/docs.md`, commit `chore: migrate .harness to run-folder layout`.
 
 ## Resume check (before anything else)
 
@@ -37,14 +37,14 @@ State which path you're taking and why before proceeding.
 
 Understand, then grill. Do NOT run inside an autonomous goal loop.
 
-1. Read **`docs/product.md`** (purpose, personas, success signals, non-goals — user stories take their roles from here, never invented; a feature serving no listed persona, crossing a non-goal, or moving no success signal is an ALIGN question, not a silent assumption), the glossary/CONTEXT and relevant ADRs/specs (locations per `docs/agents/docs.md`), **`.harness/STATE.md`** (decisions, lessons, gotchas, rejected decisions — don't re-derive or relitigate what's recorded there), and the modules the change touches. Use search/graph tools before assuming structure. If it's a ticket, **fetch the ticket** first.
+1. Read **`.harness/product.md`** (purpose, personas, success signals, non-goals — user stories take their roles from here, never invented; a feature serving no listed persona, crossing a non-goal, or moving no success signal is an ALIGN question, not a silent assumption), the glossary/CONTEXT and relevant ADRs/specs (locations per `.harness/agents/docs.md`), **`.harness/STATE.md`** (decisions, lessons, gotchas, rejected decisions — don't re-derive or relitigate what's recorded there), and the modules the change touches. Use search/graph tools before assuming structure. If it's a ticket, **fetch the ticket** first.
 2. **Grill — one question at a time, always with a recommended answer.** ≤5 questions by default. Explore-don't-ask: if the code can answer it, go read the code instead of asking. Sharpen fuzzy language into glossary terms; invent edge cases; challenge assumptions.
 
-**UI-facing feature?** If the change adds or reshapes a visual surface and the direction isn't already settled (mockup in the ticket, an existing pattern to copy), route through the project's `builder-prototype` skill before PLAN: a few genuinely distinct variations on the throwaway route, the human picks, then plan only the winner. Reuse the design system per `docs/agents/design.md` — never invent components that already exist. Trivial UI (a field in an existing form) skips this — say so in one line.
+**UI-facing feature?** If the change adds or reshapes a visual surface and the direction isn't already settled (mockup in the ticket, an existing pattern to copy), route through the project's `builder-prototype` skill before PLAN: a few genuinely distinct variations on the throwaway route, the human picks, then plan only the winner. Reuse the design system per `.harness/agents/design.md` — never invent components that already exist. Trivial UI (a field in an existing form) skips this — say so in one line.
 
 **Bug fixes — red-command gate:** no hypothesizing about the cause until you can paste the invocation and output of a deterministic command that reproduces the bug (this becomes the failing regression test). No red command, no diagnosis.
 
-**Exit:** a spec with an **objective**, **user stories**, **testable acceptance criteria** (each traceable to a story), an **out-of-scope section**, and any new glossary terms. Durable → **no file paths**. (Use the `spec.md` template; write it to the specs location in `docs/agents/docs.md` — default `<run>/spec.md` — and show the path.) For a title-only ticket, also post the spec back.
+**Exit:** a spec with an **objective**, **user stories**, **testable acceptance criteria** (each traceable to a story), an **out-of-scope section**, and any new glossary terms. Durable → **no file paths**. (Use the `spec.md` template; write it to the specs location in `.harness/agents/docs.md` — default `<run>/spec.md` — and show the path.) For a title-only ticket, also post the spec back.
 
 ## PLAN (interactive — the human gate)
 
@@ -76,7 +76,7 @@ Never write implementation before its test. If you did, delete it and start from
 
 ## PROVE (autonomous)
 
-- **Run the full gate** — show the command, exit code, and the **expected test count** (from `docs/agents/gates.md`). A count below baseline without an explicit reason is a red flag — stop and explain.
+- **Run the full gate** — show the command, exit code, and the **expected test count** (from `.harness/agents/gates.md`). A count below baseline without an explicit reason is a red flag — stop and explain.
 - **E2E** via the project's verify skill when one exists: interact like a user, assert observable state, screenshot. No verify skill (CLI/library repos) → demonstrate a real invocation of the changed behavior and show its output — the gate alone is not proof of usability.
 - **Zero new console errors/warnings** (UI surfaces).
 - Tick the ledger's PROVE row with the evidence pointer.
@@ -88,15 +88,15 @@ Two mandatory sub-steps, in order:
 
 ### 1. Doc sync (no session ends with stale docs)
 
-Walk this checklist (doc locations resolve via `docs/agents/docs.md`); update whatever the session invalidated, or mark n/a:
+Walk this checklist (doc locations resolve via `.harness/agents/docs.md`); update whatever the session invalidated, or mark n/a:
 
 | Doc                   | Update when                                                                    |
 | --------------------- | ------------------------------------------------------------------------------ |
 | CLAUDE.md / AGENTS.md | New convention/command/structure emerged, or something in it became wrong      |
 | CONTEXT.md            | New domain terms coined or sharpened                                           |
 | docs/adr/             | A decision passed the three-gate test (irreversible ∧ surprising ∧ tradeoff)   |
-| docs/agents/ mappings | A gate command, tracker verb, or expected test count changed                   |
-| docs/product.md       | A new persona surfaced, or a non-goal was added/crossed (with the human's OK)  |
+| .harness/agents/ mappings | A gate command, tracker verb, or expected test count changed                   |
+| .harness/product.md       | A new persona surfaced, or a non-goal was added/crossed (with the human's OK)  |
 | spec                  | Scope shifted during build (spec must match what was actually built)           |
 | .harness/STATE.md     | **Always** — decisions (AD), lessons (L), gotcha if the workflow itself failed |
 | .harness/plugin-outbox.md | A gotcha is **universal** (would bite in a different repo) — see routing below |
@@ -105,7 +105,7 @@ Fix wrong content immediately (a wrong CLAUDE.md is worse than a missing one). R
 
 **Gotcha routing:** before writing any gotcha, ask *"would this bite in a different repo?"* Repo-specific → the relevant project skill's Gotchas or STATE.md. Universal (about the process, Claude Code, or common tooling) → *also* append a row to `.harness/plugin-outbox.md` (date · symptom → cause → fix · target plugin file · status `queued`; create from the `plugin-outbox.md` template if missing). The installed plugin is a frozen snapshot — the human runs `/builder:improve` against the plugin source to ingest the outbox.
 
-**Mapping self-heal:** if this run successfully used a tool that a `docs/agents/` mapping says is "not wired" or "manual" (e.g. a tracker MCP that has since connected), update that mapping now with the verb → real command you actually ran.
+**Mapping self-heal:** if this run successfully used a tool that a `.harness/agents/` mapping says is "not wired" or "manual" (e.g. a tracker MCP that has since connected), update that mapping now with the verb → real command you actually ran.
 
 ### 2. Write the HTML report
 

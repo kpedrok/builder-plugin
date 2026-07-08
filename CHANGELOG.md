@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1 — 2026-07-08
+
+- **Everything the harness installs now lives under `.harness/`**: `docs/agents/` → `.harness/agents/`, `docs/product.md` → `.harness/product.md` (Kiro precedent — its steering docs live inside `.kiro/steering/`). One root = simple navigation, obvious ownership, one-directory uninstall; the "point to an existing PRD instead of duplicating" rule stays. `setup-harness` carries a one-line upgrade migration for ≤0.3.0 installs. Only `.claude/skills/` and the CLAUDE.md pointer block remain outside — Claude Code dictates those locations.
+
 ## 0.3.0 — 2026-07-08
 
 Driven by pilot 3 (first real `/feature` on kondak-orcamento) + Pedro's reference report ("SAA-733"). Theme: Report v2 — design + pedagogy (see `Design/Report v2 - Design and Pedagogy.md` in the ai vault).

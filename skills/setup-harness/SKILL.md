@@ -32,7 +32,7 @@ Batch the remaining gaps into **one `AskUserQuestion` call (up to 4 questions)**
 
 - Tracker + label vocabulary (which verbs mean "fetch the ticket", "post the spec back", "mark ready").
 - Gate commands: **quick**, **full**, **build** — expected test count for quick/full; build just exit 0.
-- Protected paths and forbidden actions (recorded in `docs/agents/paths.md`; deterministic hook enforcement is Phase 4).
+- Protected paths and forbidden actions (recorded in `.harness/agents/paths.md`; deterministic hook enforcement is Phase 4).
 - Where docs live (specs, ADRs, glossary).
 - **Product: who uses this, for what, and what does success look like?** Present the drafted purpose + personas from detection as the recommended answer; ask for corrections, missing personas, explicit non-goals, and 1–2 measurable success signals. **Do not finish setup without a confirmed purpose, at least one persona, and at least one success signal** — user stories draw their roles from this, and ALIGN challenges features against the signals.
 
@@ -40,19 +40,21 @@ Stop asking as soon as the gaps are closed.
 
 ## Step 3 — Scaffold (write config, state, pointers)
 
+Everything the harness installs and maintains lives under **`.harness/`** (plus generated skills in `.claude/skills/` and the pointer block in CLAUDE.md — locations Claude Code dictates). One directory answers "what did the harness put here?". **Upgrading an install from harness ≤0.3.0** (which scaffolded `docs/agents/` and `docs/product.md`)? `git mv` them to `.harness/agents/` and `.harness/product.md`, update the CLAUDE.md pointers, and fold that into the install commit.
+
 Create in the target project:
 
-- **`docs/agents/` mappings** — the config-indirection layer. Canonical verbs → real commands for THIS repo. At minimum:
-  - `docs/agents/tracker.md` — "fetch the ticket", "post the spec back", "mark ready", label vocabulary → the real MCP tool / CLI. No tracker? Record that here — `ship` then skips its tracker step.
-  - `docs/agents/docs.md` — where docs live: specs write path (default: the run folder, `.harness/runs/<YYYY-MM-DD>-<feature>/spec.md` — each `/feature` run colocates its spec, plan, and report in one dated folder; `/ship` archives the folder whole), glossary/CONTEXT location, ADR dir. ALIGN and the doc-sync step resolve through this. Include a short **Doc-sync checklist** section (condensed from the `feature` skill's REPORT table: CLAUDE.md/AGENTS.md if a convention changed or became wrong · glossary for new terms · mappings if a command/verb changed · STATE.md always · gotcha routing to `plugin-outbox.md`) so ad hoc sessions have something concrete to walk.
-  - `docs/agents/gates.md` — "run the quick gate" / "run the full gate" / "run the build" → the real commands, each with its expected test count.
-  - `docs/agents/paths.md` — protected/append-only paths, forbidden actions.
-  - `docs/agents/design.md` *(frontend/fullstack only)* — where components live, which library/tokens to reuse, Storybook URL if any. Pointers to the detected inventory, not a style guide — this is what "reuse the design system" resolves to.
-- **`docs/product.md`** — from the `product.md` template: purpose, personas, success signals, non-goals ("not doing, and why"), as confirmed in Step 2. One page max. If the project already has an equivalent doc, point to it from here instead of duplicating.
+- **`.harness/agents/` mappings** — the config-indirection layer. Canonical verbs → real commands for THIS repo. At minimum:
+  - `.harness/agents/tracker.md` — "fetch the ticket", "post the spec back", "mark ready", label vocabulary → the real MCP tool / CLI. No tracker? Record that here — `ship` then skips its tracker step.
+  - `.harness/agents/docs.md` — where docs live: specs write path (default: the run folder, `.harness/runs/<YYYY-MM-DD>-<feature>/spec.md` — each `/feature` run colocates its spec, plan, and report in one dated folder; `/ship` archives the folder whole), glossary/CONTEXT location, ADR dir. ALIGN and the doc-sync step resolve through this. Include a short **Doc-sync checklist** section (condensed from the `feature` skill's REPORT table: CLAUDE.md/AGENTS.md if a convention changed or became wrong · glossary for new terms · mappings if a command/verb changed · STATE.md always · gotcha routing to `plugin-outbox.md`) so ad hoc sessions have something concrete to walk.
+  - `.harness/agents/gates.md` — "run the quick gate" / "run the full gate" / "run the build" → the real commands, each with its expected test count.
+  - `.harness/agents/paths.md` — protected/append-only paths, forbidden actions.
+  - `.harness/agents/design.md` *(frontend/fullstack only)* — where components live, which library/tokens to reuse, Storybook URL if any. Pointers to the detected inventory, not a style guide — this is what "reuse the design system" resolves to.
+- **`.harness/product.md`** — from the `product.md` template: purpose, personas, success signals, non-goals ("not doing, and why"), as confirmed in Step 2. One page max. If the project already has an equivalent doc, point to it from here instead of duplicating.
 - **`.harness/STATE.md`** — from the `STATE.md` template. Record the installed harness version (from this plugin's `plugin.json`) in the baseline section; leave the gate baselines for Step 5.
 - **Permissions** — merge `templates/settings-snippet.json` into the project's `.claude/settings.json`. Tune the permissions allowlist to the detected stack (add the gate commands so they don't prompt). Merge — never clobber an existing settings.json; show the diff. **Expect this write to be denied** in auto mode (the classifier blocks self-modification of permission rules — pilot 2). Fallback ladder: (1) ask the human via `AskUserQuestion` to approve the write interactively; (2) still blocked → write the merged JSON to `.harness/settings-suggested.json` and tell the human in one line to move it. Never leave the snippet only as chat text.
-- **`## Harness` block in CLAUDE.md** — pointers only, not content. A few lines: "this project uses the builder harness; run features via the `feature` skill; gate commands live in `docs/agents/gates.md`; state in `.harness/STATE.md`." Plus two session-hygiene rules that catch work done OUTSIDE the pipeline (the pipeline's REPORT step already enforces them; ad hoc sessions have nothing else):
-  - "**After finishing any piece of work** — even outside `/feature` — walk the doc-sync checklist in `docs/agents/docs.md`: update whatever the session invalidated, STATE.md always, and route gotchas (universal ones also go to `.harness/plugin-outbox.md`)."
+- **`## Harness` block in CLAUDE.md** — pointers only, not content. A few lines: "this project uses the builder harness; run features via the `feature` skill; gate commands live in `.harness/agents/gates.md`; state in `.harness/STATE.md`." Plus two session-hygiene rules that catch work done OUTSIDE the pipeline (the pipeline's REPORT step already enforces them; ad hoc sessions have nothing else):
+  - "**After finishing any piece of work** — even outside `/feature` — walk the doc-sync checklist in `.harness/agents/docs.md`: update whatever the session invalidated, STATE.md always, and route gotchas (universal ones also go to `.harness/plugin-outbox.md`)."
   - "If this file itself became wrong during the session, fix it now — a wrong CLAUDE.md is worse than a missing one."
 
   Phrase the trigger as "after finishing any piece of work", never "at the end of the session" — session end is not a moment the model can observe. (Prose is best-effort; the deterministic Stop-hook version is Phase 2+.)
@@ -78,7 +80,7 @@ Fill every `<!-- setup fills -->` marker and ALLCAPS placeholder with the real c
 
 ## Step 6 — Commit the install
 
-An unstaged improvement didn't happen. Stage everything the setup wrote (`docs/agents/`, `docs/product.md`, `.harness/`, `.claude/skills/`, CLAUDE.md, settings) and commit: `chore: install builder harness v<version>`. If anything (including this skill's own later edits in the same session) changes a harness file after this commit, re-stage and amend or add a follow-up commit — never leave harness files drifting between index and worktree.
+An unstaged improvement didn't happen. Stage everything the setup wrote (`.harness/agents/`, `.harness/product.md`, `.harness/`, `.claude/skills/`, CLAUDE.md, settings) and commit: `chore: install builder harness v<version>`. If anything (including this skill's own later edits in the same session) changes a harness file after this commit, re-stage and amend or add a follow-up commit — never leave harness files drifting between index and worktree.
 
 ## Done
 
@@ -96,7 +98,7 @@ Before writing a gotcha, ask: **"would this bite in a different repo?"**
 | Excuse                                                     | Reality                                                                    |
 | ---------------------------------------------------------- | -------------------------------------------------------------------------- |
 | "The command probably works, I'll write it in"             | Run it first. An unverified gate command breaks every future run silently. |
-| "CLAUDE.md needs all the detail so the model has context"  | Pointers only. Detail goes in `docs/agents/`. Keep it under 200 lines.     |
+| "CLAUDE.md needs all the detail so the model has context"  | Pointers only. Detail goes in `.harness/agents/`. Keep it under 200 lines.     |
 | "I'll ask everything up front to be safe"                  | Detect first. Only ask what you genuinely can't infer.                     |
 | "The gates passed, the generated skills must work"         | Gates prove the tests run. Exercise each skill's actual flow (Step 5).     |
 | "The full gate's parts all passed individually"            | The baseline is the literal command. Run it once as-is.                    |

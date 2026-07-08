@@ -8,7 +8,7 @@ One or two sentences: what this feature is for, in the user's terms.
 
 ## User stories
 
-Roles come from `docs/product.md` personas — never invented per-feature. A story whose role isn't listed there means the persona list needs updating (an ALIGN question), not a made-up role.
+Roles come from `.harness/product.md` personas — never invented per-feature. A story whose role isn't listed there means the persona list needs updating (an ALIGN question), not a made-up role.
 
 - As a <role>, I want <capability> so that <outcome>.
 

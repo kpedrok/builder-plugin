@@ -18,7 +18,7 @@ approved plan at .harness/runs/<DATE>-<NAME>/plan.md is implemented with TDD (fa
 shown before each implementation), the plan's progress ledger updated after each
 slice (shown), the full gate command and exit 0 with the expected test count
 are shown, e2e verified with the interaction described and screenshots taken,
-docs synced (CLAUDE.md/CONTEXT.md/ADRs/spec/docs/product.md updated or explicitly n/a — listed, plus a .harness/STATE.md entry shown),
+docs synced (CLAUDE.md/CONTEXT.md/ADRs/spec/.harness/product.md updated or explicitly n/a — listed, plus a .harness/STATE.md entry shown),
 and the HTML report written to the run folder (.harness/runs/<DATE>-<NAME>/report.html) with its path shown. No files
 outside the plan's scope are modified. Stop after 40 turns.
 ```

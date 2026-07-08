@@ -8,14 +8,14 @@ disable-model-invocation: true
 
 The pipeline stopped at the HTML report for the human's review. This skill takes it from there. **Only run after the human has reviewed and said to ship.** No review subagents in Phase 1 — that's Phase 2.
 
-Canonical verbs ("update the tracker") resolve through `docs/agents/` mappings; never hardcode a real command here.
+Canonical verbs ("update the tracker") resolve through `.harness/agents/` mappings; never hardcode a real command here.
 
 ## Steps
 
 1. **Read the report.** Open `.harness/runs/<date>-<feature>/report.html` — it is the source of truth for what was built, the acceptance criteria met, the proof of work, and the decisions. If there's no report, the feature pipeline didn't finish — stop and say so.
-2. **Confirm the tree is shippable.** `git status` — everything intended is committed, nothing stray is staged. If uncommitted work from the run remains, commit it with a descriptive message. **Harness files the run edited — plan, spec, STATE.md, `docs/agents/` mappings, project-skill Gotchas, `plugin-outbox.md` — ship in this commit too**; an unstaged improvement didn't happen. Never force-push, reset, or delete branches here.
+2. **Confirm the tree is shippable.** `git status` — everything intended is committed, nothing stray is staged. If uncommitted work from the run remains, commit it with a descriptive message. **Harness files the run edited — plan, spec, STATE.md, `.harness/agents/` mappings, project-skill Gotchas, `plugin-outbox.md` — ship in this commit too**; an unstaged improvement didn't happen. Never force-push, reset, or delete branches here.
 3. **Open the PR.** Push the branch and open a pull request. The PR body links/embeds the report's evidence: acceptance criteria (asked-vs-built), gate output + test counts, screenshots, and the decisions/assumptions section. Link the report file. Show the PR URL.
-4. **Update the tracker.** Move the ticket to its post-merge/ready state and comment with the PR link (per `docs/agents/tracker.md`). Skip if that mapping records no tracker.
+4. **Update the tracker.** Move the ticket to its post-merge/ready state and comment with the PR link (per `.harness/agents/tracker.md`). Skip if that mapping records no tracker.
 5. **Archive the run.** `git mv` the **whole run folder** `.harness/runs/<date>-<feature>/` to `.harness/archive/` (the plan's Status is DONE from REPORT) so resume scans stay clean and spec/plan/report travel together — and commit the move; the ship must end with a clean tree. Moving only part of the folder is a bug (pilot 3 orphaned an untracked report this way).
 6. **Surface the outbox.** If `.harness/plugin-outbox.md` has rows still marked `queued`, tell the human in one line: "N plugin-level gotchas queued — run `/builder:improve` in the plugin source when convenient."
 7. **Offer to babysit.** Suggest a recurring CI/review-comment check (e.g. `/loop 10m` where available) while the next ticket starts.
