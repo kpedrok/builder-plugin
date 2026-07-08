@@ -1,6 +1,7 @@
 ---
 name: builder-verify-ui
 description: Use during the PROVE step of a frontend change, or whenever asked to "verify the UI", "check it works in the browser", "test the flow", or confirm a visible change actually works — not just that unit tests pass. Drives the running app like a user, screenshots it, and checks the console.
+# paths: ["<repo-path>/**"]  <!-- setup fills, workspace shape only: scope to this skill's repo so it auto-loads when working with that repo's files; delete this line in single-repo installs -->
 ---
 
 # Verify UI (project-owned)

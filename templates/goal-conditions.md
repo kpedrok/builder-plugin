@@ -46,6 +46,8 @@ docs synced or explicitly n/a (STATE.md entry shown), and the HTML report writte
 Stop after 30 turns.
 ```
 
+**Workspace shape:** where a template says "the full gate exits 0 with the expected test count", write it as "**each touched repo's** full gate exits 0 against its own baseline (outputs shown per repo)" — a workspace has no single gate, and a condition naming one lets an autonomous run skip the other repo.
+
 ## Anatomy of a good condition
 
 | Part | Example |

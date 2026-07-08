@@ -11,6 +11,17 @@ Recorded by `/builder-setup-harness`. Later sessions diff against this — a dro
 - **Full gate:** `<command>` → exit 0, `<N>` tests passing (recorded <date>) — the literal command run once as-is, not assembled from its components
 - **Build:** `<command>` → exit 0 (recorded <date>)
 
+<!-- Workspace shape (gates.md has a repo registry): keep the "Installed harness" line, then replace the
+     flat gate lines with one block per nested repo — same three lines each, recorded from inside that repo.
+     A run diffs only against the blocks of the repos it touched.
+
+### <repo-path>
+
+- **Quick gate:** `<command>` → exit 0, `<N>` tests passing (recorded <date>)
+- **Full gate:** `<command>` → exit 0, `<N>` tests passing (recorded <date>)
+- **Build:** `<command>` → exit 0 (recorded <date>)
+-->
+
 ## Decisions (AD)
 
 Architecture/approach decisions made during runs. `AD-NNN — <decision> (why, date)`.

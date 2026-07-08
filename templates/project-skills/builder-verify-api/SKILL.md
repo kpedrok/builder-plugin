@@ -1,6 +1,7 @@
 ---
 name: builder-verify-api
 description: Use during the PROVE step of a backend/API change, or when asked to "verify the API", "hit the endpoint", "check the response", or confirm a route works against the running stack — not just that unit tests pass. Makes real calls and asserts status and shape.
+# paths: ["<repo-path>/**"]  <!-- setup fills, workspace shape only: scope to this skill's repo so it auto-loads when working with that repo's files; delete this line in single-repo installs -->
 ---
 
 # Verify API (project-owned)

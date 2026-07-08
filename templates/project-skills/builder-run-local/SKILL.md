@@ -1,6 +1,7 @@
 ---
 name: builder-run-local
 description: Use when asked to "run the app locally", "bring the stack up", "start the services", "spin up the environment", or before any end-to-end verification that needs the whole system running. Documents the exact order, env, and health checks to get this project's full stack up.
+# paths: ["<repo-path>/**"]  <!-- setup fills, workspace shape only: scope to this skill's repo so it auto-loads when working with that repo's files; delete this line in single-repo installs -->
 ---
 
 # Run Local (project-owned)

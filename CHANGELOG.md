@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.0 — 2026-07-08
+
+Multi-repo workspace support (design: `Design/Multi-Repo Workspace Support - large-codebases doc applied.md` in the ai vault; evidence: pilot 4 on momentus + the Claude Code large-codebases guide). Builder now handles three deployment shapes — `single` (unchanged), `monorepo`, and `workspace` (a root hosting nested git repos with their own remotes, e.g. backend + frontend side by side):
+
+- `builder-setup-harness`: Step 1 detects the workspace shape and runs detection per nested repo; gates.md opens with a **repo registry** (path · remote · default branch · kind) and one verb→command block per repo; the `## Harness` CLAUDE.md block goes in the root with a one-line repo map; **everything harness-owned stays at the workspace root** — never written into nested repos, per-repo CLAUDE.md files only recommended; project skills install at root scoped by `paths:` frontmatter globs (and reuse the project's existing equivalents instead of duplicating); baselines recorded **per repo** (`### <repo-path>` blocks in STATE.md).
+- `builder-feature`: the sizing line names the target repo(s) — branches, gates, baselines, and review merge-base scope all key off that; slices name their repo; cross-repo work is ordered **contract-first** in one run; a change spanning repos is never Small. Entry hint: long scoping conversation → compact or fresh session before invoking (pilot 4 burned the window before the pipeline started). PROVE evidence-capture gotchas: Node helpers importing a project dep must live inside that repo's dir (ESM bare-specifier resolution), transient UI must be pinned or captured in the same eval.
+- `builder-ship`: steps 2–4 iterate per touched repo — one PR per repo, cross-linked, merge order stated; harness artifacts commit to the workspace root (no PR — direct to default); new step offers local-stack teardown.
+- `builder-improve`: new **truth-check step** — verify each outbox claim against the current source before ingesting; not reproducible → `rejected: not reproducible against v<X>` (pilot 4 queued a false claim about `templates/project-skills/` missing; the proposed fix would have been wrong).
+- `templates/settings-snippet.json`: Read-deny rules for generated/vendored paths (`dist`, `build`, `*.generated.*`, `vendor`), tuned per repo at setup.
+- `templates/STATE.md`: per-repo baseline block variant documented inline; `templates/project-skills/*`: commented `paths:` frontmatter placeholder setup uncomments in workspace shape.
+- Fresh-context review pass on this diff (7 findings, all fixed): monorepo shape behavior defined (as `single` for git actions, per-package gate blocks optional), report section 9 now owns the touched-repo list ship reads, vendor deny glob nest-safe, `paths:` semantics worded correctly.
+
 ## 0.5.1 — 2026-07-08
 
 Internal-alignment review pass before first post-v0.5.0 use. All findings were v0.4.0's review lane not fully propagated into templates:

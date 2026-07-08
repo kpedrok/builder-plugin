@@ -1,6 +1,7 @@
 ---
 name: builder-prototype
 description: Use before committing to a build for any new UI feature, component, or page — when asked to "mock this up", "show me options", "explore variations", "what could this look like", or "/builder-prototype". Spins throwaway variations of a UI idea so a direction is chosen before real code is written.
+# paths: ["<repo-path>/**"]  <!-- setup fills, workspace shape only: scope to this skill's repo so it auto-loads when working with that repo's files; delete this line in single-repo installs -->
 ---
 
 # Builder Prototype (project-owned)

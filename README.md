@@ -12,6 +12,10 @@ ships until you say so.
 - **Proves it works** — runs your tests, reviews the diff, and exercises the feature like a real user.
 - **Reports, then waits** — you get a self-contained HTML report; nothing is committed to main or opened as a PR until you run `/builder-ship`.
 
+## Where it can live
+
+Three shapes, detected at setup: a **single repo** (the default), a **monorepo** (one git, many packages), or a **multi-repo workspace** — a root folder hosting nested git repos with their own remotes (say, a backend repo and a frontend repo side by side). In a workspace, gates and baselines are tracked per repo, a cross-repo feature ships one cross-linked PR per touched repo, and everything the harness itself writes stays at the workspace root — nothing is added to your work repos.
+
 ## Requirements
 
 - Claude Code (desktop, CLI, or IDE extension).

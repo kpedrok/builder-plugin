@@ -2,7 +2,7 @@
 
 > Status: DRAFT | APPROVED (<date, by whom>) | DONE (set by REPORT — the resume check scans for APPROVED)
 > Spec: <link/path to the spec or ticket>
-> Branch: <branch>
+> Branch: <branch> <!-- workspace shape: list the touched repos here (`<repo-path>: <branch>` per repo, same branch name); each slice below names its repo in the title, contract slice first -->
 
 Persisted execution artifact at `.harness/runs/<YYYY-MM-DD>-<feature>/plan.md`, next to its spec and (later) report. **This file — not the chat — is the source of truth.** The human may edit it directly before (or after) approving; always re-read it after approval and between slices. Exact file paths required. **No placeholders — a TBD or TODO here is a planning failure.** `/builder-ship` moves the whole run folder to `.harness/archive/`.
 

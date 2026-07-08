@@ -7,6 +7,11 @@
       "Bash(git add:*)",
       "Bash(git commit:*)"
     ],
-    "deny": []
+    "deny": [
+      "Read(./**/dist/**)",
+      "Read(./**/build/**)",
+      "Read(./**/*.generated.*)",
+      "Read(./**/vendor/**)"
+    ]
   }
 }
