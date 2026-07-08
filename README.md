@@ -16,7 +16,7 @@ The harness is **prompts + files — scripts may transform, never decide.** The 
 ### Via marketplace
 
 ```
-/plugin marketplace add <owner>/builder
+/plugin marketplace add <owner>/builder-plugin
 /plugin install builder
 ```
 
@@ -25,7 +25,7 @@ The harness is **prompts + files — scripts may transform, never decide.** The 
 Point Claude Code at this directory:
 
 ```
-claude --plugin-dir /path/to/builder
+claude --plugin-dir /path/to/builder-plugin
 ```
 
 The `setup-harness`, `feature`, and `ship` skills then appear in `/help` and via the Skill tool.
