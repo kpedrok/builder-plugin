@@ -1,4 +1,4 @@
-# builder
+# Builder Claude Code Plugin
 
 A Claude Code plugin that takes a feature or bug fix from request to a reviewed,
 tested pull request. It asks the right questions first, builds in small test-first
