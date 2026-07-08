@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0 — 2026-07-08
+
+Review lane lands (first Phase-2 slice), via Anthropic's `pr-review-toolkit` plugin instead of authored agents (see `Design/Review Integration - pr-review-toolkit in the Pipeline.md` in the ai vault). Survey of all six studied frameworks converged on the shape: two review moments, parallel conditional subagents, severity gating, auto-fix only where autonomous, merge-base scope.
+
+- New `.harness/agents/review.md` mapping (written by `setup-harness`): "run the code review" → `pr-review-toolkit` agents when installed (setup probes and prompts the install once — `anthropics/claude-plugins-official` marketplace), else fallback `general-purpose` + `templates/reviewer-prompt.md`. Records the default branch for merge-base scoping.
+- `feature` PROVE gains a **review gate as its first step** (before e2e — reviewers are cheaper than a wasted e2e): scope `git diff $(git merge-base <default> HEAD)...HEAD`, parallel conditional dispatch (`code-reviewer` + `pr-test-analyzer` always; `silent-failure-hunter` / `type-design-analyzer` when applicable; never `code-simplifier` — reviewers are read-only), bounded fix loop (Critical+Important, max 2 rounds, re-dispatch only agents that had findings), else DONE_WITH_CONCERNS. Minor → report, never the diff.
+- `ship` gains a **delta re-check** before opening the PR: post-review commits touching code → `code-reviewer` on that delta only; no fix loop — the human decides (fix / ship anyway / hand back). Shipped-with findings go in the PR body. "No review subagents in Phase 1" line retired.
+- `templates/report.html`: review status pill (clean / N fixed / N open) with fact-ownership note.
+- `templates/reviewer-prompt.md` reframed as the documented fallback; merge-base scope rule added.
+
 ## 0.3.2 — 2026-07-08
 
 Fresh-context review of the v0.3.0 report template + its pilot-3 instance (12 findings). Template fixes:

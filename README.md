@@ -44,8 +44,10 @@ The `setup-harness`, `feature`, `ship`, and `improve` skills then appear in `/he
 
 1. **`/setup-harness`** (namespaced: `/builder:setup-harness`) — once per project. Instruments the repo (config, state, generated skills) and records the test baseline. ~10 minutes, mostly detection.
 2. **`/feature <description or ticket>`** — runs the pipeline. You approve the plan; it builds, proves, and writes an HTML report. Each run's artifacts colocate in one dated folder — `.harness/runs/<YYYY-MM-DD>-<feature>/{spec.md, plan.md, report.html}` — so recency is visible in `ls` and one glob answers "everything about feature X".
-3. **Review the HTML**, then **`/ship`** — commits, opens the PR with the report's evidence linked, updates the tracker.
+3. **Review the HTML**, then **`/ship`** — delta review re-check, commits, opens the PR with the report's evidence linked, updates the tracker.
+
+Review subagents run inside PROVE (before e2e) and as a delta re-check in `/ship` — preferably Anthropic's [`pr-review-toolkit`](https://github.com/anthropics/claude-plugins-official) agents (setup prompts the install once), else the fallback in `templates/reviewer-prompt.md`; the `.harness/agents/review.md` mapping decides.
 
 ## Not in Phase 1
 
-Review subagents, dedicated verify-skill drivers beyond the generated templates, `/ticket` tracker routing, Stop hooks, worktrees, and nightly routines are Phase 2+. Security guardrails, skill evals, and other hardening are last phase (Phase 4) — `hooks/guardrails.sh` remains in the repo as the ready implementation but is not wired by setup.
+Dedicated verify-skill drivers beyond the generated templates, fresh-context completion verifiers, `/ticket` tracker routing, Stop hooks, worktrees, and nightly routines are Phase 2+. Security guardrails, skill evals, and other hardening are last phase (Phase 4) — `hooks/guardrails.sh` remains in the repo as the ready implementation but is not wired by setup.
