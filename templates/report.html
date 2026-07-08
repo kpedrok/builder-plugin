@@ -3,96 +3,336 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Feature Report — REPLACE_FEATURE_NAME</title>
+<title>Report — REPLACE_FEATURE_NAME</title>
+<!--
+  TEMPLATE RULES (delete this comment block in the generated report):
+  · Fill every REPLACE. OMIT a whole section if it's genuinely empty (don't leave "n/a" headers) —
+    except sections 2, 5 and 7, which are always present.
+  · Terminal blocks: paste REAL command output, never fabricate. Wrap verdict lines in
+    <span class="t-ok">, <span class="t-warn">, <span class="t-err"> for color.
+  · Screenshots: resize to ≤1200px wide and re-encode as JPEG quality ~70 BEFORE base64-embedding
+    (e.g. `sips -Z 1200 s.png && sips -s format jpeg -s formatOptions 70 s.png --out s.jpg`).
+    Target < 150 KB per image.
+  · Code excerpts: real code, ≤ 20 lines each, 2–4 excerpts total. Use <mark> to highlight the
+    lines that carry the idea.
+  · Keep the CSS untouched — the template's look is plugin-owned and identical in every repo.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  :root { color-scheme: light dark; }
+  :root {
+    color-scheme: light dark;
+    --ground: #f4f5f7;
+    --surface: #ffffff;
+    --ink: #171c26;
+    --muted: #667085;
+    --line: #e3e6eb;
+    --accent: #1a56db;
+    --pass: #15803d;   --pass-soft: #e8f3ec;
+    --warn: #b45309;   --warn-soft: #faf0e0;
+    --fail: #b91c1c;   --fail-soft: #f9e9e7;
+    --term-bg: #10141c; --term-ink: #d6dce6;
+    --code-bg: #f0f1f4;
+    --radius: 10px;
+    --shadow: 0 1px 2px rgba(16,20,28,.05), 0 1px 6px rgba(16,20,28,.04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0e1117;
+      --surface: #161b24;
+      --ink: #e4e8ee;
+      --muted: #8b95a5;
+      --line: #262d3a;
+      --accent: #7aa2f7;
+      --pass: #4ade80;   --pass-soft: #12281c;
+      --warn: #fbbf24;   --warn-soft: #2d2412;
+      --fail: #f87171;   --fail-soft: #321a18;
+      --term-bg: #0a0d13; --term-ink: #cdd5e0;
+      --code-bg: #1c222d;
+      --shadow: none;
+    }
+  }
   * { box-sizing: border-box; }
-  body { font: 15px/1.6 -apple-system, system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1.25rem; }
-  h1 { font-size: 1.7rem; margin-bottom: .25rem; }
-  h2 { font-size: 1.25rem; margin-top: 2.25rem; padding-bottom: .3rem; border-bottom: 1px solid currentColor; }
-  .sub { opacity: .7; margin-top: 0; }
-  table { border-collapse: collapse; width: 100%; margin: .5rem 0; }
-  th, td { border: 1px solid rgba(128,128,128,.4); padding: .45rem .6rem; text-align: left; vertical-align: top; }
-  th { background: rgba(128,128,128,.12); }
-  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-  pre { background: rgba(128,128,128,.12); padding: .75rem 1rem; border-radius: 6px; overflow-x: auto; font-size: 13px; }
-  .ok { color: #15803d; } .warn { color: #b45309; } .bad { color: #b91c1c; }
-  .diff-add { color: #15803d; } .diff-del { color: #b91c1c; }
-  img { max-width: 100%; border: 1px solid rgba(128,128,128,.4); border-radius: 6px; }
-  figure { margin: 1rem 0; } figcaption { opacity: .7; font-size: 13px; }
-  .empty { opacity: .6; font-style: italic; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: Inter, -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 15px; line-height: 1.65;
+    max-width: 980px; margin: 0 auto; padding: 3rem 1.5rem 4rem;
+  }
+  code, pre, .path, .sym {
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  code { background: var(--code-bg); padding: .08em .35em; border-radius: 4px; font-size: .88em; }
+
+  /* Header */
+  .eyebrow {
+    text-transform: uppercase; letter-spacing: .13em;
+    font-size: .7rem; font-weight: 600; color: var(--muted); margin: 0 0 .55rem;
+  }
+  h1 { font-size: 1.85rem; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; margin: 0 0 .7rem; text-wrap: balance; }
+  h1 code { font-size: .85em; }
+  .lede { color: var(--muted); max-width: 46rem; margin: 0 0 1.4rem; }
+  .lede strong { color: var(--ink); }
+
+  /* Status pills */
+  .pills { display: flex; flex-wrap: wrap; gap: .55rem; margin: 0 0 2.6rem; }
+  .pill {
+    display: inline-flex; align-items: center; gap: .4rem;
+    font-size: .72rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+    padding: .3rem .7rem; border-radius: 999px;
+    font-variant-numeric: tabular-nums;
+  }
+  .pill.pass { color: var(--pass); background: var(--pass-soft); }
+  .pill.warn { color: var(--warn); background: var(--warn-soft); }
+  .pill.fail { color: var(--fail); background: var(--fail-soft); }
+
+  /* Sections */
+  h2 {
+    font-size: 1.15rem; font-weight: 700; letter-spacing: -.01em;
+    margin: 2.8rem 0 .9rem;
+  }
+  h2 .n { color: var(--muted); font-weight: 600; margin-right: .45rem; font-variant-numeric: tabular-nums; }
+  h3 { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin: 1.6rem 0 .6rem; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 1.1rem 1.3rem; margin: 0 0 1rem;
+  }
+
+  /* Story */
+  .story { font-size: 1.02rem; max-width: 46rem; }
+  .story p { margin: .6rem 0; }
+
+  /* Tables */
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+  th, td { text-align: left; vertical-align: top; padding: .5rem .7rem; border-bottom: 1px solid var(--line); }
+  th { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+  td.ok { color: var(--pass); font-weight: 600; }
+  td.no { color: var(--fail); font-weight: 600; }
+  .twrap { overflow-x: auto; }
+
+  /* Change cards */
+  .changes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: 1rem; }
+  .change-head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: .8rem;
+    border-bottom: 1px solid var(--line); padding-bottom: .6rem; margin-bottom: .7rem;
+  }
+  .change-head .t { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+  .diffstat { font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .diffstat .add { color: var(--pass); font-weight: 600; }
+  .diffstat .del { color: var(--fail); font-weight: 600; }
+  .chg { display: flex; gap: .6rem; padding: .45rem 0; border-bottom: 1px solid var(--line); font-size: .9rem; }
+  .chg:last-child { border-bottom: none; }
+  .chg .m { flex: none; width: 1.1rem; text-align: center; font-weight: 700; font-family: "JetBrains Mono", monospace; }
+  .chg.add .m { color: var(--pass); } .chg.del .m { color: var(--fail); } .chg.mod .m { color: var(--warn); }
+  .chg .sym { font-size: .85rem; font-weight: 600; }
+  .chg .path { display: block; font-size: .74rem; color: var(--muted); margin-top: .1rem; }
+
+  /* Code excerpts */
+  .snippet { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); margin: 0 0 1rem; overflow: hidden; }
+  .snippet-head {
+    display: flex; justify-content: space-between; gap: 1rem; align-items: baseline;
+    padding: .55rem 1rem; border-bottom: 1px solid var(--line);
+    font-size: .78rem;
+  }
+  .snippet-head .path { color: var(--muted); }
+  .snippet pre { margin: 0; border: none; border-radius: 0; background: var(--code-bg); }
+  .snippet .note { padding: .6rem 1rem; font-size: .88rem; color: var(--muted); border-top: 1px solid var(--line); }
+  pre {
+    background: var(--code-bg); padding: .85rem 1rem; border-radius: 8px;
+    overflow-x: auto; font-size: 12.5px; line-height: 1.55;
+  }
+  pre mark { background: var(--warn-soft); color: inherit; border-radius: 3px; padding: 0 .15em; }
+
+  /* Terminal blocks */
+  .term {
+    background: var(--term-bg); color: var(--term-ink);
+    padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto;
+    font-size: 12.5px; line-height: 1.6;
+  }
+  .term .t-cmd { color: #8b95a5; }
+  .term .t-ok { color: #4ade80; font-weight: 600; }
+  .term .t-warn { color: #fbbf24; }
+  .term .t-err { color: #f87171; font-weight: 600; }
+
+  /* Callouts */
+  .callout { border-radius: 8px; padding: .8rem 1.05rem; margin: 0 0 .8rem; font-size: .93rem; }
+  .callout strong:first-child { display: inline-block; margin-right: .25rem; }
+  .callout.ship { background: var(--fail-soft); }
+  .callout.ship strong:first-child { color: var(--fail); }
+  .callout.deviation { background: var(--warn-soft); }
+  .callout.deviation strong:first-child { color: var(--warn); }
+  .callout.fixed { background: var(--pass-soft); }
+  .callout.fixed strong:first-child { color: var(--pass); }
+
+  /* Figures */
+  figure { margin: 1.4rem 0; }
+  figure img { max-width: 100%; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); display: block; }
+  figcaption { font-size: .82rem; color: var(--muted); margin-top: .5rem; }
+  figcaption .fig-n { font-weight: 700; color: var(--ink); margin-right: .3rem; }
   svg { max-width: 100%; height: auto; }
+  .diagram { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1rem; }
+  .diagram text { fill: currentColor; font-family: Inter, sans-serif; }
+  .diagram .box { fill: none; stroke: currentColor; stroke-width: 1.2; rx: 6; }
+  .diagram .flow { stroke: currentColor; stroke-width: 1.2; fill: none; }
+
+  /* Internalize */
+  details { border-bottom: 1px solid var(--line); padding: .55rem 0; }
+  details:last-child { border-bottom: none; }
+  summary { cursor: pointer; font-weight: 600; font-size: .95rem; }
+  details p { margin: .5rem 0 .2rem; color: var(--muted); font-size: .92rem; }
+
+  ul { padding-left: 1.25rem; } li { margin: .3rem 0; }
+  ol { padding-left: 1.35rem; } ol li { margin: .35rem 0; }
+
+  /* Footer meta */
+  .meta { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: .82rem; color: var(--muted); }
+  .meta p { margin: .25rem 0; }
 </style>
 </head>
 <body>
 
+<p class="eyebrow">REPORT · REPLACE_FEATURE_SLUG · REPLACE_DATE · <span class="path">REPLACE_BRANCH</span> · REPLACE_TICKET</p>
 <h1>REPLACE_FEATURE_NAME</h1>
-<p class="sub">Feature report · REPLACE_DATE · branch <code>REPLACE_BRANCH</code></p>
+<p class="lede">REPLACE — three sentences max: <strong>what</strong> was built and for whom, <strong>where</strong> it lives (layers touched), and the <strong>status</strong> (e.g. "committed on the branch, report pending review, ready for /ship").</p>
 
-<h2>1. Asked vs. built (spec ↔ diff)</h2>
-<p>One row per acceptance criterion. Map each to the change that satisfies it.</p>
-<table>
-  <thead><tr><th>Acceptance criterion</th><th>Met?</th><th>Where / evidence</th></tr></thead>
-  <tbody>
-    <tr><td>REPLACE</td><td class="ok">✔</td><td>REPLACE</td></tr>
-  </tbody>
-</table>
+<div class="pills">
+  <span class="pill pass">✓ Full gate · REPLACE_N tests</span>
+  <span class="pill pass">✓ E2E in browser</span>
+  <span class="pill pass">Baseline REPLACE_OLD → REPLACE_NEW</span>
+  <!-- add one pill per notable fact; use .warn for deviations ("1 test dropped"), .fail only for real failures -->
+</div>
 
-<h2>2. Changed files</h2>
-<p>Annotated highlights — the lines that matter, not the full diff.</p>
-<pre>REPLACE with annotated diff excerpts (use <span class="diff-add">+ added</span> / <span class="diff-del">- removed</span>)</pre>
+<h2><span class="n">1</span>The story</h2>
+<div class="story">
+  <!-- 5–10 sentences of PROSE, no tables/bullets. The problem as the user experiences it →
+       the shape of the solution → how data flows end-to-end. This is what the reader
+       should be able to retell from memory. -->
+  <p>REPLACE</p>
+</div>
 
-<h2>3. Flow diagrams</h2>
-<p>SVG for anything whose behavior changed. Omit if nothing structural changed (say so).</p>
-<figure>
-  <svg viewBox="0 0 600 120" role="img" aria-label="flow diagram placeholder">
-    <rect x="10" y="40" width="140" height="40" rx="6" fill="none" stroke="currentColor"/>
-    <text x="80" y="65" text-anchor="middle" font-size="13">REPLACE</text>
-    <line x1="150" y1="60" x2="230" y2="60" stroke="currentColor" marker-end="url(#a)"/>
-    <rect x="230" y="40" width="140" height="40" rx="6" fill="none" stroke="currentColor"/>
-    <text x="300" y="65" text-anchor="middle" font-size="13">REPLACE</text>
-    <defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
+<h2><span class="n">2</span>Asked vs. built</h2>
+<div class="card twrap">
+  <table>
+    <thead><tr><th>Acceptance criterion</th><th>Met</th><th>Where / evidence</th></tr></thead>
+    <tbody>
+      <tr><td>REPLACE</td><td class="ok">✓</td><td>REPLACE</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2><span class="n">3</span>What changed</h2>
+<!-- One card per slice (or per layer/repo for cross-repo work). Marker: + new, − removed, ~ modified. -->
+<div class="changes">
+  <div class="card">
+    <div class="change-head">
+      <span class="t">Slice 1 — REPLACE_SLICE_TITLE</span>
+      <span class="diffstat">REPLACE_N files · <span class="add">+REPLACE</span> / <span class="del">−REPLACE</span> · <span class="path">REPLACE_COMMIT</span></span>
+    </div>
+    <div class="chg add"><span class="m">+</span><div><span class="sym">REPLACE_SYMBOL</span> — REPLACE what it does<span class="path">REPLACE/file/path.ts</span></div></div>
+    <div class="chg mod"><span class="m">~</span><div><span class="sym">REPLACE_SYMBOL</span> — REPLACE what changed and why<span class="path">REPLACE/file/path.ts</span></div></div>
+  </div>
+</div>
+
+<h2><span class="n">4</span>How it works</h2>
+<!-- 2–4 REAL code excerpts (≤20 lines each) that carry the core idea: the data model, the
+     central function, the UI hook. <mark> the load-bearing lines. Each snippet gets a
+     one-sentence .note saying what to see in it. Then ONE sequence diagram of the actual
+     user action (real actor/component names, not generic boxes). -->
+<div class="snippet">
+  <div class="snippet-head"><span class="path">REPLACE/file/path.ts</span><span>REPLACE — what this is</span></div>
+  <pre>REPLACE real code, ≤20 lines, with <mark>the key lines marked</mark></pre>
+  <div class="note">REPLACE — one sentence: what to notice here.</div>
+</div>
+
+<figure class="diagram">
+  <svg viewBox="0 0 720 200" role="img" aria-label="sequence of the user action">
+    <!-- REPLACE: redraw as the real sequence — lifelines for the actual actors
+         (User → Component → Server action → DB → UI), arrows labeled with the real
+         function/route names. Keep stroke/fill as currentColor via the CSS classes. -->
+    <rect class="box" x="10" y="10" width="130" height="34"/><text x="75" y="32" text-anchor="middle" font-size="12">REPLACE actor</text>
+    <line class="flow" x1="140" y1="27" x2="240" y2="27" marker-end="url(#arr)"/>
+    <text x="190" y="20" text-anchor="middle" font-size="11">REPLACE call()</text>
+    <rect class="box" x="240" y="10" width="130" height="34"/><text x="305" y="32" text-anchor="middle" font-size="12">REPLACE step</text>
+    <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
   </svg>
-  <figcaption>REPLACE — what this flow shows</figcaption>
+  <figcaption><span class="fig-n">Diagram</span>REPLACE — what this sequence shows.</figcaption>
 </figure>
 
-<h2>4. Proof of work</h2>
-<p>Gate outputs, test counts, screenshots — embedded, not linked.</p>
-<pre>REPLACE with the full-gate command and its output, e.g.:
-$ &lt;full gate command&gt;
-...
-42 passing (exit 0)</pre>
+<h2><span class="n">5</span>Proof of work</h2>
+
+<h3>1 · Full gate</h3>
+<pre class="term"><span class="t-cmd">$ REPLACE full gate command</span>
+REPLACE real output — wrap verdicts: <span class="t-ok">704 pass, 0 fail (exit 0)</span></pre>
+
+<h3>2 · REPLACE next evidence (e2e, probe, …)</h3>
+<pre class="term"><span class="t-cmd">$ REPLACE</span>
+REPLACE</pre>
+
+<h3>Persistence</h3>
+<div class="card twrap">
+  <table>
+    <thead><tr><th>Layer</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>REPLACE (e.g. PostgreSQL)</td><td><code>REPLACE — the row/state observed, with values</code></td></tr>
+      <tr><td>UI</td><td>REPLACE — what was seen after reload (→ screenshots)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h3>Screenshots — live run</h3>
 <figure>
-  <img src="data:image/png;base64,REPLACE" alt="screenshot of the working feature">
-  <figcaption>REPLACE — what this screenshot proves</figcaption>
+  <img src="data:image/jpeg;base64,REPLACE" alt="REPLACE">
+  <figcaption><span class="fig-n">1</span>REPLACE — what to look at in this screenshot.</figcaption>
 </figure>
 
-<h2>5. Decisions &amp; assumptions</h2>
-<p>Non-obvious calls made during the run, and any assumption made without confirmation.</p>
-<ul><li>REPLACE</li></ul>
+<h2><span class="n">6</span>Decisions &amp; deviations</h2>
+<ul>
+  <li><strong>REPLACE_DECISION</strong> — REPLACE the why, incl. the rejected alternative. (STATE AD-REPLACE)</li>
+</ul>
+<div class="callout deviation"><strong>Deviation:</strong> REPLACE — what diverged from the plan, why, and what compensates for it. (STATE L-REPLACE)</div>
+<div class="callout fixed"><strong>Fixed in passing:</strong> REPLACE — small unrelated thing repaired along the way. Omit if none.</div>
 
-<h2>6. Docs synced</h2>
-<p>Which docs the run touched (so the human can audit the sync).</p>
-<table>
-  <thead><tr><th>Doc</th><th>Updated?</th><th>What changed</th></tr></thead>
-  <tbody>
-    <tr><td>CLAUDE.md</td><td>REPLACE</td><td>REPLACE / n/a</td></tr>
-    <tr><td>CONTEXT.md</td><td>REPLACE</td><td>REPLACE / n/a</td></tr>
-    <tr><td>docs/product.md</td><td>REPLACE</td><td>REPLACE / n/a</td></tr>
-    <tr><td>docs/adr/</td><td>REPLACE</td><td>REPLACE / n/a</td></tr>
-    <tr><td>docs/agents/ mappings</td><td>REPLACE</td><td>REPLACE / n/a</td></tr>
-    <tr><td>spec</td><td>REPLACE</td><td>REPLACE / n/a</td></tr>
-    <tr><td>.harness/STATE.md</td><td>REPLACE</td><td>REPLACE</td></tr>
-  </tbody>
-</table>
+<h2><span class="n">7</span>Docs synced</h2>
+<div class="card twrap">
+  <table>
+    <thead><tr><th>Doc</th><th>Updated</th><th>What changed</th></tr></thead>
+    <tbody>
+      <tr><td>AGENTS.md / CLAUDE.md</td><td>REPLACE</td><td>REPLACE / n/a — why</td></tr>
+      <tr><td>docs/agents/ mappings</td><td>REPLACE</td><td>REPLACE / n/a</td></tr>
+      <tr><td>docs/product.md</td><td>REPLACE</td><td>REPLACE / n/a</td></tr>
+      <tr><td>spec / plan</td><td>REPLACE</td><td>REPLACE</td></tr>
+      <tr><td>.harness/STATE.md</td><td>✓</td><td>REPLACE — always updated</td></tr>
+      <tr><td>.harness/plugin-outbox.md</td><td>REPLACE</td><td>REPLACE / n/a — universal gotchas queued</td></tr>
+    </tbody>
+  </table>
+</div>
 
-<h2>7. Noticed but not touched</h2>
-<p>Out-of-scope items surfaced during the run — the human decides whether they become tickets.</p>
-<ul><li>REPLACE</li></ul>
+<h2><span class="n">8</span>Noticed but not touched</h2>
+<ul><li>REPLACE — out-of-scope finding; the human decides whether it becomes a ticket.</li></ul>
 
-<h2>8. Suggested focus areas for the final pass</h2>
-<p>Where the human's taste and trust-boundary judgment is most valuable.</p>
-<ul><li>REPLACE</li></ul>
+<h2><span class="n">9</span>How to ship it</h2>
+<div class="callout ship"><strong>REPLACE if relevant (else omit):</strong> deploy-order / migration / feature-flag risk the shipper must know.</div>
+<ol>
+  <li>REPLACE — what <code>/ship</code> will do here (PR target, tracker move, migration step).</li>
+</ol>
+
+<h2><span class="n">10</span>To internalize</h2>
+<!-- 3–5 questions a reviewer should be able to answer after reading this report.
+     One-line answers behind <details>. -->
+<div class="card">
+  <details><summary>REPLACE — e.g. "Why a dedicated table instead of columns on the existing one?"</summary><p>REPLACE one-line answer.</p></details>
+  <details><summary>REPLACE</summary><p>REPLACE</p></details>
+</div>
+
+<div class="meta">
+  <p><strong>Left running:</strong> REPLACE (dev server, DB, mocks) / nothing.</p>
+  <p><strong>Related:</strong> REPLACE — ticket links, STATE entries, ADRs, predecessor branches.</p>
+  <p>Generated by the builder harness · REPLACE_DATE</p>
+</div>
 
 </body>
 </html>

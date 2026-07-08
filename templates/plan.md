@@ -4,7 +4,7 @@
 > Spec: <link/path to the spec or ticket>
 > Branch: <branch>
 
-Persisted execution artifact at `.harness/plans/<feature>.md`. **This file — not the chat — is the source of truth.** The human may edit it directly before (or after) approving; always re-read it after approval and between slices. Exact file paths required. **No placeholders — a TBD or TODO here is a planning failure.** Archive or delete after the feature ships.
+Persisted execution artifact at `.harness/runs/<YYYY-MM-DD>-<feature>/plan.md`, next to its spec and (later) report. **This file — not the chat — is the source of truth.** The human may edit it directly before (or after) approving; always re-read it after approval and between slices. Exact file paths required. **No placeholders — a TBD or TODO here is a planning failure.** `/ship` moves the whole run folder to `.harness/archive/`.
 
 ## Slices
 

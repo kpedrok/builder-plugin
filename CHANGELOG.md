@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0 — 2026-07-08
+
+Driven by pilot 3 (first real `/feature` on kondak-orcamento) + Pedro's reference report ("SAA-733"). Theme: Report v2 — design + pedagogy (see `Design/Report v2 - Design and Pedagogy.md` in the ai vault).
+
+- `templates/report.html` rewritten: design-token CSS with light/dark, Inter + JetBrains Mono webfonts (system fallbacks), status pills, per-slice change cards with diffstats and ± rows, dark terminal evidence blocks, tinted callouts (ship risk / deviation / fixed-in-passing), framed captioned screenshots. CSS is plugin-owned — agents fill content, never restyle.
+- New pedagogy sections: "The story" (prose narrative), "How it works" (real code excerpts + sequence diagram of the actual user action), "How to ship it", "To internalize" (reviewer questions with `<details>` answers).
+- `feature` REPORT step rewritten to match: teaching-document intent, section list, hard rules (real terminal output only; screenshots ≤1200px JPEG ~70, <150 KB each), and **`git add` the report** (pilot 3 left it untracked — it didn't travel with the branch).
+- **Run-folder layout** (convergent pattern across spec-kit / Kiro / OpenSpec; replaces type-grouped `.harness/specs|plans|reports/`): each run colocates its artifacts in `.harness/runs/<YYYY-MM-DD>-<feature>/{spec.md, plan.md, report.html}` — date prefix makes recency visible and re-runs collision-free; `/ship` archives the **whole folder** to `.harness/archive/` (structurally fixes pilot 3's orphaned report). Singletons (`STATE.md`, `plugin-outbox.md`) stay at the `.harness/` root. `feature` carries a one-paragraph legacy-layout migration (`git mv` per feature, DONE runs straight to archive).
+
 ## 0.2.1 — 2026-07-08
 
 - CLAUDE.md `## Harness` block gains two session-hygiene rules so ad hoc sessions (work outside `/feature`) also doc-sync: "after finishing any piece of work, walk the doc-sync checklist in `docs/agents/docs.md`" + "fix this file if it became wrong". Trigger deliberately phrased per-piece-of-work, not per-session (session end is unobservable to the model); the deterministic Stop-hook version stays Phase 2+.

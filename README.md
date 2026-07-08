@@ -43,7 +43,7 @@ The `setup-harness`, `feature`, `ship`, and `improve` skills then appear in `/he
 ## Usage — three steps
 
 1. **`/setup-harness`** (namespaced: `/builder:setup-harness`) — once per project. Instruments the repo (config, state, generated skills) and records the test baseline. ~10 minutes, mostly detection.
-2. **`/feature <description or ticket>`** — runs the pipeline. You approve the plan; it builds, proves, and writes an HTML report to `.harness/reports/`.
+2. **`/feature <description or ticket>`** — runs the pipeline. You approve the plan; it builds, proves, and writes an HTML report. Each run's artifacts colocate in one dated folder — `.harness/runs/<YYYY-MM-DD>-<feature>/{spec.md, plan.md, report.html}` — so recency is visible in `ls` and one glob answers "everything about feature X".
 3. **Review the HTML**, then **`/ship`** — commits, opens the PR with the report's evidence linked, updates the tracker.
 
 ## Not in Phase 1

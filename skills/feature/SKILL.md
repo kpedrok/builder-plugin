@@ -13,9 +13,15 @@ ALIGN ──────── PLAN ─┃─ BUILD ── PROVE ── REPORT  
 
 Every phase has an exit criterion that must appear **in the conversation** — shown output, file contents, test results, screenshots — not merely exist on disk. Canonical verbs below ("run the full gate", "fetch the ticket") resolve through `docs/agents/` mappings; never hardcode a real command here.
 
+## Run folder (one folder per run holds all its artifacts)
+
+Each run owns `.harness/runs/<YYYY-MM-DD>-<feature-slug>/` — created when the spec is written, date = the day ALIGN starts, fixed inner filenames `spec.md` / `plan.md` / `report.html` (the folder name carries identity; `<run>` below means this folder). A re-run of the same feature gets a new dated folder — never overwrite an old run's files. `/ship` moves the whole folder to `.harness/archive/`, so everything under `runs/` is by definition in flight. Cross-run singletons (`STATE.md`, `plugin-outbox.md`) stay at the `.harness/` root.
+
+**Legacy layout** (type-grouped `.harness/specs|plans|reports/` from harness ≤0.2): migrate before proceeding — `git mv` each feature's spec/plan/report into `.harness/runs/<date>-<slug>/` (date from the spec's first commit; runs whose plan Status is DONE go to `.harness/archive/` instead), remove the emptied dirs, update the specs write path in `docs/agents/docs.md`, commit `chore: migrate .harness to run-folder layout`.
+
 ## Resume check (before anything else)
 
-Scan `.harness/plans/*.md` for a plan with Status APPROVED and an unfinished Progress ledger. If one matches the ask (or the invocation names it), confirm with the human — "resume `<feature>` at slice N?" — then skip ALIGN/PLAN and go straight to BUILD's ledger reconciliation (`git log --grep "Slice:"` + ledger, trusted over memory). **Never re-grill or rewrite an approved plan on resume.** No in-flight plan, or the human says it's new work → proceed to Sizing.
+Scan `.harness/runs/*/plan.md` for a plan with Status APPROVED and an unfinished Progress ledger. If one matches the ask (or the invocation names it), confirm with the human — "resume `<feature>` at slice N?" — then skip ALIGN/PLAN and go straight to BUILD's ledger reconciliation (`git log --grep "Slice:"` + ledger, trusted over memory). **Never re-grill or rewrite an approved plan on resume.** No in-flight plan, or the human says it's new work → proceed to Sizing.
 
 ## Sizing (decide first, state it in one line)
 
@@ -38,7 +44,7 @@ Understand, then grill. Do NOT run inside an autonomous goal loop.
 
 **Bug fixes — red-command gate:** no hypothesizing about the cause until you can paste the invocation and output of a deterministic command that reproduces the bug (this becomes the failing regression test). No red command, no diagnosis.
 
-**Exit:** a spec with an **objective**, **user stories**, **testable acceptance criteria** (each traceable to a story), an **out-of-scope section**, and any new glossary terms. Durable → **no file paths**. (Use the `spec.md` template; write it to the specs location in `docs/agents/docs.md` — default `.harness/specs/<feature>.md` — and show the path.) For a title-only ticket, also post the spec back.
+**Exit:** a spec with an **objective**, **user stories**, **testable acceptance criteria** (each traceable to a story), an **out-of-scope section**, and any new glossary terms. Durable → **no file paths**. (Use the `spec.md` template; write it to the specs location in `docs/agents/docs.md` — default `<run>/spec.md` — and show the path.) For a title-only ticket, also post the spec back.
 
 ## PLAN (interactive — the human gate)
 
@@ -47,7 +53,7 @@ Understand, then grill. Do NOT run inside an autonomous goal loop.
 - Each slice: exact files, the acceptance criterion it satisfies, the verification step (which gate + expected test count).
 - **Exact paths, no placeholders. A TBD/TODO in the plan is a failure.**
 - List the scope guard (files the plan may touch) and open assumptions.
-- **Write the plan to `.harness/plans/<feature>.md` (from the `plan.md` template) BEFORE asking for approval, and show the path.** The file — not the chat — is the source of truth: the human may approve in chat, edit the file directly, or ask for changes. **After approval, re-read the file** and work from it — it may differ from what you presented. Mark its Status line APPROVED.
+- **Write the plan to `<run>/plan.md` (from the `plan.md` template) BEFORE asking for approval, and show the path.** The file — not the chat — is the source of truth: the human may approve in chat, edit the file directly, or ask for changes. **After approval, re-read the file** and work from it — it may differ from what you presented. Mark its Status line APPROVED.
 
 **Exit: the human explicitly approves the plan (and the file's Status says so).** Hedged responses — "looks reasonable", "I guess", "sure, whatever" — are **not** approval; ask for an explicit yes. Autonomous mode (`/goal`) begins here — see the `goal-conditions.md` template.
 
@@ -103,7 +109,11 @@ Fix wrong content immediately (a wrong CLAUDE.md is worse than a missing one). R
 
 ### 2. Write the HTML report
 
-One self-contained file at `.harness/reports/<feature>.html` (from the `report.html` template), opens in any browser. Sections: asked-vs-built (spec↔diff) · annotated changed files · SVG flow diagrams for changed behavior · embedded proof of work (gate output, test counts, screenshots) · decisions & assumptions · **docs synced** (which the doc-sync step touched) · noticed-but-not-touched · suggested focus areas for the final pass. **Show the report's path.** Tick the ledger's REPORT row with the path and set the plan's Status line to DONE.
+One self-contained file at `<run>/report.html` from the `report.html` template — **keep the template's CSS untouched** (the look is plugin-owned and identical in every repo); fill the skeleton, delete unused optional sections, follow the rules in the template's head comment. The report is a *teaching document*, not a checklist: a reviewer should finish it able to retell how the feature works.
+
+Sections (numbers = template order): header + lede + **status pills** (gate, e2e, baseline delta — verdict readable in 5 seconds) · **1 The story** (prose narrative: problem → shape of solution → data flow; no tables) · 2 Asked-vs-built (spec↔evidence) · 3 What changed (one card per slice with diffstat and ±/~ annotated rows) · **4 How it works** (2–4 real code excerpts ≤20 lines with the key lines marked, + a sequence diagram of the actual user action with real names) · 5 Proof of work (terminal blocks with real output, persistence table, captioned screenshots) · 6 Decisions & deviations (deviations as amber callouts, fixed-in-passing as green) · 7 Docs synced · 8 Noticed-but-not-touched · 9 How to ship it (deploy-order/migration risk callout + what `/ship` will do) · **10 To internalize** (3–5 reviewer questions, one-line answers in `<details>`).
+
+Hard rules: terminal blocks show **real output, never fabricated**; screenshots resized to ≤1200px and re-encoded JPEG ~70 before embedding (<150 KB each); code excerpts are real code. When done: **`git add` the report** (an untracked report doesn't travel with the branch — `/ship` commits it), **show the report's path**, tick the ledger's REPORT row with the path, and set the plan's Status line to DONE.
 
 **STOP HERE.** The human reviews the HTML, then decides to `/ship`. Do not commit-to-main, open a PR, or update the tracker in this skill. `/ship` is human-invoke-only — if the human asks to ship in prose ("ship it", "open the PR"), tell them to type `/ship`; **never improvise the shipping steps yourself.**
 
