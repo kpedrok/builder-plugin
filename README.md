@@ -9,7 +9,7 @@ The harness is **prompts + files — scripts may transform, never decide.** The 
 - **`setup-harness`** skill — the installer. Detects the stack, interviews for the gaps, scaffolds config/state, generates project-owned skills, and proves the gates actually work.
 - **`feature`** skill — the pipeline: ALIGN → PLAN → BUILD → PROVE → REPORT, sized to the work, stopping at a self-contained HTML report for your review.
 - **`ship`** skill — reads the report, commits, opens a PR linking the evidence, updates the tracker.
-- **`templates/`** — spec, plan, STATE, product one-pager (purpose/personas/non-goals — the durable source of user-story roles), HTML report skeleton, goal conditions, verifier/reviewer subagent prompts (written for Phase 2, doubt-protocol discipline applies from Phase 1), and the project-skill templates setup instantiates.
+- **`templates/`** — spec, plan, STATE, product one-pager (purpose/personas/success signals/non-goals — the durable source of user-story roles), HTML report skeleton, goal conditions, verifier/reviewer subagent prompts (written for Phase 2, doubt-protocol discipline applies from Phase 1), and the project-skill templates setup instantiates.
 
 ## Install
 
@@ -32,7 +32,7 @@ The `setup-harness`, `feature`, and `ship` skills then appear in `/help` and via
 
 ## Usage — three steps
 
-1. **`/setup-harness`** — once per project. Instruments the repo (config, state, generated skills) and records the test baseline. ~10 minutes, mostly detection.
+1. **`/setup-harness`** (namespaced: `/builder:setup-harness`) — once per project. Instruments the repo (config, state, generated skills) and records the test baseline. ~10 minutes, mostly detection.
 2. **`/feature <description or ticket>`** — runs the pipeline. You approve the plan; it builds, proves, and writes an HTML report to `.harness/reports/`.
 3. **Review the HTML**, then **`/ship`** — commits, opens the PR with the report's evidence linked, updates the tracker.
 

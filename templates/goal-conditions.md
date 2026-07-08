@@ -18,7 +18,7 @@ approved plan at .harness/plans/<NAME>.md is implemented with TDD (failing test
 shown before each implementation), the plan's progress ledger updated after each
 slice (shown), the full gate command and exit 0 with the expected test count
 are shown, e2e verified with the interaction described and screenshots taken,
-docs synced (CLAUDE.md/CONTEXT.md/ADRs/spec updated or explicitly n/a — listed),
+docs synced (CLAUDE.md/CONTEXT.md/ADRs/spec/docs/product.md updated or explicitly n/a — listed, plus a .harness/STATE.md entry shown),
 and the HTML report written to .harness/reports/ with its path shown. No files
 outside the plan's scope are modified. Stop after 40 turns.
 ```
@@ -29,7 +29,7 @@ outside the plan's scope are modified. Stop after 40 turns.
 /goal The bug in <AREA> is fixed per the feature skill: a regression test
 reproducing the bug is shown failing, then passing after the fix; root cause
 explained in one paragraph; full gate exits 0 with expected test count (output
-shown); no other test file modified; docs synced or explicitly n/a; HTML report
+shown); no other test file modified; docs synced or explicitly n/a (STATE.md entry shown); HTML report
 written with its path shown. Stop after 20 turns.
 ```
 
@@ -39,7 +39,7 @@ written with its path shown. Stop after 20 turns.
 /goal The refactor of <MODULE> is complete: behavior unchanged (full gate exits
 0 before and after with test counts, both outputs shown), <MEASURABLE TARGET —
 e.g. each file under 300 lines / duplication X removed>, no public API changes,
-docs synced or explicitly n/a, and the HTML report written with its path shown.
+docs synced or explicitly n/a (STATE.md entry shown), and the HTML report written with its path shown.
 Stop after 30 turns.
 ```
 

@@ -1,8 +1,7 @@
 {
-  "_comment": "Merge this into the target project's .claude/settings.json. setup-harness tunes the permissions allowlist to the detected stack. The permissions here are a starting point, not the final list.",
   "permissions": {
     "allow": [
-      "Bash(git status)",
+      "Bash(git status:*)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
       "Bash(git add:*)",

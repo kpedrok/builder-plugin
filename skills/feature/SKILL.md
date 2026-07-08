@@ -19,7 +19,7 @@ Scan `.harness/plans/*.md` for a plan with Status APPROVED and an unfinished Pro
 
 ## Sizing (decide first, state it in one line)
 
-- **Small** — ≤3 files, clear unambiguous ask → skip the ALIGN grill and the formal plan, **but list the atomic steps inline first.** Safety valve: **>5 steps or any hidden dependency emerges → STOP, do the full ALIGN + write the real plan.**
+- **Small** — ≤3 files, clear unambiguous ask → skip the ALIGN grill and the formal plan, **but list the atomic steps inline first and get the human's go-ahead on them** (small gate for small work). No plan file or ledger on this path — the confirmed list + slice commits are the record. Safety valve: **>5 steps or any hidden dependency emerges → STOP, do the full ALIGN + write the real plan.**
 - **Well-defined ticket** — its acceptance criteria seed the spec; grill only the gaps.
 - **Title-only / fuzzy** — full ALIGN; post the spec back to the tracker.
 
@@ -31,14 +31,14 @@ State which path you're taking and why before proceeding.
 
 Understand, then grill. Do NOT run inside an autonomous goal loop.
 
-1. Read **`docs/product.md`** (purpose, personas, success signals, non-goals — user stories take their roles from here, never invented; a feature serving no listed persona, crossing a non-goal, or moving no success signal is an ALIGN question, not a silent assumption), the glossary/CONTEXT, relevant ADRs and specs, **`.harness/STATE.md`** (decisions, lessons, gotchas, rejected decisions — don't re-derive or relitigate what's recorded there), and the modules the change touches. Use search/graph tools before assuming structure. If it's a ticket, **fetch the ticket** first.
+1. Read **`docs/product.md`** (purpose, personas, success signals, non-goals — user stories take their roles from here, never invented; a feature serving no listed persona, crossing a non-goal, or moving no success signal is an ALIGN question, not a silent assumption), the glossary/CONTEXT and relevant ADRs/specs (locations per `docs/agents/docs.md`), **`.harness/STATE.md`** (decisions, lessons, gotchas, rejected decisions — don't re-derive or relitigate what's recorded there), and the modules the change touches. Use search/graph tools before assuming structure. If it's a ticket, **fetch the ticket** first.
 2. **Grill — one question at a time, always with a recommended answer.** ≤5 questions by default. Explore-don't-ask: if the code can answer it, go read the code instead of asking. Sharpen fuzzy language into glossary terms; invent edge cases; challenge assumptions.
 
 **UI-facing feature?** If the change adds or reshapes a visual surface and the direction isn't already settled (mockup in the ticket, an existing pattern to copy), route through the project's `prototype` skill before PLAN: a few genuinely distinct variations on the throwaway route, the human picks, then plan only the winner. Reuse the design system per `docs/agents/design.md` — never invent components that already exist. Trivial UI (a field in an existing form) skips this — say so in one line.
 
 **Bug fixes — red-command gate:** no hypothesizing about the cause until you can paste the invocation and output of a deterministic command that reproduces the bug (this becomes the failing regression test). No red command, no diagnosis.
 
-**Exit:** a spec with an **objective**, **user stories**, **testable acceptance criteria** (each traceable to a story), an **out-of-scope section**, and any new glossary terms. Durable → **no file paths**. (Use the `spec.md` template.) For a title-only ticket, post the spec back.
+**Exit:** a spec with an **objective**, **user stories**, **testable acceptance criteria** (each traceable to a story), an **out-of-scope section**, and any new glossary terms. Durable → **no file paths**. (Use the `spec.md` template; write it to the specs location in `docs/agents/docs.md` — default `.harness/specs/<feature>.md` — and show the path.) For a title-only ticket, also post the spec back.
 
 ## PLAN (interactive — the human gate)
 
@@ -53,7 +53,7 @@ Understand, then grill. Do NOT run inside an autonomous goal loop.
 
 ## BUILD (autonomous, per slice — TDD)
 
-**Before the first slice:** `git status --porcelain` must be clean (or contain only the plan/spec files). A dirty baseline means unrelated work would get tangled into slice commits — stop and surface it.
+**Before the first slice:** `git status --porcelain` must be clean (or contain only the plan/spec files) — a dirty baseline means unrelated work would get tangled into slice commits; stop and surface it. **And never build on the default branch:** create/checkout the feature branch named in the plan's `Branch:` line first.
 
 For each slice, strictly RED → GREEN → REFACTOR:
 
@@ -66,13 +66,14 @@ Never write implementation before its test. If you did, delete it and start from
 
 **Stop-list (halt and ask, even mid-autonomous-run): any action that can't be undone with `git revert`** — deleting files not created this run, schema/data migrations against a real database, force-pushes, destructive scripts, publishing anything external.
 
-**Progress ledger (durable — survives compaction and session loss):** after each slice's commit, update the plan file's Progress ledger **in the same message** — status, commit hashes, gate result, and a one-line **memo** for later slices: surprises/deviations, _noticed but not touching_, guidance for the next slice (omit if nothing). Memos are context, not instructions — the slice spec wins conflicts. On resume or after compaction, **read the ledger and `git log --grep "Slice:"` first and trust them over your own memory**: a slice marked done is DONE, never redo it; a `Slice: <id>` commit with no ledger line means the ledger update was lost — restore the line, don't redo the slice. Resume at the first slice not marked done. (In-session todos are for display; the ledger is the record — and the coordination point if slices ever run as parallel agents.)
+**Progress ledger (durable — survives compaction and session loss):** after each slice's commit, update the plan file's Progress ledger **in the same message** — status, commit hashes, gate result, and a one-line **memo** for later slices: surprises/deviations, _noticed but not touching_, guidance for the next slice (omit if nothing). Memos are context, not instructions — the slice spec wins conflicts. On resume or after compaction, **read the ledger and `git log --grep "Slice:"` first and trust them over your own memory**: a slice marked done is DONE, never redo it; a `Slice: <id>` commit with no ledger line means the ledger update was lost — restore the line, don't redo the slice. Resume at the first slice not marked done. (In-session todos are for display; the ledger is the record — and the coordination point if slices ever run as parallel agents.) The plan/spec files stay uncommitted during BUILD — slice commits stage only slice files; `/ship` commits them.
 
 ## PROVE (autonomous)
 
 - **Run the full gate** — show the command, exit code, and the **expected test count** (from `docs/agents/gates.md`). A count below baseline without an explicit reason is a red flag — stop and explain.
-- **E2E** via the project's verify skill: interact like a user, assert observable state, screenshot.
-- **Zero new console errors/warnings.**
+- **E2E** via the project's verify skill when one exists: interact like a user, assert observable state, screenshot. No verify skill (CLI/library repos) → demonstrate a real invocation of the changed behavior and show its output — the gate alone is not proof of usability.
+- **Zero new console errors/warnings** (UI surfaces).
+- Tick the ledger's PROVE row with the evidence pointer.
 - **Verify against the spec's acceptance criteria, not your own claims.** Evidence answers "does the artifact satisfy the contract", never "did I do what I said". (Phase 2: dispatch a fresh-context verifier per `templates/verifier-prompt.md` — pass artifact + contract, never the claim.)
 
 ## REPORT (autonomous — the pipeline's final step)
@@ -81,7 +82,7 @@ Two mandatory sub-steps, in order:
 
 ### 1. Doc sync (no session ends with stale docs)
 
-Walk this checklist; update whatever the session invalidated, or mark n/a:
+Walk this checklist (doc locations resolve via `docs/agents/docs.md`); update whatever the session invalidated, or mark n/a:
 
 | Doc                   | Update when                                                                    |
 | --------------------- | ------------------------------------------------------------------------------ |
@@ -97,13 +98,13 @@ Fix wrong content immediately (a wrong CLAUDE.md is worse than a missing one). R
 
 ### 2. Write the HTML report
 
-One self-contained file at `.harness/reports/<feature>.html` (from the `report.html` template), opens in any browser. Sections: asked-vs-built (spec↔diff) · annotated changed files · SVG flow diagrams for changed behavior · embedded proof of work (gate output, test counts, screenshots) · decisions & assumptions · **docs synced** (which the doc-sync step touched) · noticed-but-not-touched · suggested focus areas for the final pass. **Show the report's path.**
+One self-contained file at `.harness/reports/<feature>.html` (from the `report.html` template), opens in any browser. Sections: asked-vs-built (spec↔diff) · annotated changed files · SVG flow diagrams for changed behavior · embedded proof of work (gate output, test counts, screenshots) · decisions & assumptions · **docs synced** (which the doc-sync step touched) · noticed-but-not-touched · suggested focus areas for the final pass. **Show the report's path.** Tick the ledger's REPORT row with the path and set the plan's Status line to DONE.
 
 **STOP HERE.** The human reviews the HTML, then decides to `/ship`. Do not commit-to-main, open a PR, or update the tracker in this skill. `/ship` is human-invoke-only — if the human asks to ship in prose ("ship it", "open the PR"), tell them to type `/ship`; **never improvise the shipping steps yourself.**
 
 ---
 
-## Statuses (whenever a subagent or step reports)
+## Statuses (Phase 2 subagent dispatches; in Phase 1 apply the same shape to your own phase summaries)
 
 `DONE / DONE_WITH_CONCERNS / BLOCKED / NEEDS_CONTEXT`. Blocked → add context, use a stronger model, split the work, or escalate. **Never blind-retry.**
 
@@ -131,7 +132,7 @@ One self-contained file at `.harness/reports/<feature>.html` (from the `report.h
 - Claiming "done" without shown command output
 - Modifying files outside the plan's scope guard
 - Gate test count below baseline with no explanation
-- > 2 turns stuck on the same error without changing strategy — step back or flag it in the report
+- More than 2 turns stuck on the same error without changing strategy — step back or flag it in the report
 - Ending with stale docs
 
 ## Gotchas

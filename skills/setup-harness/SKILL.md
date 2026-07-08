@@ -31,7 +31,7 @@ Summarize what you found in chat before asking anything.
 For each thing detection couldn't settle, ask ONE question with a recommended default. Cover:
 
 - Tracker + label vocabulary (which verbs mean "fetch the ticket", "post the spec back", "mark ready").
-- Gate commands: **quick**, **full**, **build** — and the current expected test count for each.
+- Gate commands: **quick**, **full**, **build** — expected test count for quick/full; build just exit 0.
 - Protected paths and forbidden actions (recorded in `docs/agents/paths.md`; deterministic hook enforcement is Phase 4).
 - Where docs live (specs, ADRs, glossary).
 - **Product: who uses this, for what, and what does success look like?** Present the drafted purpose + personas from detection as the recommended answer; ask for corrections, missing personas, explicit non-goals, and 1–2 measurable success signals. **Do not finish setup without a confirmed purpose, at least one persona, and at least one success signal** — user stories draw their roles from this, and ALIGN challenges features against the signals.
@@ -43,7 +43,8 @@ Stop asking as soon as the gaps are closed.
 Create in the target project:
 
 - **`docs/agents/` mappings** — the config-indirection layer. Canonical verbs → real commands for THIS repo. At minimum:
-  - `docs/agents/tracker.md` — "fetch the ticket", "post the spec back", "mark ready", label vocabulary → the real MCP tool / CLI.
+  - `docs/agents/tracker.md` — "fetch the ticket", "post the spec back", "mark ready", label vocabulary → the real MCP tool / CLI. No tracker? Record that here — `ship` then skips its tracker step.
+  - `docs/agents/docs.md` — where docs live: specs write path (default `.harness/specs/`), glossary/CONTEXT location, ADR dir. ALIGN and the doc-sync step resolve through this.
   - `docs/agents/gates.md` — "run the quick gate" / "run the full gate" / "run the build" → the real commands, each with its expected test count.
   - `docs/agents/paths.md` — protected/append-only paths, forbidden actions.
   - `docs/agents/design.md` *(frontend/fullstack only)* — where components live, which library/tokens to reuse, Storybook URL if any. Pointers to the detected inventory, not a style guide — this is what "reuse the design system" resolves to.
@@ -63,11 +64,11 @@ Based on the detected repo type, instantiate templates from this plugin's `templ
 | API backend          | `verify-api`                                                  |
 | CLI / library        | (none templated in Phase 1 — note it and move on)             |
 
-Fill every `SETUP_FILLS` / placeholder marker with the real commands and URLs for this repo — **and run each one to confirm it works before writing it in.** These skills are project property; they live in the project and evolve there.
+Fill every `<!-- setup fills -->` marker and ALLCAPS placeholder with the real commands and URLs for this repo — **and run each one to confirm it works before writing it in.** These skills are project property; they live in the project and evolve there.
 
 ## Step 5 — Verify itself (prove it works, don't assert it)
 
-**Baseline** — run the quick gate and the full gate. Confirm exit 0. Record the command, exit code, and passing test count into `.harness/STATE.md`'s baseline section, with the date. This is what later sessions diff against ("no silent test deletions").
+**Baseline** — run the quick gate, the full gate, and the build. Confirm exit 0 on all three. Record each command, exit code, and passing test count (build: exit 0 only) into `.harness/STATE.md`'s baseline section, with the date. This is what later sessions diff against ("no silent test deletions").
 
 ## Done
 

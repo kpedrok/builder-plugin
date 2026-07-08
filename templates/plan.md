@@ -1,6 +1,6 @@
 # Plan — <feature name>
 
-> Status: DRAFT | APPROVED (<date, by whom>) | IN PROGRESS | DONE
+> Status: DRAFT | APPROVED (<date, by whom>) | DONE (set by REPORT — the resume check scans for APPROVED)
 > Spec: <link/path to the spec or ticket>
 > Branch: <branch>
 
