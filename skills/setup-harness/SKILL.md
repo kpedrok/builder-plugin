@@ -55,13 +55,13 @@ Create in the target project:
 
 ## Step 4 — Generate project-owned skills
 
-Based on the detected repo type, instantiate templates from this plugin's `templates/project-skills/` into the project's `.claude/skills/`:
+Based on the detected repo type, instantiate templates from this plugin's `templates/project-skills/` into the project's `.claude/skills/` (names keep the `builder-` prefix so every harness skill groups together in the `/` typeahead):
 
 | Detected             | Generate                                                      |
 | -------------------- | ------------------------------------------------------------- |
-| Frontend             | `prototype` + `verify-ui`                                     |
-| Fullstack / services | `run-local` (+ `verify-ui` and/or `verify-api` as applicable) |
-| API backend          | `verify-api`                                                  |
+| Frontend             | `builder-prototype` + `builder-verify-ui`                     |
+| Fullstack / services | `builder-run-local` (+ `builder-verify-ui` / `builder-verify-api`) |
+| API backend          | `builder-verify-api`                                          |
 | CLI / library        | (none templated in Phase 1 — note it and move on)             |
 
 Fill every `<!-- setup fills -->` marker and ALLCAPS placeholder with the real commands and URLs for this repo — **and run each one to confirm it works before writing it in.** These skills are project property; they live in the project and evolve there.

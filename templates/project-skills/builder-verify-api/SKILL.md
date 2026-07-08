@@ -1,5 +1,5 @@
 ---
-name: verify-api
+name: builder-verify-api
 description: Use during the PROVE step of a backend/API change, or when asked to "verify the API", "hit the endpoint", "check the response", or confirm a route works against the running stack â€” not just that unit tests pass. Makes real calls and asserts status and shape.
 ---
 
@@ -11,7 +11,7 @@ End-to-end verification by calling the running API and asserting the response â€
 
 ## How it works here
 
-1. Bring the stack up: `RUN_LOCAL_REF` <!-- setup fills, or points at the run-local skill -->
+1. Bring the stack up: `RUN_LOCAL_REF` <!-- setup fills, or points at the builder-run-local skill -->
 2. Base URL: `API_BASE_URL` <!-- setup fills -->
 3. Auth, if any: `AUTH_SETUP` <!-- setup fills -->
 4. Call the changed endpoint(s) and assert **status code and response shape**.
