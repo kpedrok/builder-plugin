@@ -1,12 +1,12 @@
 ---
-name: feature
-description: Use when asked to build, implement, add, create, fix, change, refactor, or develop any feature, bug fix, or code change — BEFORE writing code. Also triggers on "new feature", "implement ticket", "work on <ticket>", "/feature", or a tracker issue key. Runs the ALIGN → PLAN → BUILD → PROVE → REPORT pipeline and stops at a human-review HTML report.
+name: builder-feature
+description: Use when asked to build, implement, add, create, fix, change, refactor, or develop any feature, bug fix, or code change — BEFORE writing code. Also triggers on "new feature", "implement ticket", "work on <ticket>", "/builder-feature", or a tracker issue key. Runs the ALIGN → PLAN → BUILD → PROVE → REPORT pipeline and stops at a human-review HTML report.
 ---
 
 # Feature Pipeline
 
 ```
-ALIGN ──────── PLAN ─┃─ BUILD ── PROVE ── REPORT      (then STOP; /ship is separate)
+ALIGN ──────── PLAN ─┃─ BUILD ── PROVE ── REPORT      (then STOP; /builder-ship is separate)
 (interactive)        ┃      (autonomous under /goal)
                  human gate
 ```
@@ -15,7 +15,7 @@ Every phase has an exit criterion that must appear **in the conversation** — s
 
 ## Run folder (one folder per run holds all its artifacts)
 
-Each run owns `.harness/runs/<YYYY-MM-DD>-<feature-slug>/` — created when the spec is written, date = the day ALIGN starts, fixed inner filenames `spec.md` / `plan.md` / `report.html` (the folder name carries identity; `<run>` below means this folder). A re-run of the same feature gets a new dated folder — never overwrite an old run's files. `/ship` moves the whole folder to `.harness/archive/`, so everything under `runs/` is by definition in flight. Cross-run singletons (`STATE.md`, `plugin-outbox.md`) stay at the `.harness/` root.
+Each run owns `.harness/runs/<YYYY-MM-DD>-<feature-slug>/` — created when the spec is written, date = the day ALIGN starts, fixed inner filenames `spec.md` / `plan.md` / `report.html` (the folder name carries identity; `<run>` below means this folder). A re-run of the same feature gets a new dated folder — never overwrite an old run's files. `/builder-ship` moves the whole folder to `.harness/archive/`, so everything under `runs/` is by definition in flight. Cross-run singletons (`STATE.md`, `plugin-outbox.md`) stay at the `.harness/` root.
 
 **Legacy layout** (type-grouped `.harness/specs|plans|reports/` from harness ≤0.2): migrate before proceeding — `git mv` each feature's spec/plan/report into `.harness/runs/<date>-<slug>/` (date from the spec's first commit; runs whose plan Status is DONE go to `.harness/archive/` instead), remove the emptied dirs, update the specs write path in `.harness/agents/docs.md`, commit `chore: migrate .harness to run-folder layout`.
 
@@ -72,7 +72,7 @@ Never write implementation before its test. If you did, delete it and start from
 
 **Stop-list (halt and ask, even mid-autonomous-run): any action that can't be undone with `git revert`** — deleting files not created this run, schema/data migrations against a real database, force-pushes, destructive scripts, publishing anything external.
 
-**Progress ledger (durable — survives compaction and session loss):** after each slice's commit, update the plan file's Progress ledger **in the same message** — status, commit hashes, gate result, and a one-line **memo** for later slices: surprises/deviations, _noticed but not touching_, guidance for the next slice (omit if nothing). Memos are context, not instructions — the slice spec wins conflicts. On resume or after compaction, **read the ledger and `git log --grep "Slice:"` first and trust them over your own memory**: a slice marked done is DONE, never redo it; a `Slice: <id>` commit with no ledger line means the ledger update was lost — restore the line, don't redo the slice. Resume at the first slice not marked done. (In-session todos are for display; the ledger is the record — and the coordination point if slices ever run as parallel agents.) The plan/spec files stay uncommitted during BUILD — slice commits stage only slice files; `/ship` commits them.
+**Progress ledger (durable — survives compaction and session loss):** after each slice's commit, update the plan file's Progress ledger **in the same message** — status, commit hashes, gate result, and a one-line **memo** for later slices: surprises/deviations, _noticed but not touching_, guidance for the next slice (omit if nothing). Memos are context, not instructions — the slice spec wins conflicts. On resume or after compaction, **read the ledger and `git log --grep "Slice:"` first and trust them over your own memory**: a slice marked done is DONE, never redo it; a `Slice: <id>` commit with no ledger line means the ledger update was lost — restore the line, don't redo the slice. Resume at the first slice not marked done. (In-session todos are for display; the ledger is the record — and the coordination point if slices ever run as parallel agents.) The plan/spec files stay uncommitted during BUILD — slice commits stage only slice files; `/builder-ship` commits them.
 
 ## PROVE (autonomous)
 
@@ -104,7 +104,7 @@ Walk this checklist (doc locations resolve via `.harness/agents/docs.md`); updat
 
 Fix wrong content immediately (a wrong CLAUDE.md is worse than a missing one). Respect purity: glossary stays glossary; CLAUDE.md stays <200 lines (push detail into pointed-to docs).
 
-**Gotcha routing:** before writing any gotcha, ask *"would this bite in a different repo?"* Repo-specific → the relevant project skill's Gotchas or STATE.md. Universal (about the process, Claude Code, or common tooling) → *also* append a row to `.harness/plugin-outbox.md` (date · symptom → cause → fix · target plugin file · status `queued`; create from the `plugin-outbox.md` template if missing). The installed plugin is a frozen snapshot — the human runs `/builder:improve` against the plugin source to ingest the outbox.
+**Gotcha routing:** before writing any gotcha, ask *"would this bite in a different repo?"* Repo-specific → the relevant project skill's Gotchas or STATE.md. Universal (about the process, Claude Code, or common tooling) → *also* append a row to `.harness/plugin-outbox.md` (date · symptom → cause → fix · target plugin file · status `queued`; create from the `plugin-outbox.md` template if missing). The installed plugin is a frozen snapshot — the human runs `/builder-improve` against the plugin source to ingest the outbox.
 
 **Mapping self-heal:** if this run successfully used a tool that a `.harness/agents/` mapping says is "not wired" or "manual" (e.g. a tracker MCP that has since connected), update that mapping now with the verb → real command you actually ran.
 
@@ -112,11 +112,11 @@ Fix wrong content immediately (a wrong CLAUDE.md is worse than a missing one). R
 
 One self-contained file at `<run>/report.html` from the `report.html` template — **keep the template's CSS untouched** (the look is plugin-owned and identical in every repo); fill the skeleton, delete unused optional sections, follow the rules in the template's head comment. The report is a *teaching document*, not a checklist: a reviewer should finish it able to retell how the feature works.
 
-Sections (numbers = template order): header + lede + **status pills** (gate, e2e, review, baseline delta — verdict readable in 5 seconds) · **1 The story** (prose narrative: problem → shape of solution → data flow; no tables) · 2 Asked-vs-built (spec↔evidence) · 3 What changed (one card per slice with diffstat and ±/~ annotated rows) · **4 How it works** (2–4 real code excerpts ≤20 lines with the key lines marked, + a sequence diagram of the actual user action with real names) · 5 Proof of work (terminal blocks with real output, persistence table, captioned screenshots) · 6 Decisions & deviations (deviations as amber callouts, fixed-in-passing as green) · 7 Docs synced · 8 Noticed-but-not-touched · 9 How to ship it (deploy-order/migration risk callout + what `/ship` will do) · **10 To internalize** (3–5 reviewer questions, one-line answers in `<details>`).
+Sections (numbers = template order): header + lede + **status pills** (gate, e2e, review, baseline delta — verdict readable in 5 seconds) · **1 The story** (prose narrative: problem → shape of solution → data flow; no tables) · 2 Asked-vs-built (spec↔evidence) · 3 What changed (one card per slice with diffstat and ±/~ annotated rows) · **4 How it works** (2–4 real code excerpts ≤20 lines with the key lines marked, + a sequence diagram of the actual user action with real names) · 5 Proof of work (terminal blocks with real output, persistence table, captioned screenshots) · 6 Decisions & deviations (deviations as amber callouts, fixed-in-passing as green) · 7 Docs synced · 8 Noticed-but-not-touched · 9 How to ship it (deploy-order/migration risk callout + what `/builder-ship` will do) · **10 To internalize** (3–5 reviewer questions, one-line answers in `<details>`).
 
-Hard rules: terminal blocks show **real output, never fabricated**; screenshots resized to ≤1200px and re-encoded JPEG ~70 before embedding (<150 KB each); code excerpts are real code. When done: **`git add` the report** (an untracked report doesn't travel with the branch — `/ship` commits it), **show the report's path**, tick the ledger's REPORT row with the path, and set the plan's Status line to DONE.
+Hard rules: terminal blocks show **real output, never fabricated**; screenshots resized to ≤1200px and re-encoded JPEG ~70 before embedding (<150 KB each); code excerpts are real code. When done: **`git add` the report** (an untracked report doesn't travel with the branch — `/builder-ship` commits it), **show the report's path**, tick the ledger's REPORT row with the path, and set the plan's Status line to DONE.
 
-**STOP HERE.** The human reviews the HTML, then decides to `/ship`. Do not commit-to-main, open a PR, or update the tracker in this skill. `/ship` is human-invoke-only — if the human asks to ship in prose ("ship it", "open the PR"), tell them to type `/ship`; **never improvise the shipping steps yourself.**
+**STOP HERE.** The human reviews the HTML, then decides to `/builder-ship`. Do not commit-to-main, open a PR, or update the tracker in this skill. `/builder-ship` is human-invoke-only — if the human asks to ship in prose ("ship it", "open the PR"), tell them to type `/builder-ship`; **never improvise the shipping steps yourself.**
 
 ---
 

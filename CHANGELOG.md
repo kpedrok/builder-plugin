@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.0 — 2026-07-08
+
+Plugin skills renamed with the `builder-` prefix: `setup-harness` → `builder-setup-harness`, `feature` → `builder-feature`, `ship` → `builder-ship`, `improve` → `builder-improve`. Rationale: builder installs two kinds of skills — these plugin skills (namespaced `builder:` by Claude Code) and the `builder-*` project skills that setup generates into `.claude/skills/`. Before, the harness surface was split in the `/` typeahead — `/builder-` found the project skills, `/builder:` found the plugin skills, and the plugin origin of a bare row (`feature`, `ship`) was only visible on hover. Now a single `/builder-` filter surfaces the entire harness and every row shows its origin. Trade-off accepted: the fully-qualified form is now `/builder:builder-feature` (redundant, but rarely typed — the menu shows `builder-feature`). Directories, frontmatter `name:` fields, all in-doc invocation/skill references, and the README updated; CHANGELOG history left as-is (those versions really used the old names). **Breaking:** anyone who scripted `/builder:feature` etc. must update to `/builder-feature`.
+
 ## 0.4.0 — 2026-07-08
 
 Review lane lands (first Phase-2 slice), via Anthropic's `pr-review-toolkit` plugin instead of authored agents (see `Design/Review Integration - pr-review-toolkit in the Pipeline.md` in the ai vault). Survey of all six studied frameworks converged on the shape: two review moments, parallel conditional subagents, severity gating, auto-fix only where autonomous, merge-base scope.

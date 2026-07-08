@@ -1,6 +1,6 @@
 ---
-name: improve
-description: Ingest plugin-level gotchas from instrumented projects' .harness/plugin-outbox.md files into the plugin source, bump the version, and push. Human-invoke-only (type /builder:improve, optionally with project paths); the model cannot trigger it — plugin changes are a human decision, same trust boundary as plan approval.
+name: builder-improve
+description: Ingest plugin-level gotchas from instrumented projects' .harness/plugin-outbox.md files into the plugin source, bump the version, and push. Human-invoke-only (type /builder-improve, optionally with project paths); the model cannot trigger it — plugin changes are a human decision, same trust boundary as plan approval.
 disable-model-invocation: true
 ---
 

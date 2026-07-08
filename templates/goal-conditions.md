@@ -1,6 +1,6 @@
 # Goal Condition Templates
 
-Copy for use with `/goal` to cover BUILD → PROVE → REPORT autonomously after the human approves the plan. `/ship` is separate and human-triggered.
+Copy for use with `/goal` to cover BUILD → PROVE → REPORT autonomously after the human approves the plan. `/builder-ship` is separate and human-triggered.
 
 The evaluator only sees the transcript. Every clause must be provable by output Claude *shows* — never by "the file exists" alone.
 
@@ -13,7 +13,7 @@ The evaluator only sees the transcript. Every clause must be provable by output 
 ## Standard feature goal (BUILD → REPORT)
 
 ```text
-/goal Feature <NAME> is complete per the feature skill: every slice in the
+/goal Feature <NAME> is complete per the builder-feature skill: every slice in the
 approved plan at .harness/runs/<DATE>-<NAME>/plan.md is implemented with TDD (failing test
 shown before each implementation), the plan's progress ledger updated after each
 slice (shown), the full gate command and exit 0 with the expected test count
@@ -26,7 +26,7 @@ outside the plan's scope are modified. Stop after 40 turns.
 ## Bug fix goal
 
 ```text
-/goal The bug in <AREA> is fixed per the feature skill: a regression test
+/goal The bug in <AREA> is fixed per the builder-feature skill: a regression test
 reproducing the bug is shown failing, then passing after the fix; root cause
 explained in one paragraph; full gate exits 0 with expected test count (output
 shown); no other test file modified; docs synced or explicitly n/a (STATE.md entry shown); HTML report

@@ -1,12 +1,12 @@
 ---
-name: setup-harness
-description: Run once per project to install the builder harness. Human-invoke-only (type /setup-harness); the model cannot trigger it. Detects the stack, interviews for what detection can't answer, scaffolds config + state, generates project-owned skills, and proves the gates work.
+name: builder-setup-harness
+description: Run once per project to install the builder harness. Human-invoke-only (type /builder-setup-harness); the model cannot trigger it. Detects the stack, interviews for what detection can't answer, scaffolds config + state, generates project-owned skills, and proves the gates work.
 disable-model-invocation: true
 ---
 
 # Setup Harness — the installer
 
-Instrument the current project so work can flow through the `feature` pipeline. Explicit invocation only. Target: ≤10 minutes, mostly detection.
+Instrument the current project so work can flow through the `builder-feature` pipeline. Explicit invocation only. Target: ≤10 minutes, mostly detection.
 
 **Hard rule that governs everything below: run every command before you write it into a skill, mapping, or STATE.md. An unverified command is a liability, not an asset.** If a command you expected to exist doesn't work, stop and ask — never write a guessed command.
 
@@ -45,8 +45,8 @@ Everything the harness installs and maintains lives under **`.harness/`** (plus 
 Create in the target project:
 
 - **`.harness/agents/` mappings** — the config-indirection layer. Canonical verbs → real commands for THIS repo. At minimum:
-  - `.harness/agents/tracker.md` — "fetch the ticket", "post the spec back", "mark ready", label vocabulary → the real MCP tool / CLI. No tracker? Record that here — `ship` then skips its tracker step.
-  - `.harness/agents/docs.md` — where docs live: specs write path (default: the run folder, `.harness/runs/<YYYY-MM-DD>-<feature>/spec.md` — each `/feature` run colocates its spec, plan, and report in one dated folder; `/ship` archives the folder whole), glossary/CONTEXT location, ADR dir. ALIGN and the doc-sync step resolve through this. Include a short **Doc-sync checklist** section (condensed from the `feature` skill's REPORT table: CLAUDE.md/AGENTS.md if a convention changed or became wrong · glossary for new terms · mappings if a command/verb changed · STATE.md always · gotcha routing to `plugin-outbox.md`) so ad hoc sessions have something concrete to walk.
+  - `.harness/agents/tracker.md` — "fetch the ticket", "post the spec back", "mark ready", label vocabulary → the real MCP tool / CLI. No tracker? Record that here — `builder-ship` then skips its tracker step.
+  - `.harness/agents/docs.md` — where docs live: specs write path (default: the run folder, `.harness/runs/<YYYY-MM-DD>-<feature>/spec.md` — each `/builder-feature` run colocates its spec, plan, and report in one dated folder; `/builder-ship` archives the folder whole), glossary/CONTEXT location, ADR dir. ALIGN and the doc-sync step resolve through this. Include a short **Doc-sync checklist** section (condensed from the `builder-feature` skill's REPORT table: CLAUDE.md/AGENTS.md if a convention changed or became wrong · glossary for new terms · mappings if a command/verb changed · STATE.md always · gotcha routing to `plugin-outbox.md`) so ad hoc sessions have something concrete to walk.
   - `.harness/agents/gates.md` — "run the quick gate" / "run the full gate" / "run the build" → the real commands, each with its expected test count.
   - `.harness/agents/paths.md` — protected/append-only paths, forbidden actions.
   - `.harness/agents/review.md` — how "run the code review" resolves. Probe whether the `pr-review-toolkit` agents are available (is `pr-review-toolkit:code-reviewer` a listed agent type?). Not installed → ask the human once, recommended yes: "Install Anthropic's pr-review-toolkit (specialized review agents the pipeline uses before e2e and before the PR)? `/plugin marketplace add anthropics/claude-plugins-official` then `/plugin install pr-review-toolkit@claude-plugins-official` — takes effect after a restart." Write the mapping either way: **preferred** = the plugin's agents; **fallback** (not installed / declined) = one `general-purpose` subagent per axis using this plugin's `templates/reviewer-prompt.md`. Record the default branch name here too — review scope diffs against its merge-base.
@@ -54,8 +54,8 @@ Create in the target project:
 - **`.harness/product.md`** — from the `product.md` template: purpose, personas, success signals, non-goals ("not doing, and why"), as confirmed in Step 2. One page max. If the project already has an equivalent doc, point to it from here instead of duplicating.
 - **`.harness/STATE.md`** — from the `STATE.md` template. Record the installed harness version (from this plugin's `plugin.json`) in the baseline section; leave the gate baselines for Step 5.
 - **Permissions** — merge `templates/settings-snippet.json` into the project's `.claude/settings.json`. Tune the permissions allowlist to the detected stack (add the gate commands so they don't prompt). Merge — never clobber an existing settings.json; show the diff. **Expect this write to be denied** in auto mode (the classifier blocks self-modification of permission rules — pilot 2). Fallback ladder: (1) ask the human via `AskUserQuestion` to approve the write interactively; (2) still blocked → write the merged JSON to `.harness/settings-suggested.json` and tell the human in one line to move it. Never leave the snippet only as chat text.
-- **`## Harness` block in CLAUDE.md** — pointers only, not content. A few lines: "this project uses the builder harness; run features via the `feature` skill; gate commands live in `.harness/agents/gates.md`; state in `.harness/STATE.md`." Plus two session-hygiene rules that catch work done OUTSIDE the pipeline (the pipeline's REPORT step already enforces them; ad hoc sessions have nothing else):
-  - "**After finishing any piece of work** — even outside `/feature` — walk the doc-sync checklist in `.harness/agents/docs.md`: update whatever the session invalidated, STATE.md always, and route gotchas (universal ones also go to `.harness/plugin-outbox.md`)."
+- **`## Harness` block in CLAUDE.md** — pointers only, not content. A few lines: "this project uses the builder harness; run features via the `builder-feature` skill; gate commands live in `.harness/agents/gates.md`; state in `.harness/STATE.md`." Plus two session-hygiene rules that catch work done OUTSIDE the pipeline (the pipeline's REPORT step already enforces them; ad hoc sessions have nothing else):
+  - "**After finishing any piece of work** — even outside `/builder-feature` — walk the doc-sync checklist in `.harness/agents/docs.md`: update whatever the session invalidated, STATE.md always, and route gotchas (universal ones also go to `.harness/plugin-outbox.md`)."
   - "If this file itself became wrong during the session, fix it now — a wrong CLAUDE.md is worse than a missing one."
 
   Phrase the trigger as "after finishing any piece of work", never "at the end of the session" — session end is not a moment the model can observe. (Prose is best-effort; the deterministic Stop-hook version is Phase 2+.)
@@ -85,14 +85,14 @@ An unstaged improvement didn't happen. Stage everything the setup wrote (`.harne
 
 ## Done
 
-Report: what was detected, what was asked, files scaffolded, skills generated, the recorded baseline, and the install commit hash. **Route any gotchas learned during setup** (see Gotcha routing below). Then point the human at `/feature <description or ticket>`.
+Report: what was detected, what was asked, files scaffolded, skills generated, the recorded baseline, and the install commit hash. **Route any gotchas learned during setup** (see Gotcha routing below). Then point the human at `/builder-feature <description or ticket>`.
 
 ## Gotcha routing (applies to every gotcha this skill learns)
 
 Before writing a gotcha, ask: **"would this bite in a different repo?"**
 
 - **No (repo-specific)** → the relevant generated skill's Gotchas section, or `.harness/STATE.md`.
-- **Yes (universal — about the process, Claude Code, or common tooling)** → *also* append a row to `.harness/plugin-outbox.md` (create from the `plugin-outbox.md` template if missing): date · symptom → cause → fix · target plugin file · status `queued`. The human runs `/builder:improve` against the plugin source to ingest it — the installed plugin is a frozen snapshot and cannot be edited from here.
+- **Yes (universal — about the process, Claude Code, or common tooling)** → *also* append a row to `.harness/plugin-outbox.md` (create from the `plugin-outbox.md` template if missing): date · symptom → cause → fix · target plugin file · status `queued`. The human runs `/builder-improve` against the plugin source to ingest it — the installed plugin is a frozen snapshot and cannot be edited from here.
 
 ## Rationalizations (all invalid)
 

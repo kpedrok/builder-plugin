@@ -1,6 +1,6 @@
 ---
-name: ship
-description: Ship a reviewed feature — reads the HTML report, commits remaining work, opens a PR linking the report's evidence, and updates the tracker. Human-invoke-only by design (type /ship after reviewing the report); the model cannot trigger it, so nothing ships without your review.
+name: builder-ship
+description: Ship a reviewed feature — reads the HTML report, commits remaining work, opens a PR linking the report's evidence, and updates the tracker. Human-invoke-only by design (type /builder-ship after reviewing the report); the model cannot trigger it, so nothing ships without your review.
 disable-model-invocation: true
 ---
 
@@ -14,24 +14,24 @@ Canonical verbs ("update the tracker") resolve through `.harness/agents/` mappin
 
 1. **Read the report.** Open `.harness/runs/<date>-<feature>/report.html` — it is the source of truth for what was built, the acceptance criteria met, the proof of work, and the decisions. If there's no report, the feature pipeline didn't finish — stop and say so.
 2. **Confirm the tree is shippable.** `git status` — everything intended is committed, nothing stray is staged. If uncommitted work from the run remains, commit it with a descriptive message. **Harness files the run edited — plan, spec, STATE.md, `.harness/agents/` mappings, project-skill Gotchas, `plugin-outbox.md` — ship in this commit too**; an unstaged improvement didn't happen. Never force-push, reset, or delete branches here.
-3. **Delta re-check.** Commits made after PROVE's review gate (report, doc sync) are normal. If any of them touch **code**, re-run `code-reviewer` (per `.harness/agents/review.md`) on that delta only; no code delta → skip, say so in one line. **No fix loop here — the human is present:** a Critical or Important finding → ask (fix now / ship anyway / hand back to `feature`). Findings shipped-with go in the PR body.
+3. **Delta re-check.** Commits made after PROVE's review gate (report, doc sync) are normal. If any of them touch **code**, re-run `code-reviewer` (per `.harness/agents/review.md`) on that delta only; no code delta → skip, say so in one line. **No fix loop here — the human is present:** a Critical or Important finding → ask (fix now / ship anyway / hand back to `builder-feature`). Findings shipped-with go in the PR body.
 4. **Open the PR.** Push the branch and open a pull request. The PR body links/embeds the report's evidence: acceptance criteria (asked-vs-built), gate output + test counts, screenshots, the decisions/assumptions section, and any review findings the human chose to ship with. Link the report file. Show the PR URL.
 5. **Update the tracker.** Move the ticket to its post-merge/ready state and comment with the PR link (per `.harness/agents/tracker.md`). Skip if that mapping records no tracker.
 6. **Archive the run.** `git mv` the **whole run folder** `.harness/runs/<date>-<feature>/` to `.harness/archive/` (the plan's Status is DONE from REPORT) so resume scans stay clean and spec/plan/report travel together — and commit the move; the ship must end with a clean tree. Moving only part of the folder is a bug (pilot 3 orphaned an untracked report this way).
-7. **Surface the outbox.** If `.harness/plugin-outbox.md` has rows still marked `queued`, tell the human in one line: "N plugin-level gotchas queued — run `/builder:improve` in the plugin source when convenient."
+7. **Surface the outbox.** If `.harness/plugin-outbox.md` has rows still marked `queued`, tell the human in one line: "N plugin-level gotchas queued — run `/builder-improve` in the plugin source when convenient."
 8. **Offer to babysit.** Suggest a recurring CI/review-comment check (e.g. `/loop 10m` where available) while the next ticket starts.
 
 ## Rules
 
 - Never open a PR without a report to back it — the report is the evidence the PR references.
-- Don't re-run the whole pipeline here; if something's missing, hand back to `feature`.
+- Don't re-run the whole pipeline here; if something's missing, hand back to `builder-feature`.
 - One PR per feature. If scope split mid-run, ship the completed slice and note the rest in the tracker.
 
 ## Rationalizations (all invalid)
 
 | Excuse                                              | Reality                                                                     |
 | --------------------------------------------------- | ---------------------------------------------------------------------------- |
-| "The report is basically fine, I'll PR without it"  | No report = the pipeline didn't finish. Hand back to `feature`.              |
+| "The report is basically fine, I'll PR without it"  | No report = the pipeline didn't finish. Hand back to `builder-feature`.              |
 | "The human said 'looks good' about something else"  | Ship only on an explicit ship instruction about THIS feature's report.       |
 | "I'll clean up these stray files while I'm here"    | Shipping commits the run's work, nothing else. Stray changes → ask.          |
 

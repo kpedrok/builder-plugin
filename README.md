@@ -10,7 +10,7 @@ ships until you say so.
 - **Aligns before coding** — writes a short spec and plan you approve first.
 - **Builds in small, tested steps** — a failing test, then the code to pass it, one commit at a time.
 - **Proves it works** — runs your tests, reviews the diff, and exercises the feature like a real user.
-- **Reports, then waits** — you get a self-contained HTML report; nothing is committed to main or opened as a PR until you run `/ship`.
+- **Reports, then waits** — you get a self-contained HTML report; nothing is committed to main or opened as a PR until you run `/builder-ship`.
 
 ## Requirements
 
@@ -31,20 +31,20 @@ Turn on auto-update once so you stay current: `/plugin` → **Marketplaces** →
 
 **1. Set up the project (once).**
 ```
-/setup-harness
+/builder-setup-harness
 ```
 Detects your stack, asks the few things it can't infer (how to run your tests, where docs live, what the product is), and installs itself. ~10 minutes.
 
 **2. Build something.**
 ```
-/feature add CSV export to the reports page
+/builder-feature add CSV export to the reports page
 ```
-Or pass a ticket: `/feature PROJ-123`. It writes a spec and plan for you to approve, then builds, tests, and reviews on its own, ending with an HTML report.
+Or pass a ticket: `/builder-feature PROJ-123`. It writes a spec and plan for you to approve, then builds, tests, and reviews on its own, ending with an HTML report.
 
 **3. Review, then ship.**
 Open the report, check it, then:
 ```
-/ship
+/builder-ship
 ```
 Commits the work, opens a PR with the report's evidence linked, and updates your tracker.
 
@@ -52,10 +52,10 @@ Commits the work, opens a PR with the report's evidence linked, and updates your
 
 ## How it works
 
-Each `/feature` run moves through five phases. The first two are interactive; the rest run on their own:
+Each `/builder-feature` run moves through five phases. The first two are interactive; the rest run on their own:
 
 ```
-ALIGN → PLAN → [ you approve ] → BUILD → PROVE → REPORT → [ you review ] → /ship
+ALIGN → PLAN → [ you approve ] → BUILD → PROVE → REPORT → [ you review ] → /builder-ship
 ```
 
 - **ALIGN** — understand the request, ask sharp questions, write a testable spec.
@@ -68,10 +68,10 @@ ALIGN → PLAN → [ you approve ] → BUILD → PROVE → REPORT → [ you revi
 
 | Skill | What it does |
 |---|---|
-| `/setup-harness` | Instruments a project (run once). |
-| `/feature` | Runs the pipeline above. |
-| `/ship` | Commits, opens the PR, updates the tracker — you invoke it after reviewing. |
-| `/builder:improve` | Run in this repo to fold lessons from real runs back into the plugin. |
+| `/builder-setup-harness` | Instruments a project (run once). |
+| `/builder-feature` | Runs the pipeline above. |
+| `/builder-ship` | Commits, opens the PR, updates the tracker — you invoke it after reviewing. |
+| `/builder-improve` | Run in this repo to fold lessons from real runs back into the plugin. |
 
 ## Design notes (for contributors)
 
