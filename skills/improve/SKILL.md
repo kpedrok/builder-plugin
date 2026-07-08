@@ -1,6 +1,6 @@
 ---
 name: improve
-description: Ingest plugin-level gotchas from instrumented projects' .harness/plugin-outbox.md files into the plugin source, bump the version, and remind to re-upload. Human-invoke-only (type /builder:improve, optionally with project paths); the model cannot trigger it — plugin changes are a human decision, same trust boundary as plan approval.
+description: Ingest plugin-level gotchas from instrumented projects' .harness/plugin-outbox.md files into the plugin source, bump the version, and push. Human-invoke-only (type /builder:improve, optionally with project paths); the model cannot trigger it — plugin changes are a human decision, same trust boundary as plan approval.
 disable-model-invocation: true
 ---
 
@@ -17,7 +17,7 @@ Projects can't edit the installed plugin (it's a frozen snapshot), so universal 
 3. **Apply.** Edit the target plugin files. Rules: Gotcha entries follow symptom → cause → what to do instead, with source project + date; a process change must not add repo-specific lines to a plugin skill (that's what `.harness/agents/` mappings and project skills are for — if the fix needs a repo fact, the fix is a template or mapping change).
 4. **Mark ingested.** Rewrite each consumed outbox row with `ingested: v<new version> (<date>)` so the next run skips it, and commit that outbox edit in its project.
 5. **Version + changelog.** Bump `plugin.json` (patch for gotcha-only batches, minor for process changes), append a line per change to `CHANGELOG.md` (create if missing), and commit the plugin repo: `improve: ingest <N> gotchas from <projects> → v<version>`.
-6. **Remind.** Installed copies are snapshots — tell the human to re-upload/reinstall the plugin, and that already-instrumented projects keep their generated skills as-is (project property; only templates changed).
+6. **Push.** `git push` the plugin repo (marketplace `kpedrok/builder-plugin`). Projects with auto-update on pick up the new version on their next Claude Code startup; others pull it with `/plugin marketplace update builder`. Already-instrumented projects keep their generated skills as-is (project property; only templates changed).
 
 ## Rules
 
