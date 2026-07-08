@@ -1,6 +1,10 @@
 # Plan — <feature name>
 
-Short-lived execution artifact. Exact file paths required. **No placeholders — a TBD or TODO here is a planning failure, not a note-to-self.** Delete after the feature ships.
+> Status: DRAFT | APPROVED (<date, by whom>) | IN PROGRESS | DONE
+> Spec: <link/path to the spec or ticket>
+> Branch: <branch>
+
+Persisted execution artifact at `.harness/plans/<feature>.md`. **This file — not the chat — is the source of truth.** The human may edit it directly before (or after) approving; always re-read it after approval and between slices. Exact file paths required. **No placeholders — a TBD or TODO here is a planning failure.** Archive or delete after the feature ships.
 
 ## Slices
 
@@ -29,3 +33,12 @@ Files this plan is allowed to touch (the goal condition enforces "no files outsi
 Decisions made without confirmation during planning — carried into the report's decisions section.
 
 - <assumption>
+
+## Progress ledger
+
+The durable record of execution. Update **in the same message as each slice's commit** — never batch. After compaction or resume, trust this ledger and `git log` over conversation memory; a slice marked done here is DONE — do not redo it. This is also the coordination point if slices ever run in parallel (one agent per slice, each updates only its own line).
+
+- [ ] Slice 1 — <name> · status: pending | in-progress | done | BLOCKED(<why>) · commits: <hashes> · gate: <result + count>
+- [ ] Slice 2 — <name> · status: pending · commits: — · gate: —
+- [ ] PROVE — full gate + e2e · evidence: —
+- [ ] REPORT — doc sync + HTML written · path: —

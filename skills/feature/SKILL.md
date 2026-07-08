@@ -36,10 +36,11 @@ Understand, then grill. Do NOT run inside an autonomous goal loop.
 
 - Break the spec into **vertical slices**, each independently testable and committable.
 - Each slice: exact files, the acceptance criterion it satisfies, the verification step (which gate + expected test count).
-- **Exact paths, no placeholders. A TBD/TODO in the plan is a failure.** (Use the `plan.md` template.)
+- **Exact paths, no placeholders. A TBD/TODO in the plan is a failure.**
 - List the scope guard (files the plan may touch) and open assumptions.
+- **Write the plan to `.harness/plans/<feature>.md` (from the `plan.md` template) BEFORE asking for approval, and show the path.** The file — not the chat — is the source of truth: the human may approve in chat, edit the file directly, or ask for changes. **After approval, re-read the file** and work from it — it may differ from what you presented. Mark its Status line APPROVED.
 
-**Exit: the human explicitly approves the plan.** Autonomous mode (`/goal`) begins here — see the `goal-conditions.md` template.
+**Exit: the human explicitly approves the plan (and the file's Status says so).** Autonomous mode (`/goal`) begins here — see the `goal-conditions.md` template.
 
 ## BUILD (autonomous, per slice — TDD)
 
@@ -51,6 +52,8 @@ For each slice, strictly RED → GREEN → REFACTOR:
 4. Commit the slice.
 
 Never write implementation before its test. If you did, delete it and start from the test. **Scope rule: anything noticed-but-out-of-scope goes to the report, not the diff.**
+
+**Progress ledger (durable — survives compaction and session loss):** after each slice's commit, update the plan file's Progress ledger **in the same message** — status, commit hashes, gate result. On resume or after compaction, **read the ledger and `git log` first and trust them over your own memory**: a slice marked done is DONE, never redo it. Resume at the first slice not marked done. (In-session todos are for display; the ledger is the record — and the coordination point if slices ever run as parallel agents.)
 
 ## PROVE (autonomous)
 
