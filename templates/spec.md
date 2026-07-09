@@ -12,6 +12,15 @@ Roles come from `.harness/product.md` personas — never invented per-feature. A
 
 - As a <role>, I want <capability> so that <outcome>.
 
+## Data & interfaces
+
+The data landscape the feature reads and writes — durable contracts, not file paths. Verified against the code/schema in ALIGN, never assumed; this is what the approach was chosen against. Delete on the small path.
+
+- **Entities / shapes:** <entity — the real fields/type that matter here>
+- **Consumes:** <existing interface / API / contract the feature depends on>
+- **Produces:** <new or changed contract this feature exposes>
+- **Not available:** <data or capability that isn't there — and how it constrained the design>
+
 ## Acceptance criteria
 
 Each must be verifiable — a test, a command, or a visible behavior. No "works well".

@@ -42,13 +42,14 @@ State which path you're taking and why before proceeding. **Workspace shape: the
 Understand, then grill. Do NOT run inside an autonomous goal loop.
 
 1. Read **`.harness/product.md`** (purpose, personas, success signals, non-goals — user stories take their roles from here, never invented; a feature serving no listed persona, crossing a non-goal, or moving no success signal is an ALIGN question, not a silent assumption), the glossary/CONTEXT and relevant ADRs/specs (locations per `.harness/agents/docs.md`), **`.harness/STATE.md`** (decisions, lessons, gotchas, rejected decisions — don't re-derive or relitigate what's recorded there), and the modules the change touches. Use search/graph tools before assuming structure. If it's a ticket, **fetch the ticket** first.
-2. **Grill — one question at a time, always with a recommended answer.** ≤5 questions by default. Explore-don't-ask: if the code can answer it, go read the code instead of asking. Sharpen fuzzy language into glossary terms; invent edge cases; challenge assumptions.
+2. **Map the data & interfaces the change touches — before grilling, and show it.** You cannot choose a sound approach against data you haven't verified — an approach picked on assumed shapes is the classic plan that collapses in BUILD. Produce a short map, read from the code/schema, never assumed: the **entities/types** involved and their real shapes; the **existing interfaces/APIs/contracts** the feature will consume or extend; the **data flow** traced from entry point to storage/output; and what's **not available** (the missing field/capability that rules an approach out). Use the search/graph tools — read the schema and the types; explore-don't-ask applies here too. This map feeds the grill (gaps become questions) and PLAN's slice ordering (schema → types → endpoints → UI, contract-first). Small path skips this — say so in one line.
+3. **Grill — one question at a time, always with a recommended answer.** ≤5 questions by default. Explore-don't-ask: if the code can answer it, go read the code instead of asking. Sharpen fuzzy language into glossary terms; invent edge cases; challenge assumptions.
 
 **UI-facing feature?** If the change adds or reshapes a visual surface and the direction isn't already settled (mockup in the ticket, an existing pattern to copy), route through the project's `builder-prototype` skill before PLAN: a few genuinely distinct variations on the throwaway route, the human picks, then plan only the winner. Reuse the design system per `.harness/agents/design.md` — never invent components that already exist. Trivial UI (a field in an existing form) skips this — say so in one line.
 
 **Bug fixes — red-command gate:** no hypothesizing about the cause until you can paste the invocation and output of a deterministic command that reproduces the bug (this becomes the failing regression test). No red command, no diagnosis.
 
-**Exit:** a spec with an **objective**, **user stories**, **testable acceptance criteria** (each traceable to a story), an **out-of-scope section**, and any new glossary terms. Durable → **no file paths**. (Use the `spec.md` template; write it to the specs location in `.harness/agents/docs.md` — default `<run>/spec.md` — and show the path.) For a title-only ticket, also post the spec back.
+**Exit:** a spec with an **objective**, **user stories**, a **data & interfaces** summary (entities/shapes, contracts consumed/produced, what's unavailable — from step 2), **testable acceptance criteria** (each traceable to a story), an **out-of-scope section**, and any new glossary terms. Durable → **no file paths**. (Use the `spec.md` template; write it to the specs location in `.harness/agents/docs.md` — default `<run>/spec.md` — and show the path.) For a title-only ticket, also post the spec back.
 
 ## PLAN (interactive — the human gate)
 
@@ -135,6 +136,7 @@ Hard rules: terminal blocks show **real output, never fabricated**; screenshots 
 | Excuse                                                | Reality                                                                                        |
 | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | "This change is too small for a spec/steps"           | Small changes get small ones. Listing 3 steps costs nothing. Skipping hides the >5-step trap.  |
+| "The data model is obvious, I'll figure it out in BUILD" | An approach chosen against unverified shapes is the plan that collapses at slice 2. Read the schema in ALIGN. |
 | "I'll add tests after it works"                       | That's not TDD. Delete the code, write the test first.                                         |
 | "Tests pass, I can skip the e2e/screenshot"           | Unit tests don't prove it's usable. Proof of work is for the human's eyes.                     |
 | "The human is away, I'll assume and keep going"       | In ALIGN/PLAN, wait. Post-approval, an assumption worth making is worth writing in the report. |
@@ -142,6 +144,7 @@ Hard rules: terminal blocks show **real output, never fabricated**; screenshots 
 ## Red Flags
 
 - Re-running ALIGN/PLAN when an approved plan with an unfinished ledger exists (resume, don't restart)
+- Choosing an approach with no data & interface map shown (non-small path) — the shapes were assumed, not read
 - Writing code before plan approval (non-small path)
 - Treating "looks reasonable" as plan approval
 - `git add -A` / `git add .` in a slice commit

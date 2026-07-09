@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.2 — 2026-07-09
+
+Data-model / interface discovery made a first-class ALIGN step (design: `Design/ALIGN Data and Interface Map - discovery before design.md` in the ai vault). It was only implicit before — ALIGN said "read the modules the change touches, use search/graph tools" but forced no checked artifact, so an approach could be chosen against assumed data shapes (the plan that collapses at slice 2). Two studied frameworks make it first-class; the language is borrowed from the two sharpest: claude-code-context-agents (*"data flow traced from entry point to storage/output"*) and agent-skills (dependency graph rooted at `DB schema → API models/types → endpoints → client → UI`).
+
+- `builder-feature`: **new ALIGN step 2** (before the grill) — map the entities/types and their real shapes, the interfaces/APIs consumed or extended, the data flow entry→storage/output, and **what's not available**, read from code/schema and never assumed. Feeds the grill (gaps → questions) and PLAN's contract-first slice ordering. Small path skips it. ALIGN exit now names the data & interfaces summary; one Red Flag ("approach chosen with no map shown") and one Rationalization row ("data model is obvious, I'll figure it out in BUILD") added.
+- `templates/spec.md`: new **Data & interfaces** section (Entities/shapes · Consumes · Produces · Not available) — durable contracts, no file paths; deleted on the small path.
+- Deliberately **not** done (Crawl-phase YAGNI, don't relitigate without pilot evidence): no separate gated read-only `research.md` artifact (the map lives inline in the spec — one artifact, lighter ALIGN); no schema-specialist auto-dispatch (Zod/Neo4j experts).
+
 ## 0.6.1 — 2026-07-08
 
 Deploy-readiness + prune pass (two fresh-context reviewers over the whole repo). Four gap fixes, then cuts — net smaller than v0.5.1:
