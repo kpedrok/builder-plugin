@@ -36,4 +36,6 @@ The gold-plating fence. Anything noticed but deliberately not built goes here.
 
 ## Glossary terms coined / sharpened
 
-- **<term>** — <definition>. _(mirror into CONTEXT.md)_
+One canonical name per concept. When several names exist across layers/people, one wins and the rest are listed as aliases to avoid — so the same thing isn't called three things across frontend, backend, and tickets.
+
+- **<canonical term>** — <definition>. _Avoid:_ <losing synonyms, or —>. _(mirror into CONTEXT.md)_

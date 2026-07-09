@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.3 — 2026-07-09
+
+Two ALIGN reliability gaps closed — intent alignment and terminology alignment (design: `Design/ALIGN Intent Readback and Terminology Canonicalization.md` in the ai vault). Both are cheap additions to the existing grill/glossary machinery, no new phase.
+
+- **Intent gap (the XY problem)** — a request often describes a solution, not the real goal, or means something other than its literal wording. New **ALIGN step 3 (intent readback)**, before the detail grill: restate the ask as **outcome · who · done-when · out of scope**, treat it as a possible solution-in-disguise ("is X the goal or a means to Y?"), and require an **explicit yes** — a hedge isn't confirmation (same bar as plan approval). Language borrowed from agent-skills `interview-me` (structured restate + non-negotiable out-of-scope line) and claude-code-context-agents ("clients describe solutions, not problems").
+- **Terminology drift** — one concept, many names across frontend/backend/users (e.g. opportunity / inquiry / quote request). The grill's "sharpen fuzzy language" is upgraded to **canonicalize** (now step 4): pick one canonical name, record the losers as **aliases to avoid**, and split a word that means two things ("'account' is both Customer and User — which?"). `templates/spec.md` glossary section now carries an `_Avoid:_` aliases field; CONTEXT.md doc-sync row updated. Language borrowed from mattpocock-skills `domain-modeling` / `ubiquitous-language` (canonical term + `_Avoid_` list; the synonym/ambiguity taxonomy). Composes with v0.6.2's data & interface map — reading the real entity/type names is where cross-layer naming drift surfaces.
+- One Red Flag ("speccing before the intent readback got an explicit yes") and one Rationalization row ("the request is clear, I don't need to read it back") added.
+
 ## 0.6.2 — 2026-07-09
 
 Data-model / interface discovery made a first-class ALIGN step (design: `Design/ALIGN Data and Interface Map - discovery before design.md` in the ai vault). It was only implicit before — ALIGN said "read the modules the change touches, use search/graph tools" but forced no checked artifact, so an approach could be chosen against assumed data shapes (the plan that collapses at slice 2). Two studied frameworks make it first-class; the language is borrowed from the two sharpest: claude-code-context-agents (*"data flow traced from entry point to storage/output"*) and agent-skills (dependency graph rooted at `DB schema → API models/types → endpoints → client → UI`).
