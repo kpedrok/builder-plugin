@@ -31,6 +31,18 @@ Three shapes, detected at setup: a **single repo** (the default), a **monorepo**
 
 Turn on auto-update once so you stay current: `/plugin` → **Marketplaces** → **builder** → **Enable auto-update**.
 
+### Force an update
+
+Auto-update only re-fetches **at startup**, so mid-session (or if the **Update** button is greyed out) the app is still comparing against a stale local copy of the marketplace. To pull the latest now, run these in the chat input, in order:
+
+```
+/plugin marketplace update builder
+/plugin install builder@builder
+/reload-plugins
+```
+
+The first re-fetches the marketplace and refreshes the catalog; the second installs the new version; `/reload-plugins` activates it in the current session without a restart. Or just **quit and reopen** Claude Code — with auto-update on, it pulls the latest at launch. (A greyed-out **Update** button means only that the marketplace copy hasn't been refreshed yet — `/plugin marketplace update builder` fixes it.)
+
 ## Use it — 3 steps
 
 **1. Set up the project (once).**
