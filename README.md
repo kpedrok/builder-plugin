@@ -209,7 +209,7 @@ Repo-specific lessons stay local (in `STATE.md` or a project skill's Gotchas); o
 The plugin source is organized to mirror the process/facts split:
 
 - **`skills/`** — the four universal skills. Identical in every install; contain no repo-specific facts.
-- **`templates/`** — the seeds setup stamps into a project (`spec.md`, `plan.md`, `product.md`, `STATE.md`, `plugin-outbox.md`, `report.html`, `reviewer-prompt.md`, `settings-snippet.json`, `goal-conditions.md`) plus `project-skills/` (the four generated skills). Universal lessons land here so **future installs inherit them**.
+- **`templates/`** — plugin-owned seeds. Some are stamped into a project at **setup** (`product.md`, `STATE.md`, `settings-snippet.json` merged into `.claude/settings.json`) or instantiated then (`project-skills/`, the generated skills). The rest are **read live from the plugin** (via `${CLAUDE_PLUGIN_ROOT}/templates/…`) and never copied in — `report.html` at REPORT, `reviewer-prompt.md` at the review fallback, `goal-conditions.md` for `/goal`, the `spec.md`/`plan.md` shapes written into each run folder, `plugin-outbox.md` created on the first universal gotcha. Universal lessons land here so **future installs inherit them**.
 - **`.claude-plugin/`** — `plugin.json` (name, version) and `marketplace.json` (distribution).
 
 Principles that govern changes:

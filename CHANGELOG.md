@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.1 — 2026-07-10
+
+Report-template reference fixed (source-review finding; checked against how the studied frameworks reference bundled assets — `Design/Report v3` note). The REPORT step named the template as "the `report.html` template" with **no path**, so Claude had to guess where to read it — inviting reconstruction from memory (drift from the versioned CSS/section set the "keep the CSS untouched" rule is meant to prevent).
+
+- `builder-feature` REPORT step now reads the template from `${CLAUDE_PLUGIN_ROOT}/templates/report.html` with the Read tool, explicitly "never reconstruct from memory" — matching the sibling `reviewer-prompt.md` reference and Anthropic's own plugin-dev guidance (*"always use `${CLAUDE_PLUGIN_ROOT}` for intra-plugin references"*; its example is literally `${CLAUDE_PLUGIN_ROOT}/templates/report.md`). Convention confirmed across frameworks: co-located skill assets use a relative path (`references/x.md`); plugin-root/shared assets use `${CLAUDE_PLUGIN_ROOT}` — `templates/` is plugin-root and shared, so the latter applies.
+- README `templates/` bullet corrected — it claimed setup "stamps" all nine templates into the project. Only `product.md`, `STATE.md`, the settings snippet, and `project-skills/` are stamped at setup; `report.html`, `reviewer-prompt.md`, `goal-conditions.md`, the `spec.md`/`plan.md` shapes, and `plugin-outbox.md` are read live from the plugin (or created on demand) and never copied in.
+
 ## 0.8.0 — 2026-07-10
 
 Prune + rename pass from a full-source review (no new behavior). Existing installs: rerun `/builder-setup-harness` or `mv .harness/agents .harness/map` by hand — pre-1.0, no migration shipped.
