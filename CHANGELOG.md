@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.0 — 2026-07-10
+
+Report v3 — evidence discipline + reproduce-it-yourself (design: `Design/Report v3 - Field Guide Steal-List.md` in the ai vault; source: pilot-5 run review + Pedro's hand-grown momentus `field-guide.html`, which beat the v0.6 report on presence and per-claim verification). Template restructured (now 11 sections), skill's report step rewritten to match.
+
+- **Evidence chips** — every claim wears how it was verified: ✓ *live this run* / ◐ *fixture or inference* / ○ *needs a human*. Used in the Asked-vs-built Met column (kills the "✓ with an asterisk" hack for partially-met ACs), a new §5 **validation log** (claim · how verified · chip), and §9 items. Legend under the pills. Rule: never award ✓ to something the run didn't observe.
+- **New §6 "Try it yourself" (always present, Pedro's ask)** — teaches the reviewer to reproduce the proof *without the session*: prereq cards (services/env/seeds), 3–6 numbered copy-paste steps each with a "what you'll see" expectation box (success signal + likeliest failure and fix), last step exercises the feature as a *user* would. Steps that need session-only state say so with ○, never pretend.
+- **CSS pipeline strip replaces the SVG sequence diagram** as the default flow visual — numbered step cards with real actor/route names and existing/this-run tags; responsive by construction, far more robust to generate. Hand-drawn SVG only for genuinely non-linear flows.
+- **Presence** — sticky section nav, hero-scale headline (`clamp`), **stat-tile row** (tests+delta / files / ±lines / slices), terminal blocks get window chrome (traffic lights + context-labeled title bar, `$` via CSS) and a "what it means" line after each (`.expect`, `.aha` for the payoff), callouts get a 3px left border.
+- **Handoff & staleness** — §10 gains an optional **paste-ready block** (PR description / ask-to-a-teammate, verbatim); §9 items each carry a **proof anchor** (the command/file/ticket that shows the issue exists); footer records the HEAD commit the report reflects + a re-verify warning. Template footer version now tracks the plugin version.
+
 ## 0.6.3 — 2026-07-09
 
 Two ALIGN reliability gaps closed — intent alignment and terminology alignment (design: `Design/ALIGN Intent Readback and Terminology Canonicalization.md` in the ai vault). Both are cheap additions to the existing grill/glossary machinery, no new phase.

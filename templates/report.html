@@ -7,32 +7,47 @@
 <!--
   TEMPLATE RULES (delete this comment block in the generated report):
   · Fill every REPLACE. OMIT a whole section if it's genuinely empty (don't leave "n/a" headers) —
-    except sections 2, 5 and 7, which are always present.
+    except sections 2, 5, 6 and 8, which are always present. Keep the nav links in sync with the
+    sections you keep (delete links to omitted sections).
+  · EVIDENCE CHIPS — every claim wears how it was verified:
+      <span class="chip live">✓</span>   verified live this run (command ran, test passed, UI driven)
+      <span class="chip fixture">◐</span> from fixture/inference (test data, code reading, derived)
+      <span class="chip human">○</span>   needs a human decision/check
+    Use them in the §2 Met column (a partially-met AC is ◐ + a note — never "✓*"), the §5
+    validation log, and §9 items. Never award ✓ to something this run didn't actually observe.
   · Terminal blocks: paste REAL command output, never fabricate. Wrap verdict lines in
-    <span class="t-ok">, <span class="t-warn">, <span class="t-err"> for color.
+    <span class="t-ok">, <span class="t-warn">, <span class="t-err">. Give each block's title bar
+    a context label ("Terminal — full gate"). Commands go in <span class="cmd"> — the $ prompt is
+    added by CSS, don't type it. After each block, one .expect line: what the output means /
+    what success looks like (.expect.aha for the key payoff).
   · Screenshots: resize to ≤1200px wide and re-encode as JPEG quality ~70 BEFORE base64-embedding
     (e.g. `sips -Z 1200 s.png && sips -s format jpeg -s formatOptions 70 s.png --out s.jpg`).
     Target < 150 KB per image.
   · Code excerpts: real code, ≤ 20 lines each, 2–4 excerpts total. Use <mark> to highlight the
     lines that carry the idea.
+  · Flow diagrams: use the CSS pipeline strip (.pipe) with the REAL step/actor names. Only a
+    genuinely non-linear flow (fan-out, branch, loop) may use a hand-drawn SVG instead — style it
+    with currentColor and put it in a .card with overflow-x:auto.
   · Keep the CSS untouched — the template's look is plugin-owned and identical in every repo.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
     color-scheme: light dark;
     --ground: #f4f5f7;
     --surface: #ffffff;
+    --surface-2: #eef0f4;
     --ink: #171c26;
     --muted: #667085;
     --line: #e3e6eb;
     --accent: #1a56db;
+    --accent-soft: #1a56db14;
     --pass: #15803d;   --pass-soft: #e8f3ec;
     --warn: #b45309;   --warn-soft: #faf0e0;
     --fail: #b91c1c;   --fail-soft: #f9e9e7;
-    --term-bg: #10141c; --term-ink: #d6dce6;
+    --term-bg: #10141c; --term-ink: #d6dce6; --term-bar: #171d28; --term-line: #232b38;
     --code-bg: #f0f1f4;
     --mark: #f6e3a1;
     --radius: 10px;
@@ -42,14 +57,16 @@
     :root {
       --ground: #0e1117;
       --surface: #161b24;
+      --surface-2: #1c2330;
       --ink: #e4e8ee;
       --muted: #8b95a5;
       --line: #262d3a;
       --accent: #7aa2f7;
+      --accent-soft: #7aa2f71f;
       --pass: #4ade80;   --pass-soft: #12281c;
       --warn: #fbbf24;   --warn-soft: #2d2412;
       --fail: #f87171;   --fail-soft: #321a18;
-      --term-bg: #0a0d13; --term-ink: #cdd5e0;
+      --term-bg: #0a0d13; --term-ink: #cdd5e0; --term-bar: #10151d; --term-line: #1c2430;
       --code-bg: #1c222d;
       --mark: #4a3d12;
       --shadow: none;
@@ -61,25 +78,42 @@
     color: var(--ink);
     font-family: Inter, -apple-system, "Segoe UI", system-ui, sans-serif;
     font-size: 15px; line-height: 1.65;
-    max-width: 980px; margin: 0 auto; padding: 3rem 1.5rem 4rem;
+    max-width: 980px; margin: 0 auto; padding: 0 1.5rem 4rem;
   }
   code, pre, .path, .sym {
     font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   }
   code { background: var(--code-bg); padding: .08em .35em; border-radius: 4px; font-size: .88em; }
+  .num { font-variant-numeric: tabular-nums; }
 
-  /* Header */
+  /* Sticky section nav */
+  nav.top {
+    position: sticky; top: 0; z-index: 50;
+    margin: 0 -1.5rem; padding: .55rem 1.5rem;
+    background: color-mix(in srgb, var(--ground) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: .2rem; flex-wrap: wrap;
+    font-size: .78rem;
+  }
+  nav.top .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); margin-right: .5rem; flex: none; }
+  nav.top a { color: var(--muted); text-decoration: none; font-weight: 500; padding: .2rem .55rem; border-radius: 6px; }
+  nav.top a:hover { background: var(--surface-2); color: var(--ink); }
+
+  /* Hero */
+  header.hero { padding: 2.6rem 0 0; }
   .eyebrow {
     text-transform: uppercase; letter-spacing: .13em;
-    font-size: .7rem; font-weight: 600; color: var(--muted); margin: 0 0 .55rem;
+    font-size: .7rem; font-weight: 700; color: var(--accent); margin: 0 0 .7rem;
   }
-  h1 { font-size: 1.85rem; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; margin: 0 0 .7rem; text-wrap: balance; }
-  h1 code { font-size: .85em; }
-  .lede { color: var(--muted); max-width: 46rem; margin: 0 0 1.4rem; }
+  .eyebrow .path { color: var(--muted); }
+  h1 { font-size: clamp(1.8rem, 4.5vw, 2.5rem); font-weight: 800; letter-spacing: -.02em; line-height: 1.15; margin: 0 0 .8rem; text-wrap: balance; }
+  h1 code { font-size: .8em; }
+  .lede { color: var(--muted); font-size: 1.05rem; max-width: 46rem; margin: 0 0 1.4rem; }
   .lede strong { color: var(--ink); }
 
-  /* Status pills */
-  .pills { display: flex; flex-wrap: wrap; gap: .55rem; margin: 0 0 2.6rem; }
+  /* Status pills + evidence-chip legend */
+  .pills { display: flex; flex-wrap: wrap; gap: .55rem; margin: 0 0 1rem; }
   .pill {
     display: inline-flex; align-items: center; gap: .4rem;
     font-size: .72rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
@@ -89,11 +123,28 @@
   .pill.pass { color: var(--pass); background: var(--pass-soft); }
   .pill.warn { color: var(--warn); background: var(--warn-soft); }
   .pill.fail { color: var(--fail); background: var(--fail-soft); }
+  .chip {
+    display: inline-flex; align-items: center; gap: .3rem;
+    padding: .1rem .5rem; border-radius: 999px; font-size: .72rem; font-weight: 600;
+    border: 1px solid var(--line); background: var(--surface); white-space: nowrap;
+  }
+  .chip.live    { color: var(--pass); background: var(--pass-soft); border-color: color-mix(in srgb, var(--pass) 35%, var(--line)); }
+  .chip.fixture { color: var(--warn); background: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 35%, var(--line)); }
+  .chip.human   { color: var(--fail); background: var(--fail-soft); border-color: color-mix(in srgb, var(--fail) 35%, var(--line)); }
+  .legend { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 1.4rem; font-size: .78rem; color: var(--muted); align-items: center; }
+
+  /* Stat tiles */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: .8rem; margin: 0 0 2.4rem; }
+  @media (max-width: 700px) { .stats { grid-template-columns: 1fr 1fr; } }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: .8rem 1rem; }
+  .stat .v { font-size: 1.7rem; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; line-height: 1.2; }
+  .stat .v .d { font-size: .8rem; font-weight: 600; color: var(--pass); margin-left: .25rem; }
+  .stat .l { font-size: .76rem; color: var(--muted); margin-top: .1rem; }
 
   /* Sections */
   h2 {
     font-size: 1.15rem; font-weight: 700; letter-spacing: -.01em;
-    margin: 2.8rem 0 .9rem;
+    margin: 2.8rem 0 .9rem; scroll-margin-top: 3.2rem;
   }
   h2 .n { color: var(--muted); font-weight: 600; margin-right: .45rem; font-variant-numeric: tabular-nums; }
   h3 { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin: 1.6rem 0 .6rem; }
@@ -149,26 +200,64 @@
   }
   pre mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 .15em; }
 
-  /* Terminal blocks */
-  .term {
-    background: var(--term-bg); color: var(--term-ink);
-    padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto;
-    font-size: 12.5px; line-height: 1.6;
+  /* Pipeline strip (default flow diagram) */
+  .pipe { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: 0; margin: 0 0 1rem; }
+  .pstep { position: relative; padding: .9rem 1rem; background: var(--surface); border: 1px solid var(--line); }
+  .pstep:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+  .pstep:last-child { border-radius: 0 var(--radius) var(--radius) 0; }
+  .pstep + .pstep { border-left: none; }
+  @media (max-width: 700px) {
+    .pipe { grid-template-columns: 1fr; }
+    .pstep, .pstep:first-child, .pstep:last-child { border-radius: var(--radius); border-left: 1px solid var(--line); }
+    .pstep + .pstep { margin-top: .5rem; }
   }
-  .term .t-cmd { color: #8b95a5; }
+  .pstep .n { font-family: "JetBrains Mono", monospace; font-size: .72rem; font-weight: 700; color: var(--accent); }
+  .pstep h4 { margin: .3rem 0 .2rem; font-size: .88rem; font-weight: 700; letter-spacing: -.01em; }
+  .pstep p { font-size: .78rem; color: var(--muted); line-height: 1.5; margin: 0; }
+  .pstep .tag { display: inline-block; margin-top: .5rem; font-size: .64rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: .1rem .45rem; border-radius: 5px; color: var(--accent); background: var(--accent-soft); }
+  .pstep .tag.new { color: var(--pass); background: var(--pass-soft); }
+
+  /* Terminal blocks (window chrome) */
+  .term { background: var(--term-bg); border: 1px solid var(--term-line); border-radius: 9px; overflow: hidden; margin: 0 0 .35rem; }
+  .term .bar { display: flex; align-items: center; gap: .45rem; padding: .5rem .8rem; border-bottom: 1px solid var(--term-line); background: var(--term-bar); }
+  .term .bar .b { width: 11px; height: 11px; border-radius: 50%; flex: none; }
+  .term .bar .b:nth-child(1) { background: #e0665b; } .term .bar .b:nth-child(2) { background: #e0b45b; } .term .bar .b:nth-child(3) { background: #63c088; }
+  .term .bar .t { margin-left: .4rem; font-family: "JetBrains Mono", monospace; font-size: .72rem; color: #6d7f92; }
+  .term pre { margin: 0; padding: .8rem 1rem; background: transparent; border-radius: 0; color: var(--term-ink); font-size: 12.5px; line-height: 1.6; }
+  .term .cmd { color: #6ee7d6; }
+  .term .cmd::before { content: "$ "; color: #4a5b6d; }
   .term .t-ok { color: #4ade80; font-weight: 600; }
   .term .t-warn { color: #fbbf24; }
   .term .t-err { color: #f87171; font-weight: 600; }
+  .term .t-dim { color: #566575; }
+
+  /* Expectation box — what the output means */
+  .expect { margin: 0 0 1rem; padding: .55rem .9rem; border-left: 3px solid var(--pass); background: var(--pass-soft); border-radius: 0 8px 8px 0; font-size: .87rem; color: var(--muted); }
+  .expect strong { color: var(--ink); }
+  .expect.aha { border-left-color: var(--warn); background: var(--warn-soft); }
 
   /* Callouts */
-  .callout { border-radius: 8px; padding: .8rem 1.05rem; margin: 0 0 .8rem; font-size: .93rem; }
+  .callout { border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: .8rem 1.05rem; margin: 0 0 .8rem; font-size: .93rem; background: var(--accent-soft); }
   .callout strong:first-child { display: inline-block; margin-right: .25rem; }
-  .callout.ship { background: var(--fail-soft); }
+  .callout.ship { background: var(--fail-soft); border-left-color: var(--fail); }
   .callout.ship strong:first-child { color: var(--fail); }
-  .callout.deviation { background: var(--warn-soft); }
+  .callout.deviation { background: var(--warn-soft); border-left-color: var(--warn); }
   .callout.deviation strong:first-child { color: var(--warn); }
-  .callout.fixed { background: var(--pass-soft); }
+  .callout.fixed { background: var(--pass-soft); border-left-color: var(--pass); }
   .callout.fixed strong:first-child { color: var(--pass); }
+
+  /* Try-it-yourself tutorial */
+  .prereq { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: .8rem; margin: 0 0 1rem; }
+  .prereq .p { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: .8rem 1rem; }
+  .prereq .p .t { font-weight: 700; font-size: .88rem; display: flex; align-items: center; gap: .5rem; }
+  .prereq .p .mk { width: 20px; height: 20px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); font-size: .72rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  .prereq .p p { color: var(--muted); font-size: .8rem; margin: .35rem 0 0; }
+  .tstep { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1rem 1.2rem; margin: 0 0 .9rem; }
+  .tstep .head { display: flex; align-items: center; gap: .7rem; margin-bottom: .5rem; }
+  .tstep .idx { flex: none; width: 26px; height: 26px; border-radius: 7px; background: var(--accent-soft); color: var(--accent); font-weight: 800; display: flex; align-items: center; justify-content: center; font-family: "JetBrains Mono", monospace; font-size: .8rem; }
+  .tstep h4 { margin: 0; font-size: .98rem; font-weight: 700; letter-spacing: -.01em; }
+  .tstep > p { color: var(--muted); font-size: .9rem; margin: 0 0 .6rem; }
+  .tstep .expect { margin-bottom: 0; }
 
   /* Figures */
   figure { margin: 1.4rem 0; }
@@ -176,12 +265,6 @@
   figcaption { font-size: .82rem; color: var(--muted); margin-top: .5rem; }
   figcaption .fig-n { font-weight: 700; color: var(--ink); margin-right: .3rem; }
   svg { max-width: 100%; height: auto; }
-  .diagram { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1rem; overflow-x: auto; }
-  .diagram svg { min-width: 640px; }
-  .diagram text { fill: currentColor; font-family: Inter, sans-serif; }
-  .diagram .box { fill: none; stroke: currentColor; stroke-width: 1.2; }
-  .diagram .flow { stroke: currentColor; stroke-width: 1.2; fill: none; }
-  .diagram .dim { opacity: .65; }
 
   /* Internalize */
   details { border-bottom: 1px solid var(--line); padding: .55rem 0; }
@@ -199,6 +282,22 @@
 </head>
 <body>
 
+<nav class="top">
+  <span class="dot"></span>
+  <a href="#story">Story</a>
+  <a href="#acs">Asked vs. built</a>
+  <a href="#changed">Changed</a>
+  <a href="#how">How it works</a>
+  <a href="#proof">Proof</a>
+  <a href="#try">Try it</a>
+  <a href="#decisions">Decisions</a>
+  <a href="#docs">Docs</a>
+  <a href="#noticed">Noticed</a>
+  <a href="#ship">Ship</a>
+  <a href="#internalize">Internalize</a>
+</nav>
+
+<header class="hero">
 <p class="eyebrow">REPORT · REPLACE_FEATURE_SLUG · REPLACE_DATE · <span class="path">REPLACE_BRANCH</span> · REPLACE_TICKET</p>
 <h1>REPLACE_FEATURE_NAME</h1>
 <p class="lede">REPLACE — three sentences max: <strong>what</strong> was built and for whom, <strong>where</strong> it lives (layers touched), and the <strong>status</strong> (e.g. "committed on the branch, report pending review, ready for /builder-ship"). Do NOT preview the mechanism — that's section 1's job.</p>
@@ -207,17 +306,33 @@
   <span class="pill pass">✓ Full gate · REPLACE_N tests</span>
   <span class="pill pass">✓ E2E in browser</span>
   <span class="pill pass">✓ Review clean</span>
-  <span class="pill pass">Baseline REPLACE_OLD → REPLACE_NEW</span>
   <!-- 3–6 pills MAX (more kills the 5-second verdict); use .warn for deviations ("1 test dropped"),
        .fail only for real failures. Review pill: "✓ Review clean", "✓ Review · N fixed" (pass), or
-       .warn "Review · N open" (open findings detailed in section 6). The pills OWN the
-       gate/baseline/review facts — don't restate them in sections 2 or 3.
-       Workspace shape (multiple touched repos): one gate pill and one baseline pill PER touched repo,
-       prefixed with the repo name ("✓ api · 1,412" / "✓ client · 9,296") — still ≤6 pills total;
-       more repos than that fit → gate pills per repo, single combined baseline pill. -->
+       .warn "Review · N open" (open findings detailed in section 7). The pills OWN the
+       gate/e2e/review verdicts — don't restate them in sections 2 or 3.
+       Workspace shape (multiple touched repos): one gate pill PER touched repo, prefixed with the
+       repo name ("✓ api · 1,412" / "✓ client · 9,296") — still ≤6 pills total. -->
 </div>
 
-<h2><span class="n">1</span>The story</h2>
+<div class="legend">
+  Evidence:
+  <span class="chip live">✓ verified live this run</span>
+  <span class="chip fixture">◐ from fixture / inference</span>
+  <span class="chip human">○ needs a human</span>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="v num">REPLACE_TESTS<span class="d">+REPLACE_DELTA</span></div><div class="l">tests passing (baseline REPLACE_OLD)</div></div>
+  <div class="stat"><div class="v num">REPLACE_N</div><div class="l">files touched</div></div>
+  <div class="stat"><div class="v num">+REPLACE / −REPLACE</div><div class="l">lines added / removed</div></div>
+  <div class="stat"><div class="v num">REPLACE_N</div><div class="l">slices, all committed</div></div>
+  <!-- Exactly 4 tiles; these defaults fit most runs. Swap a tile when something else IS the
+       headline number (rows migrated, endpoints added, ms saved). Workspace shape: the tests tile
+       may combine repos ("1,412 + 9,296"). -->
+</div>
+</header>
+
+<h2 id="story"><span class="n">1</span>The story</h2>
 <div class="story">
   <!-- 5–10 sentences of PROSE, no tables/bullets. The problem as the user experiences it →
        the shape of the solution → how data flows end-to-end. This is what the reader
@@ -225,19 +340,22 @@
   <p>REPLACE</p>
 </div>
 
-<h2><span class="n">2</span>Asked vs. built</h2>
-<!-- PRODUCT acceptance criteria only — gate/baseline is a pill, not a row here. Evidence column is a
-     SHORT pointer (test file, "§5 e2e", component name), never a re-narration of what section 5 shows. -->
+<h2 id="acs"><span class="n">2</span>Asked vs. built</h2>
+<!-- PRODUCT acceptance criteria only — gate/baseline is a pill, not a row here. Met column is an
+     evidence chip: ✓ live (this run observed it) / ◐ partial or inferred (add a short note why) /
+     ○ needs a human check. Evidence column is a SHORT pointer (test file, "§5 e2e", component
+     name), never a re-narration of what section 5 shows. -->
 <div class="card twrap">
   <table>
     <thead><tr><th>Acceptance criterion</th><th>Met</th><th>Where / evidence</th></tr></thead>
     <tbody>
-      <tr><td>REPLACE</td><td class="ok">✓</td><td>REPLACE</td></tr>
+      <tr><td>REPLACE</td><td><span class="chip live">✓</span></td><td>REPLACE</td></tr>
+      <tr><td>REPLACE</td><td><span class="chip fixture">◐</span></td><td>REPLACE — why partial, and what closes it</td></tr>
     </tbody>
   </table>
 </div>
 
-<h2><span class="n">3</span>What changed</h2>
+<h2 id="changed"><span class="n">3</span>What changed</h2>
 <!-- One card per slice (or per layer/repo for cross-repo work). Marker: + new, − removed, ~ modified. -->
 <div class="changes">
   <div class="card">
@@ -250,43 +368,56 @@
   </div>
 </div>
 
-<h2><span class="n">4</span>How it works</h2>
+<h2 id="how"><span class="n">4</span>How it works</h2>
 <!-- 2–4 REAL code excerpts (≤20 lines each) that carry the core idea: the data model, the
      central function, the UI hook. <mark> the load-bearing lines. Each snippet gets a
-     one-sentence .note saying what to see in it. Then ONE sequence diagram of the actual
-     user action (real actor/component names, not generic boxes). -->
+     one-sentence .note saying what to see in it. Then the pipeline strip: the actual flow of
+     the user action in 3–6 steps with REAL actor/function/route names — tag the steps this
+     run added (.tag.new) vs pre-existing (.tag). Only a genuinely non-linear flow may use a
+     hand-drawn SVG instead. -->
 <div class="snippet">
   <div class="snippet-head"><span class="path">REPLACE/file/path.ts</span><span>REPLACE — what this is</span></div>
   <pre>REPLACE real code, ≤20 lines, with <mark>the key lines marked</mark></pre>
   <div class="note">REPLACE — one sentence: what to notice here.</div>
 </div>
 
-<figure class="diagram">
-  <svg viewBox="0 0 720 200" role="img" aria-label="sequence of the user action">
-    <!-- REPLACE: redraw as the real sequence — actor boxes on top, dashed lifelines below them,
-         arrows labeled with the real function/route names. Keep stroke/fill as currentColor via
-         the CSS classes. Self-calls: draw a short loop-back arrow or leave them out — never a
-         zero-length line. Size the viewBox to fit; the container scrolls horizontally on mobile. -->
-    <rect class="box" x="10" y="10" width="130" height="34" rx="6"/><text x="75" y="32" text-anchor="middle" font-size="12">REPLACE actor</text>
-    <rect class="box" x="240" y="10" width="130" height="34" rx="6"/><text x="305" y="32" text-anchor="middle" font-size="12">REPLACE step</text>
-    <line class="flow dim" x1="75" y1="44" x2="75" y2="180" stroke-dasharray="3 4"/>
-    <line class="flow dim" x1="305" y1="44" x2="305" y2="180" stroke-dasharray="3 4"/>
-    <line class="flow" x1="75" y1="80" x2="305" y2="80" marker-end="url(#arr)"/>
-    <text x="190" y="73" text-anchor="middle" font-size="11">REPLACE call()</text>
-    <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
-  </svg>
-  <figcaption><span class="fig-n">Diagram</span>REPLACE — what this sequence shows.</figcaption>
-</figure>
+<div class="pipe">
+  <div class="pstep"><span class="n">01</span><h4>REPLACE actor/step</h4><p>REPLACE — what happens, real route/function name.</p></div>
+  <div class="pstep"><span class="n">02</span><h4>REPLACE</h4><p>REPLACE</p><span class="tag">existing</span></div>
+  <div class="pstep"><span class="n">03</span><h4>REPLACE</h4><p>REPLACE</p><span class="tag new">this run</span></div>
+</div>
+<figcaption style="margin:-0.4rem 0 1rem"><span class="fig-n">Flow</span>REPLACE — one sentence: what this sequence shows.</figcaption>
 
-<h2><span class="n">5</span>Proof of work</h2>
+<h2 id="proof"><span class="n">5</span>Proof of work</h2>
 
 <h3>1 · Full gate</h3>
-<pre class="term"><span class="t-cmd">$ REPLACE full gate command</span>
+<div class="term">
+  <div class="bar"><span class="b"></span><span class="b"></span><span class="b"></span><span class="t">Terminal — full gate</span></div>
+  <pre><span class="cmd">REPLACE full gate command</span>
 REPLACE real output — wrap verdicts: <span class="t-ok">704 pass, 0 fail (exit 0)</span></pre>
+</div>
+<p class="expect"><strong>What it means:</strong> REPLACE — e.g. "all 704 pass at Release config; the 62 new tests are slices 1–3's; baseline delta fully explained."</p>
 
 <h3>2 · REPLACE next evidence (e2e, probe, …)</h3>
-<pre class="term"><span class="t-cmd">$ REPLACE</span>
+<div class="term">
+  <div class="bar"><span class="b"></span><span class="b"></span><span class="b"></span><span class="t">Terminal — REPLACE context</span></div>
+  <pre><span class="cmd">REPLACE</span>
 REPLACE</pre>
+</div>
+<p class="expect aha"><strong>The payoff:</strong> REPLACE — the one line that shows the feature working.</p>
+
+<h3>Validation log</h3>
+<!-- Every load-bearing claim this report makes beyond the gate/e2e above: claim · how it was
+     verified · chip. Omit ONLY if the gate + e2e genuinely cover everything claimed. -->
+<div class="card twrap">
+  <table>
+    <thead><tr><th>Claim</th><th>How verified</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>REPLACE</td><td>REPLACE — command / file / observation</td><td><span class="chip live">✓</span></td></tr>
+      <tr><td>REPLACE</td><td>REPLACE</td><td><span class="chip fixture">◐</span></td></tr>
+    </tbody>
+  </table>
+</div>
 
 <h3>Persistence</h3>
 <div class="card twrap">
@@ -305,14 +436,50 @@ REPLACE</pre>
   <figcaption><span class="fig-n">1</span>REPLACE — what to look at in this screenshot.</figcaption>
 </figure>
 
-<h2><span class="n">6</span>Decisions &amp; deviations</h2>
+<h2 id="try"><span class="n">6</span>Try it yourself</h2>
+<!-- ALWAYS PRESENT. Teach the reviewer to reproduce the proof WITHOUT this session: start from a
+     clean checkout of the branch, assume none of the session's running state. Prereqs first
+     (services, env, seeds — with the exact commands or a doc pointer), then 3–6 numbered steps.
+     Every step: one sentence of intent, a copy-paste command block, and a .expect box saying what
+     they'll see (use .aha on the step that shows the feature itself). The last step should exercise
+     the feature the way a USER would (UI click-path or the API call), not just re-run the tests.
+     If a step can't be reproduced outside the session (needs prod creds, a teammate's data), say so
+     honestly in a .expect box with a ○ chip instead of pretending. -->
+<div class="prereq">
+  <div class="p"><div class="t"><span class="mk">1</span>REPLACE prereq</div><p>REPLACE — e.g. "docker compose up db — the app needs Postgres on :5432."</p></div>
+  <div class="p"><div class="t"><span class="mk">2</span>REPLACE</div><p>REPLACE</p></div>
+  <div class="p"><div class="t"><span class="mk">3</span>REPLACE</div><p>REPLACE</p></div>
+</div>
+
+<div class="tstep">
+  <div class="head"><span class="idx">1</span><h4>REPLACE — e.g. "Check out the branch and run the gate"</h4></div>
+  <p>REPLACE — one sentence: what this step does and why it's first.</p>
+  <div class="term">
+    <div class="bar"><span class="b"></span><span class="b"></span><span class="b"></span><span class="t">Terminal</span></div>
+    <pre><span class="cmd">git checkout REPLACE_BRANCH</span>
+<span class="cmd">REPLACE gate command</span></pre>
+  </div>
+  <p class="expect"><strong>What you'll see:</strong> REPLACE — the exact success signal, and the most likely failure + its fix.</p>
+</div>
+
+<div class="tstep">
+  <div class="head"><span class="idx">2</span><h4>REPLACE — exercise the feature itself</h4></div>
+  <p>REPLACE</p>
+  <div class="term">
+    <div class="bar"><span class="b"></span><span class="b"></span><span class="b"></span><span class="t">Terminal</span></div>
+    <pre><span class="cmd">REPLACE — or describe the UI click-path if it's not a command</span></pre>
+  </div>
+  <p class="expect aha"><strong>What you'll see:</strong> REPLACE — the feature working, in the reviewer's own hands.</p>
+</div>
+
+<h2 id="decisions"><span class="n">7</span>Decisions &amp; deviations</h2>
 <ul>
   <li><strong>REPLACE_DECISION</strong> — REPLACE the why, incl. the rejected alternative. (STATE AD-REPLACE)</li>
 </ul>
 <div class="callout deviation"><strong>Deviation:</strong> REPLACE — what diverged from the plan, why, and what compensates for it. (STATE L-REPLACE)</div>
 <div class="callout fixed"><strong>Fixed in passing:</strong> REPLACE — small unrelated thing repaired along the way. Omit if none.</div>
 
-<h2><span class="n">7</span>Docs synced</h2>
+<h2 id="docs"><span class="n">8</span>Docs synced</h2>
 <div class="card twrap">
   <table>
     <thead><tr><th>Doc</th><th>Updated</th><th>What changed</th></tr></thead>
@@ -329,22 +496,31 @@ REPLACE</pre>
   </table>
 </div>
 
-<h2><span class="n">8</span>Noticed but not touched</h2>
-<!-- End every item with a recommendation so next steps are scannable. Also list here any behavior
-     deliberately descoped in section 6 that could become a follow-up ticket. -->
-<ul><li>REPLACE — out-of-scope finding. <em>Suggested: ticket / ignore / monitor.</em></li></ul>
+<h2 id="noticed"><span class="n">9</span>Noticed but not touched</h2>
+<!-- Every item carries a PROOF ANCHOR — the command, file, or ticket that shows the issue exists —
+     and ends with a recommendation + chip (○ if it needs a human decision). Also list here any
+     behavior deliberately descoped in section 7 that could become a follow-up ticket. -->
+<ul>
+  <li><strong>REPLACE</strong> — out-of-scope finding. <em>Proof: <code>REPLACE command/file that shows it</code>.</em> <em>Suggested: ticket / ignore / monitor.</em> <span class="chip human">○</span></li>
+</ul>
 
-<h2><span class="n">9</span>How to ship it</h2>
-<!-- Shipping MECHANICS only: risk callout + what /builder-ship will do. Review pointers live in sections 4/6 —
-     don't repeat them here. -->
+<h2 id="ship"><span class="n">10</span>How to ship it</h2>
+<!-- Shipping MECHANICS only: risk callout + what /builder-ship will do. Review pointers live in
+     sections 4/7 — don't repeat them here. If the run produced text meant for someone else (PR
+     description, a data-team ask, a migration notice), include it VERBATIM in the paste-ready
+     block so the human ships it by copying, not by re-deriving. Omit the block if there's none. -->
 <div class="callout ship"><strong>REPLACE if relevant (else omit):</strong> deploy-order / migration / feature-flag risk the shipper must know.</div>
 <ol>
   <li>REPLACE — what <code>/builder-ship</code> will do here (PR target, tracker move, migration step).
       <!-- Workspace shape: list every touched repo explicitly — one PR per repo, merge order (contract
            repo first). Ship reads the touched-repo list from THIS section; it must be complete. --></li>
 </ol>
+<div class="term">
+  <div class="bar"><span class="b"></span><span class="b"></span><span class="b"></span><span class="t">paste-ready — REPLACE what this is (PR description / ask to REPLACE_WHO)</span></div>
+  <pre style="white-space:pre-wrap">REPLACE — the verbatim text to paste. Omit this whole block if the run produced no handoff text.</pre>
+</div>
 
-<h2><span class="n">10</span>To internalize</h2>
+<h2 id="internalize"><span class="n">11</span>To internalize</h2>
 <!-- 3–5 questions a reviewer should be able to answer after reading this report.
      One-line answers behind <details>. -->
 <div class="card">
@@ -355,7 +531,7 @@ REPLACE</pre>
 <div class="meta">
   <p><strong>Left running:</strong> REPLACE (dev server, DB, mocks) / nothing.</p>
   <p><strong>Related:</strong> REPLACE — ticket links, STATE entries, ADRs, predecessor branches.</p>
-  <p>Generated by the builder harness · report template v0.6.0 · REPLACE_DATE</p>
+  <p>Reflects the repo at <code>REPLACE_HEAD_COMMIT</code> on REPLACE_DATE — evidence chips record what was true at generation time; re-verify before relying on them later. Generated by the builder harness · report template v0.7.0.</p>
 </div>
 
 </body>
