@@ -112,7 +112,7 @@ your-project/
     ├── product.md                  ← what the product is, who uses it, what success means
     ├── STATE.md                    ← durable memory: baselines, decisions, lessons, gotchas
     ├── plugin-outbox.md            ← universal gotchas queued for the plugin itself
-    ├── agents/                     ← the indirection layer: canonical verbs → real commands
+    ├── map/                        ← the indirection layer: canonical verbs → real commands
     │   ├── tracker.md
     │   ├── docs.md
     │   ├── gates.md
@@ -127,9 +127,9 @@ your-project/
     └── archive/                    ← runs moved here whole by /builder-ship
 ```
 
-## `.harness/agents/` — the indirection layer (the heart of the design)
+## `.harness/map/` — the indirection layer (the heart of the design)
 
-Despite the name, these are **config-mapping files, not sub-agents.** Each answers "when a skill says *do X*, what's the real command in this repo?" This is what lets one universal skill run anywhere. The skills never hardcode a command; they always resolve it here.
+Config-mapping files, one per concern. Each answers "when a skill says *do X*, what's the real command in this repo?" This is what lets one universal skill run anywhere. The skills never hardcode a command; they always resolve it here.
 
 | File | What it maps | Why it exists |
 |---|---|---|
@@ -214,7 +214,7 @@ The plugin source is organized to mirror the process/facts split:
 
 Principles that govern changes:
 
-- **Plugin = process, project = facts.** Anything repo-specific belongs under a project's `.harness/`, reached through the `agents/` indirection layer — never hardcoded in a skill. If a fix needs a repo fact, the fix is a template or mapping change, not a skill edit.
+- **Plugin = process, project = facts.** Anything repo-specific belongs under a project's `.harness/`, reached through the `map/` indirection layer — never hardcoded in a skill. If a fix needs a repo fact, the fix is a template or mapping change, not a skill edit.
 - **Prompts + files, not code.** The workflow lives in skill instructions; state lives in markdown on disk. Scripts may do mechanical work but never decide what happens next.
 - **Encode failures into the system**, not into longer prompts — a real pilot failure becomes a Gotcha entry or a template change, so it's fixed once for every install.
 - **Phase 1 (Crawl).** Completion verifiers, ticket routing, safety hooks, and worktrees are later phases — nothing speculative ships before its phase wires it up.

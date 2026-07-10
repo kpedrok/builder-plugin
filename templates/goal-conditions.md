@@ -2,7 +2,7 @@
 
 Copy for use with `/goal` to cover BUILD → PROVE → REPORT autonomously after the human approves the plan. `/builder-ship` is separate and human-triggered.
 
-The evaluator only sees the transcript. Every clause must be provable by output Claude *shows* — never by "the file exists" alone.
+The evaluator only sees the transcript. Every clause must be provable by output Claude *shows* — never by "the file exists" alone. **The skill carries the process; the goal only names the artifacts** — don't restate workflow steps in the condition.
 
 ## How to use
 
@@ -10,43 +10,23 @@ The evaluator only sees the transcript. Every clause must be provable by output 
 2. When you approve the plan, set the goal to cover BUILD → PROVE → REPORT.
 3. Use auto mode alongside so tool calls don't prompt (`/goal` removes per-turn prompts, auto mode removes per-tool prompts).
 
-## Standard feature goal (BUILD → REPORT)
+## The template
 
 ```text
-/goal Feature <NAME> is complete per the builder-feature skill: every slice in the
-approved plan at .harness/runs/<DATE>-<NAME>/plan.md is implemented with TDD (failing test
-shown before each implementation), the plan's progress ledger updated after each
-slice (shown), the review gate run with each reviewer's verdict shown (open
-findings noted as DONE_WITH_CONCERNS), the full gate command and exit 0 with
-the expected test count are shown, e2e verified with the interaction described
-and screenshots taken,
-docs synced (CLAUDE.md/CONTEXT.md/ADRs/spec/.harness/product.md updated or explicitly n/a — listed, plus a .harness/STATE.md entry shown),
-and the HTML report written to the run folder (.harness/runs/<DATE>-<NAME>/report.html) with its path shown. No files
-outside the plan's scope are modified. Stop after 40 turns.
+/goal Feature <NAME> is complete per the builder-feature skill: every slice in
+the approved plan at .harness/runs/<DATE>-<NAME>/plan.md is done in its progress
+ledger (shown), review gate verdicts shown, the full gate exits 0 with the
+expected test count (output shown), e2e evidence shown, docs synced or
+explicitly n/a (STATE.md entry shown), and the HTML report written to the run
+folder with its path shown. No files outside the plan's scope are modified.
+Stop after 40 turns.
 ```
 
-## Bug fix goal
+Variants — swap in the clause that fits, keep the rest:
 
-```text
-/goal The bug in <AREA> is fixed per the builder-feature skill: a regression test
-reproducing the bug is shown failing, then passing after the fix; root cause
-explained in one paragraph; review gate run with verdicts shown; full gate
-exits 0 with expected test count (output shown); no other test file modified; docs synced or explicitly n/a (STATE.md entry shown); HTML report
-written with its path shown. Stop after 20 turns.
-```
-
-## Refactor goal
-
-```text
-/goal The refactor of <MODULE> is complete: behavior unchanged (full gate exits
-0 before and after with test counts, both outputs shown), review gate run with
-verdicts shown, <MEASURABLE TARGET —
-e.g. each file under 300 lines / duplication X removed>, no public API changes,
-docs synced or explicitly n/a (STATE.md entry shown), and the HTML report written with its path shown.
-Stop after 30 turns.
-```
-
-**Workspace shape:** where a template says "the full gate exits 0 with the expected test count", write it as "**each touched repo's** full gate exits 0 against its own baseline (outputs shown per repo)" — a workspace has no single gate, and a condition naming one lets an autonomous run skip the other repo.
+- **Bug fix:** add "a regression test reproducing the bug is shown failing, then passing after the fix; root cause explained in one paragraph; no other test file modified." Bound: ~20 turns.
+- **Refactor:** add "behavior unchanged — full gate exits 0 before and after with test counts, both outputs shown; <MEASURABLE TARGET>; no public API changes." Bound: ~30 turns.
+- **Workspace shape:** write the gate clause as "**each touched repo's** full gate exits 0 against its own baseline (outputs shown per repo)" — a workspace has no single gate, and a condition naming one lets an autonomous run skip the other repo.
 
 ## Anatomy of a good condition
 

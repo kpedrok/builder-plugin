@@ -14,7 +14,7 @@ Explore a UI idea as a few genuinely distinct variations on a throwaway route/pa
 
 - Throwaway location: `PROTO_LOCATION` <!-- setup fills: e.g. a /playground route, a Storybook story, a scratch page -->
 - Start the dev server: `DEV_SERVER_COMMAND` <!-- setup fills + must have run this during setup -->
-- Reuse existing components, primitives, and design tokens per `.harness/agents/design.md` — do not invent new ones for a throwaway.
+- Reuse existing components, primitives, and design tokens per `.harness/map/design.md` — do not invent new ones for a throwaway.
 
 ## Rules
 

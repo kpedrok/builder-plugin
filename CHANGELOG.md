@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.8.0 — 2026-07-10
+
+Prune + rename pass from a full-source review (no new behavior). Existing installs: rerun `/builder-setup-harness` or `mv .harness/agents .harness/map` by hand — pre-1.0, no migration shipped.
+
+- **`.harness/agents/` → `.harness/map/`** — the biggest naming smell: none of those files are agents, they're verb→command mappings, and the old name collided conceptually with Claude Code's own agents. 30 references renamed across skills, templates, README; the README no longer needs a "these are not sub-agents" disclaimer.
+- **`goal-conditions.md` shrunk 65→45 lines** — the three example goals restated the workflow, violating the template's own anti-pattern ("the skill carries the process; the goal only names the artifacts"). Now one artifact-naming template + one-line bug-fix/refactor/workspace variants.
+- **Speculative phase framing trimmed from live skills** — "Phase 2 subagent dispatches", "Phase 4 hook enforcement", "Stop-hook version is Phase 2+", "Ship (Phase 1)" forward-refs removed; the roadmap lives in one place (README design notes + the ai vault's Harness Sketch), not sprinkled through instructions the model executes.
+- **Empty `.gitignore` deleted** — dead file.
+
 ## 0.7.1 — 2026-07-10
 
 Report polish pass — reviewed the v0.7.0 template filled with pilot-5's real content (not placeholders), rendered desktop + mobile. Fixes from that review:

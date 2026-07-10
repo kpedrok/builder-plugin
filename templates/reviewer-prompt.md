@@ -1,6 +1,6 @@
 # Reviewer Prompt — adversarial code review (fallback reviewer)
 
-Contract for the fresh-context review subagent — the **fallback** PROVE's review gate uses when `.harness/agents/review.md` records that `pr-review-toolkit` isn't installed (dispatch as `general-purpose`, one per axis). Adapted from superpowers' task-reviewer. Scope the diff package against the default branch's **merge-base** (`git diff $(git merge-base <default> HEAD)...HEAD`), never `HEAD~1`.
+Contract for the fresh-context review subagent — the **fallback** PROVE's review gate uses when `.harness/map/review.md` records that `pr-review-toolkit` isn't installed (dispatch as `general-purpose`, one per axis). Adapted from superpowers' task-reviewer. Scope the diff package against the default branch's **merge-base** (`git diff $(git merge-base <default> HEAD)...HEAD`), never `HEAD~1`.
 
 ## Rules for the controller (whoever dispatches this)
 
