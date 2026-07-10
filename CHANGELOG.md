@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.2 — 2026-07-10
+
+§6 "Try it yourself" upgraded from reproduce-a-recipe to **learn-by-doing** (Pedro's ask: the report must help the reader learn by exploring what was implemented — verifying the data, workflows, and business logic; the v0.7 section only replayed the proof). Steps now come in **three labeled kinds, all three required**:
+
+- **reproduce** — re-run the proof; at least one step exercises the feature as a *user* would (unchanged from v0.7).
+- **inspect** — verify the *data* first-hand: query the persisted rows / read the raw payload directly (psql/duckdb/curl), not through the app. Seeing the row beats being shown it (§5's persistence table is second-hand; this step is the reader's own eyes).
+- **explore** — make a *business rule* visible by varying one input: a "Before running — what do you expect?" **predict box** (`.expect.predict`, new CSS) before the command, then what actually happens, why, and where the rule lives. Prefer the variation where the rule bites (the cap, the filter, the fallback) — discovering a rule beats reading it. (Pedagogy carried over from the field-guide's step-8 "discover the gap with your own hands", which v0.7 stole only mechanically.)
+
+Plus: `.kind` step labels (reproduce/inspect/explore tags on each step card), and §11 ties back to §6 — at least one question targets the explore step's rule, and answers the reader saw first-hand cite their step ("you saw this in §6 step 4").
+
 ## 0.8.1 — 2026-07-10
 
 Report-template reference fixed (source-review finding; checked against how the studied frameworks reference bundled assets — `Design/Report v3` note). The REPORT step named the template as "the `report.html` template" with **no path**, so Claude had to guess where to read it — inviting reconstruction from memory (drift from the versioned CSS/section set the "keep the CSS untouched" rule is meant to prevent).

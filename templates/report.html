@@ -19,7 +19,8 @@
     <span class="t-ok">, <span class="t-warn">, <span class="t-err">. Give each block's title bar
     a context label ("Terminal — full gate"). Commands go in <span class="cmd"> — the $ prompt is
     added by CSS, don't type it. After each block, one .expect line: what the output means /
-    what success looks like (.expect.aha for the key payoff).
+    what success looks like (.expect.aha for the key payoff; .expect.predict BEFORE a §6 explore
+    step's command to ask what the reader expects).
   · Screenshots: resize to ≤1200px wide and re-encode as JPEG quality ~70 BEFORE base64-embedding
     (e.g. `sips -Z 1200 s.png && sips -s format jpeg -s formatOptions 70 s.png --out s.jpg`).
     Target < 150 KB per image.
@@ -242,6 +243,7 @@
   .expect { margin: 0 0 1rem; padding: .55rem .9rem; border-left: 3px solid var(--pass); background: var(--pass-soft); border-radius: 0 8px 8px 0; font-size: .87rem; color: var(--muted); }
   .expect strong { color: var(--ink); }
   .expect.aha { border-left-color: var(--warn); background: var(--warn-soft); }
+  .expect.predict { border-left-color: var(--accent); background: var(--accent-soft); }
 
   /* Callouts */
   .callout { border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: .8rem 1.05rem; margin: 0 0 .8rem; font-size: .93rem; background: var(--accent-soft); }
@@ -263,8 +265,10 @@
   .tstep .head { display: flex; align-items: center; gap: .7rem; margin-bottom: .5rem; }
   .tstep .idx { flex: none; width: 26px; height: 26px; border-radius: 7px; background: var(--accent-soft); color: var(--accent); font-weight: 800; display: flex; align-items: center; justify-content: center; font-family: "JetBrains Mono", monospace; font-size: .8rem; }
   .tstep h4 { margin: 0; font-size: .98rem; font-weight: 700; letter-spacing: -.01em; }
+  .tstep .kind { margin-left: auto; flex: none; font-size: .64rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: .15rem .5rem; border-radius: 5px; color: var(--accent); background: var(--accent-soft); }
   .tstep > p { color: var(--muted); font-size: .9rem; margin: 0 0 .6rem; }
   .tstep .expect { margin-bottom: 0; }
+  .tstep .expect + .expect { margin-top: .5rem; }
 
   /* Figures */
   figure { margin: 1.4rem 0; }
@@ -450,12 +454,20 @@ REPLACE</pre>
 </figure>
 
 <h2 id="try"><span class="n">6</span>Try it yourself</h2>
-<!-- ALWAYS PRESENT. Teach the reviewer to reproduce the proof WITHOUT this session: start from a
-     clean checkout of the branch, assume none of the session's running state. Prereqs first
+<!-- ALWAYS PRESENT. Teach the reviewer to learn the feature BY DOING, without this session: start
+     from a clean checkout of the branch, assume none of the session's running state. Prereqs first
      (services, env, seeds — with the exact commands or a doc pointer), then 3–6 numbered steps.
      Every step: one sentence of intent, a copy-paste command block, and a .expect box saying what
-     they'll see (use .aha on the step that shows the feature itself). The last step should exercise
-     the feature the way a USER would (UI click-path or the API call), not just re-run the tests.
+     they'll see (the exact success signal + likeliest failure and fix; .aha on the step that shows
+     the feature itself). Steps come in three KINDS — label each with a .kind tag, include all three:
+       · REPRODUCE — re-run the proof (gate, e2e); at least one step exercises the feature the way a
+         USER would (UI click-path or the API call), not just the tests.
+       · INSPECT — verify the DATA first-hand: query the persisted rows / read the raw payload
+         directly (psql/duckdb/curl), not through the app's UI. Seeing the row beats being shown it.
+       · EXPLORE — make a BUSINESS RULE visible by varying one input: put a .expect.predict box
+         BEFORE the command ("Before running: what do you expect if …?"), then the command, then the
+         .expect with what actually happens and why. Prefer a variation where the rule bites (the
+         cap, the filter, the fallback) — discovering a rule beats reading it.
      If a step can't be reproduced outside the session (needs prod creds, a teammate's data), say so
      honestly in a .expect box with a ○ chip instead of pretending. -->
 <div class="prereq">
@@ -465,7 +477,7 @@ REPLACE</pre>
 </div>
 
 <div class="tstep">
-  <div class="head"><span class="idx">1</span><h4>REPLACE — e.g. "Check out the branch and run the gate"</h4></div>
+  <div class="head"><span class="idx">1</span><h4>REPLACE — e.g. "Check out the branch and run the gate"</h4><span class="kind">reproduce</span></div>
   <p>REPLACE — one sentence: what this step does and why it's first.</p>
   <div class="term">
     <div class="bar"><span class="b"></span><span class="b"></span><span class="b"></span><span class="t">Terminal</span></div>
@@ -476,13 +488,34 @@ REPLACE</pre>
 </div>
 
 <div class="tstep">
-  <div class="head"><span class="idx">2</span><h4>REPLACE — exercise the feature itself</h4></div>
+  <div class="head"><span class="idx">2</span><h4>REPLACE — exercise the feature itself</h4><span class="kind">reproduce</span></div>
   <p>REPLACE</p>
   <div class="term">
     <div class="bar"><span class="b"></span><span class="b"></span><span class="b"></span><span class="t">Terminal</span></div>
     <pre><span class="cmd">REPLACE — or describe the UI click-path if it's not a command</span></pre>
   </div>
   <p class="expect aha"><strong>What you'll see:</strong> REPLACE — the feature working, in the reviewer's own hands.</p>
+</div>
+
+<div class="tstep">
+  <div class="head"><span class="idx">3</span><h4>REPLACE — look at the data underneath</h4><span class="kind">inspect</span></div>
+  <p>REPLACE — point the reader at the persisted state the feature created/read: the DB rows, the raw API payload, the file. Direct query, not the app's rendering of it.</p>
+  <div class="term">
+    <div class="bar"><span class="b"></span><span class="b"></span><span class="b"></span><span class="t">Terminal — REPLACE (psql / duckdb / curl …)</span></div>
+    <pre><span class="cmd">REPLACE — e.g. SELECT the rows §5's persistence table showed</span></pre>
+  </div>
+  <p class="expect"><strong>What you'll see:</strong> REPLACE — the actual rows/fields, and how they map to what the UI showed in step 2.</p>
+</div>
+
+<div class="tstep">
+  <div class="head"><span class="idx">4</span><h4>REPLACE — change one input and watch the rule bite</h4><span class="kind">explore</span></div>
+  <p>REPLACE — one sentence naming the business rule this variation makes visible (the cap, the filter, the fallback, the validation).</p>
+  <p class="expect predict"><strong>Before running — what do you expect?</strong> REPLACE — e.g. "If you rename the opportunity so no keyword matches, does the endpoint error, return empty, or fall back?"</p>
+  <div class="term">
+    <div class="bar"><span class="b"></span><span class="b"></span><span class="b"></span><span class="t">Terminal</span></div>
+    <pre><span class="cmd">REPLACE — the varied command / click-path</span></pre>
+  </div>
+  <p class="expect"><strong>What actually happens:</strong> REPLACE — the observed output, which rule produced it, and where that rule lives (<code>REPLACE/file.ts</code>).</p>
 </div>
 
 <h2 id="decisions"><span class="n">7</span>Decisions &amp; deviations</h2>
@@ -534,17 +567,20 @@ REPLACE</pre>
 </div>
 
 <h2 id="internalize"><span class="n">11</span>To internalize</h2>
-<!-- 3–5 questions a reviewer should be able to answer after reading this report.
-     One-line answers behind <details>. -->
+<!-- 3–5 questions a reviewer should be able to answer after reading this report. One-line answers
+     behind <details>. Where the answer was SEEN in §6 (a step's output, the predict-vs-actual gap),
+     end the answer with "(you saw this in §6 step N)" — a question whose answer the reader
+     discovered with their own hands sticks; at least one question should target the §6 explore
+     step's business rule. -->
 <div class="card">
   <details><summary>REPLACE — e.g. "Why a dedicated table instead of columns on the existing one?"</summary><p>REPLACE one-line answer.</p></details>
-  <details><summary>REPLACE</summary><p>REPLACE</p></details>
+  <details><summary>REPLACE — target the §6 explore step's rule, e.g. "What limits the fan-out when history is huge?"</summary><p>REPLACE one-line answer (you saw this in §6 step 4).</p></details>
 </div>
 
 <div class="meta">
   <p><strong>Left running:</strong> REPLACE (dev server, DB, mocks) / nothing.</p>
   <p><strong>Related:</strong> REPLACE — ticket links, STATE entries, ADRs, predecessor branches.</p>
-  <p>Reflects the repo at <code>REPLACE_HEAD_COMMIT</code> on REPLACE_DATE — evidence chips record what was true at generation time; re-verify before relying on them later. Generated by the builder harness · report template v0.7.1.</p>
+  <p>Reflects the repo at <code>REPLACE_HEAD_COMMIT</code> on REPLACE_DATE — evidence chips record what was true at generation time; re-verify before relying on them later. Generated by the builder harness · report template v0.8.2.</p>
 </div>
 
 </body>
