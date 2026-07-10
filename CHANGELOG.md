@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.9.0 — 2026-07-10
+
+**New report §5 "Rules & edge cases" — the behavioral contract** (Pedro's framing: as agents write more of the code, the report is the document through which a human comes to *own* what the agent spec'd, planned, and built; owning a solution means being able to answer "what does the system do when X?" without reading the code). Report is now 12 sections (5–11 renumbered to 6–12).
+
+- **Two tables, harvested never invented:** *the rules* — every business rule the run implemented or newly relies on, in plain English, with where it lives and the test that pins it; *at the edges* — boundary/degenerate inputs and the system's **observed** behavior (what a test or run actually showed — never intended behavior; the evidence chip says which). An edge nobody pinned gets ○ *and* a row in §10 Noticed — an unpinned edge is a decision the human hasn't made yet, and surfacing it is the section's job.
+- **`templates/spec.md`: new "Edge cases & behavior" section** — the ALIGN grill's invented edge cases now have a durable home ("when X → the system does Y"; "undefined is not a behavior"), so BUILD turns them into tests and REPORT harvests instead of reconstructing. Closes the chain: ALIGN invents → spec records → BUILD pins → REPORT proves ownership-ready.
+- **§7 explore step now picks its variation from §5's tables** (the rule with the most surprising edge row) — the reader watches a documented rule bite, connecting the contract to their own hands. §12 tie-back updated to match.
+- Readpath line updated: "… §5 is the contract · §6 proves it · §7 lets you reproduce it · §12 checks you understood."
+
 ## 0.8.2 — 2026-07-10
 
 §6 "Try it yourself" upgraded from reproduce-a-recipe to **learn-by-doing** (Pedro's ask: the report must help the reader learn by exploring what was implemented — verifying the data, workflows, and business logic; the v0.7 section only replayed the proof). Steps now come in **three labeled kinds, all three required**:

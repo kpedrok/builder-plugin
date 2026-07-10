@@ -7,19 +7,19 @@
 <!--
   TEMPLATE RULES (delete this comment block in the generated report):
   · Fill every REPLACE. OMIT a whole section if it's genuinely empty (don't leave "n/a" headers) —
-    except sections 2, 5, 6 and 8, which are always present. Keep the nav links in sync with the
+    except sections 2, 5, 6, 7 and 9, which are always present. Keep the nav links in sync with the
     sections you keep (delete links to omitted sections).
   · EVIDENCE CHIPS — every claim wears how it was verified:
       <span class="chip live">✓</span>   verified live this run (command ran, test passed, UI driven)
       <span class="chip fixture">◐</span> from fixture/inference (test data, code reading, derived)
       <span class="chip human">○</span>   needs a human decision/check
-    Use them in the §2 Met column (a partially-met AC is ◐ + a note — never "✓*"), the §5
-    validation log, and §9 items. Never award ✓ to something this run didn't actually observe.
+    Use them in the §2 Met column (a partially-met AC is ◐ + a note — never "✓*"), the §5 edge rows, the §6
+    validation log, and §10 items. Never award ✓ to something this run didn't actually observe.
   · Terminal blocks: paste REAL command output, never fabricate. Wrap verdict lines in
     <span class="t-ok">, <span class="t-warn">, <span class="t-err">. Give each block's title bar
     a context label ("Terminal — full gate"). Commands go in <span class="cmd"> — the $ prompt is
     added by CSS, don't type it. After each block, one .expect line: what the output means /
-    what success looks like (.expect.aha for the key payoff; .expect.predict BEFORE a §6 explore
+    what success looks like (.expect.aha for the key payoff; .expect.predict BEFORE a §7 explore
     step's command to ask what the reader expects).
   · Screenshots: resize to ≤1200px wide and re-encode as JPEG quality ~70 BEFORE base64-embedding
     (e.g. `sips -Z 1200 s.png && sips -s format jpeg -s formatOptions 70 s.png --out s.jpg`).
@@ -299,6 +299,7 @@
   <a href="#acs">Asked vs. built</a>
   <a href="#changed">Changed</a>
   <a href="#how">How it works</a>
+  <a href="#rules">Rules</a>
   <a href="#proof">Proof</a>
   <a href="#try">Try it</a>
   <a href="#decisions">Decisions</a>
@@ -319,7 +320,7 @@
   <span class="pill pass">✓ Review clean</span>
   <!-- 3–6 pills MAX (more kills the 5-second verdict); use .warn for deviations ("1 test dropped"),
        .fail only for real failures. Review pill: "✓ Review clean", "✓ Review · N fixed" (pass), or
-       .warn "Review · N open" (open findings detailed in section 7). The pills OWN the
+       .warn "Review · N open" (open findings detailed in section 8). The pills OWN the
        gate/e2e/review verdicts — don't restate them in sections 2 or 3.
        Workspace shape (multiple touched repos): one gate pill PER touched repo, prefixed with the
        repo name ("✓ api · 1,412" / "✓ client · 9,296") — still ≤6 pills total. -->
@@ -331,7 +332,7 @@
   <span class="chip fixture">◐ from fixture / inference</span>
   <span class="chip human">○ needs a human</span>
 </div>
-<p class="readpath">In a hurry? Pills &amp; tiles are the verdict · §1 and §4 explain it · §5 proves it · §6 lets you reproduce it · §11 checks you understood.</p>
+<p class="readpath">In a hurry? Pills &amp; tiles are the verdict · §1 and §4 explain it · §5 is the contract · §6 proves it · §7 lets you reproduce it · §12 checks you understood.</p>
 
 <div class="stats">
   <div class="stat"><div class="v num">REPLACE_TESTS<span class="d">+REPLACE_DELTA</span></div><div class="l">tests passing (baseline REPLACE_OLD)</div></div>
@@ -355,8 +356,8 @@
 <h2 id="acs"><span class="n">2</span>Asked vs. built</h2>
 <!-- PRODUCT acceptance criteria only — gate/baseline is a pill, not a row here. Met column is an
      evidence chip: ✓ live (this run observed it) / ◐ partial or inferred (add a short note why) /
-     ○ needs a human check. Evidence column is a SHORT pointer (test file, "§5 e2e", component
-     name), never a re-narration of what section 5 shows. -->
+     ○ needs a human check. Evidence column is a SHORT pointer (test file, "§6 e2e", component
+     name), never a re-narration of what section 6 shows. -->
 <div class="card twrap">
   <table>
     <thead><tr><th>Acceptance criterion</th><th>Met</th><th>Where / evidence</th></tr></thead>
@@ -405,7 +406,39 @@
   <figcaption><span class="fig-n">Flow</span>REPLACE — one sentence: what this sequence shows.</figcaption>
 </figure>
 
-<h2 id="proof"><span class="n">5</span>Proof of work</h2>
+<h2 id="rules"><span class="n">5</span>Rules &amp; edge cases</h2>
+<!-- ALWAYS PRESENT — the behavioral contract of what was built; the section that transfers
+     OWNERSHIP. The reader must leave able to answer "what does the system do when X?" without
+     reading the code. HARVEST, never invent: rules from §4's marked code lines + the spec; edges
+     from the spec's "Edge cases & behavior" list, the ALIGN grill, and the tests.
+     Rules = every business rule this run implemented or newly relies on, in plain English.
+     Edges = boundary/degenerate inputs with the system's OBSERVED behavior — what a test or live
+     run actually showed, never the intended behavior (chip says which). An edge nobody pinned gets
+     ○ here AND a row in §10 — an unpinned edge is a decision the human hasn't made yet, and
+     surfacing it is this section's job, not a failure. -->
+<h3>The rules</h3>
+<div class="card twrap">
+  <table>
+    <thead><tr><th>Rule (plain English)</th><th>Where it lives</th><th>Pinned by</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>REPLACE — e.g. "Only the top 10 most-similar past events feed the ranking"</td><td><span class="path">REPLACE/file.ts · SymbolName</span></td><td><code>REPLACE test name</code></td><td><span class="chip live" title="verified live this run">✓</span></td></tr>
+      <tr><td>REPLACE</td><td><span class="path">REPLACE</span></td><td><code>REPLACE</code></td><td><span class="chip live" title="verified live this run">✓</span></td></tr>
+    </tbody>
+  </table>
+</div>
+<h3>At the edges</h3>
+<div class="card twrap">
+  <table>
+    <thead><tr><th>When…</th><th>The system does… (observed)</th><th>Because</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>REPLACE — e.g. "no past event matches any keyword"</td><td>REPLACE — e.g. "200, empty items, status stays Available"</td><td>REPLACE — which rule produces this</td><td><span class="chip live" title="verified live this run">✓</span></td></tr>
+      <tr><td>REPLACE — e.g. "the data lake is unreachable"</td><td>REPLACE — e.g. "empty Unavailable response, not a 500"</td><td>REPLACE</td><td><span class="chip fixture" title="from fixture / inference">◐</span></td></tr>
+      <tr><td>REPLACE — an edge NOBODY pinned, stated honestly</td><td>REPLACE — "unpinned: no test or run covers this; expected X but unverified"</td><td>REPLACE</td><td><span class="chip human" title="needs a human">○</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 id="proof"><span class="n">6</span>Proof of work</h2>
 
 <h3>1 · Full gate</h3>
 <div class="term">
@@ -453,7 +486,7 @@ REPLACE</pre>
   <figcaption><span class="fig-n">1</span>REPLACE — what to look at in this screenshot.</figcaption>
 </figure>
 
-<h2 id="try"><span class="n">6</span>Try it yourself</h2>
+<h2 id="try"><span class="n">7</span>Try it yourself</h2>
 <!-- ALWAYS PRESENT. Teach the reviewer to learn the feature BY DOING, without this session: start
      from a clean checkout of the branch, assume none of the session's running state. Prereqs first
      (services, env, seeds — with the exact commands or a doc pointer), then 3–6 numbered steps.
@@ -466,8 +499,9 @@ REPLACE</pre>
          directly (psql/duckdb/curl), not through the app's UI. Seeing the row beats being shown it.
        · EXPLORE — make a BUSINESS RULE visible by varying one input: put a .expect.predict box
          BEFORE the command ("Before running: what do you expect if …?"), then the command, then the
-         .expect with what actually happens and why. Prefer a variation where the rule bites (the
-         cap, the filter, the fallback) — discovering a rule beats reading it.
+         .expect with what actually happens and why. Pick the rule/edge FROM §5's tables (the rule
+         with the most surprising edge row is the best candidate) — discovering a rule beats
+         reading it, and the reader should recognize the §5 row when it bites.
      If a step can't be reproduced outside the session (needs prod creds, a teammate's data), say so
      honestly in a .expect box with a ○ chip instead of pretending. -->
 <div class="prereq">
@@ -502,7 +536,7 @@ REPLACE</pre>
   <p>REPLACE — point the reader at the persisted state the feature created/read: the DB rows, the raw API payload, the file. Direct query, not the app's rendering of it.</p>
   <div class="term">
     <div class="bar"><span class="b"></span><span class="b"></span><span class="b"></span><span class="t">Terminal — REPLACE (psql / duckdb / curl …)</span></div>
-    <pre><span class="cmd">REPLACE — e.g. SELECT the rows §5's persistence table showed</span></pre>
+    <pre><span class="cmd">REPLACE — e.g. SELECT the rows §6's persistence table showed</span></pre>
   </div>
   <p class="expect"><strong>What you'll see:</strong> REPLACE — the actual rows/fields, and how they map to what the UI showed in step 2.</p>
 </div>
@@ -518,14 +552,14 @@ REPLACE</pre>
   <p class="expect"><strong>What actually happens:</strong> REPLACE — the observed output, which rule produced it, and where that rule lives (<code>REPLACE/file.ts</code>).</p>
 </div>
 
-<h2 id="decisions"><span class="n">7</span>Decisions &amp; deviations</h2>
+<h2 id="decisions"><span class="n">8</span>Decisions &amp; deviations</h2>
 <ul>
   <li><strong>REPLACE_DECISION</strong> — REPLACE the why, incl. the rejected alternative. (STATE AD-REPLACE)</li>
 </ul>
 <div class="callout deviation"><strong>Deviation:</strong> REPLACE — what diverged from the plan, why, and what compensates for it. (STATE L-REPLACE)</div>
 <div class="callout fixed"><strong>Fixed in passing:</strong> REPLACE — small unrelated thing repaired along the way. Omit if none.</div>
 
-<h2 id="docs"><span class="n">8</span>Docs synced</h2>
+<h2 id="docs"><span class="n">9</span>Docs synced</h2>
 <div class="card twrap">
   <table>
     <thead><tr><th>Doc</th><th>Updated</th><th>What changed</th></tr></thead>
@@ -542,15 +576,15 @@ REPLACE</pre>
   </table>
 </div>
 
-<h2 id="noticed"><span class="n">9</span>Noticed but not touched</h2>
+<h2 id="noticed"><span class="n">10</span>Noticed but not touched</h2>
 <!-- Every item carries a PROOF ANCHOR — the command, file, or ticket that shows the issue exists —
      and ends with a recommendation + chip (○ if it needs a human decision). Also list here any
-     behavior deliberately descoped in section 7 that could become a follow-up ticket. -->
+     behavior deliberately descoped in section 8 that could become a follow-up ticket. -->
 <ul>
   <li><strong>REPLACE</strong> — out-of-scope finding. <em>Proof: <code>REPLACE command/file that shows it</code>.</em> <em>Suggested: ticket / ignore / monitor.</em> <span class="chip human" title="needs a human">○</span></li>
 </ul>
 
-<h2 id="ship"><span class="n">10</span>How to ship it</h2>
+<h2 id="ship"><span class="n">11</span>How to ship it</h2>
 <!-- Shipping MECHANICS only: risk callout + what /builder-ship will do. Review pointers live in
      sections 4/7 — don't repeat them here. If the run produced text meant for someone else (PR
      description, a data-team ask, a migration notice), include it VERBATIM in the paste-ready
@@ -566,21 +600,21 @@ REPLACE</pre>
   <pre style="white-space:pre-wrap">REPLACE — the verbatim text to paste. Omit this whole block if the run produced no handoff text.</pre>
 </div>
 
-<h2 id="internalize"><span class="n">11</span>To internalize</h2>
+<h2 id="internalize"><span class="n">12</span>To internalize</h2>
 <!-- 3–5 questions a reviewer should be able to answer after reading this report. One-line answers
-     behind <details>. Where the answer was SEEN in §6 (a step's output, the predict-vs-actual gap),
-     end the answer with "(you saw this in §6 step N)" — a question whose answer the reader
-     discovered with their own hands sticks; at least one question should target the §6 explore
+     behind <details>. Where the answer was SEEN in §7 (a step's output, the predict-vs-actual gap),
+     end the answer with "(you saw this in §7 step N)" — a question whose answer the reader
+     discovered with their own hands sticks; at least one question should target the §7 explore
      step's business rule. -->
 <div class="card">
   <details><summary>REPLACE — e.g. "Why a dedicated table instead of columns on the existing one?"</summary><p>REPLACE one-line answer.</p></details>
-  <details><summary>REPLACE — target the §6 explore step's rule, e.g. "What limits the fan-out when history is huge?"</summary><p>REPLACE one-line answer (you saw this in §6 step 4).</p></details>
+  <details><summary>REPLACE — target the §7 explore step's rule, e.g. "What limits the fan-out when history is huge?"</summary><p>REPLACE one-line answer (you saw this in §7 step 4).</p></details>
 </div>
 
 <div class="meta">
   <p><strong>Left running:</strong> REPLACE (dev server, DB, mocks) / nothing.</p>
   <p><strong>Related:</strong> REPLACE — ticket links, STATE entries, ADRs, predecessor branches.</p>
-  <p>Reflects the repo at <code>REPLACE_HEAD_COMMIT</code> on REPLACE_DATE — evidence chips record what was true at generation time; re-verify before relying on them later. Generated by the builder harness · report template v0.8.2.</p>
+  <p>Reflects the repo at <code>REPLACE_HEAD_COMMIT</code> on REPLACE_DATE — evidence chips record what was true at generation time; re-verify before relying on them later. Generated by the builder harness · report template v0.9.0.</p>
 </div>
 
 </body>

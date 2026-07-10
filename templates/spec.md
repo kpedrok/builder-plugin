@@ -28,6 +28,12 @@ Each must be verifiable — a test, a command, or a visible behavior. No "works 
 - [ ] <criterion>
 - [ ] <criterion>
 
+## Edge cases & behavior
+
+From the ALIGN grill. Each row is a contract: given this boundary/degenerate input, the system does *that*. Each becomes a test in BUILD, or is explicitly flagged unpinned in the report's Rules & edge cases section — "undefined" is not a behavior.
+
+- **When** <empty history / zero matches / oversized input / concurrent edit / …> → **the system** <returns empty + status X / caps at N / falls back to Y / rejects with error Z>.
+
 ## Out of scope
 
 The gold-plating fence. Anything noticed but deliberately not built goes here.
