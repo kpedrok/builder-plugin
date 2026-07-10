@@ -12,10 +12,6 @@ ships until you say so.
 - **Proves it works** — runs your tests, reviews the diff, and exercises the feature like a real user.
 - **Reports, then waits** — you get a self-contained HTML report; nothing is committed to main or opened as a PR until you run `/builder-ship`.
 
-## Where it can live
-
-Three shapes, detected at setup: a **single repo** (the default), a **monorepo** (one git, many packages), or a **multi-repo workspace** — a root folder hosting nested git repos with their own remotes (say, a backend repo and a frontend repo side by side). In a workspace, gates and baselines are tracked per repo, a cross-repo feature ships one cross-linked PR per touched repo, and everything the harness itself writes stays at the workspace root — no harness files land in your work repos (your feature branches, commits, and PRs do, as intended).
-
 ## Requirements
 
 - Claude Code (desktop, CLI, or IDE extension).
@@ -31,9 +27,10 @@ Three shapes, detected at setup: a **single repo** (the default), a **monorepo**
 
 Turn on auto-update once so you stay current: `/plugin` → **Marketplaces** → **builder** → **Enable auto-update**.
 
-### Force an update
+<details>
+<summary>Force an update mid-session</summary>
 
-Auto-update only re-fetches **at startup**, so mid-session (or if the **Update** button is greyed out) the app is still comparing against a stale local copy of the marketplace. To pull the latest now, run these in the chat input, in order:
+Auto-update only re-fetches **at startup**, so mid-session (or if the **Update** button is greyed out) the app is still comparing against a stale local copy of the marketplace. To pull the latest now, run these in order:
 
 ```
 /plugin marketplace update builder
@@ -41,7 +38,8 @@ Auto-update only re-fetches **at startup**, so mid-session (or if the **Update**
 /reload-plugins
 ```
 
-The first re-fetches the marketplace and refreshes the catalog; the second installs the new version; `/reload-plugins` activates it in the current session without a restart. Or just **quit and reopen** Claude Code — with auto-update on, it pulls the latest at launch. (A greyed-out **Update** button means only that the marketplace copy hasn't been refreshed yet — `/plugin marketplace update builder` fixes it.)
+The first re-fetches the marketplace and refreshes the catalog; the second installs the new version; `/reload-plugins` activates it without a restart. Or just **quit and reopen** Claude Code — with auto-update on, it pulls the latest at launch.
+</details>
 
 ## Use it — 3 steps
 
@@ -66,32 +64,158 @@ Commits the work, opens a PR with the report's evidence linked, and updates your
 
 ---
 
-## How it works
+# How it works
 
-Each `/builder-feature` run moves through five phases. The first two are interactive; the rest run on their own:
+## The one idea behind everything: process vs. facts
+
+The plugin is **process** — the four skills are byte-for-byte identical in every repo you install it into. They never contain a real test command, a real branch name, or a real tracker call. Instead they speak in **canonical verbs** ("run the full gate", "fetch the ticket", "run the code review").
+
+Each project holds the **facts** — everything specific to *this* repo — in a `.harness/` directory. Setup writes a thin indirection layer there that maps each canonical verb to the real command for this repo. So the same skill drives a Bun monorepo, a Django API, and a Rust CLI without a line of difference: only the facts under `.harness/` change.
+
+That split is why the folder structure below exists. Read `.harness/` as "the answers to the questions the universal skills ask."
+
+## The pipeline
+
+Each `/builder-feature` run moves through five phases. The first two are interactive; the rest run on their own once you approve the plan:
 
 ```
 ALIGN → PLAN → [ you approve ] → BUILD → PROVE → REPORT → [ you review ] → /builder-ship
 ```
 
-- **ALIGN** — understand the request, ask sharp questions, write a testable spec.
-- **PLAN** — break it into small independent slices; you approve before any code is written.
-- **BUILD** — test-first, one commit per slice.
-- **PROVE** — run the full test suite, review the diff, drive the feature end-to-end.
-- **REPORT** — a teaching HTML report of what changed and how, for your review.
+| Phase | What happens | Where it's proved |
+|---|---|---|
+| **ALIGN** | Read product + state + code, map the data/interfaces the change touches, read the intent back to you, then grill — one question at a time. | A **spec**: objective, user stories, data & interfaces, testable acceptance criteria, out-of-scope. |
+| **PLAN** | Weigh 2–3 approaches, break the spec into small vertical slices, name exact files per slice. **You approve before any code is written** — this is the human gate. | A **plan** file with a scope guard and a progress ledger; its Status line reads `APPROVED`. |
+| **BUILD** | Per slice, strictly test-first: failing test shown → minimal code to pass → commit. One commit per slice, staging only that slice's files. | Each slice's failing-then-passing test, shown in the transcript; the ledger updated per commit. |
+| **PROVE** | Fresh-context review agents on the diff (a bounded fix loop), the full test suite, then the feature driven end-to-end like a user. | Review verdicts, gate output with test count, screenshots / real invocation output. |
+| **REPORT** | Sync docs, then write a teaching HTML report of what changed and how. **Then it stops.** | A self-contained `report.html`; nothing committed to main. |
 
-## Skills
+Two boundaries are deliberate: **you approve the plan** before autonomous work starts, and **you review the report** before anything ships. `/builder-ship` is the only thing that commits to main, opens PRs, and touches your tracker — and it can only be run by you, never by the model.
 
-| Skill | What it does |
-|---|---|
-| `/builder-setup-harness` | Instruments a project (run once). |
-| `/builder-feature` | Runs the pipeline above. |
-| `/builder-ship` | Commits, opens the PR, updates the tracker — you invoke it after reviewing. |
-| `/builder-improve` | Run in this repo to fold lessons from real runs back into the plugin. |
+---
+
+# What setup generates
+
+Running `/builder-setup-harness` writes everything below. Harness-owned files live under **`.harness/`**; the two exceptions (`.claude/` and the `CLAUDE.md` block) are locations Claude Code dictates.
+
+```
+your-project/
+├── CLAUDE.md                       ← gains a short "## Harness" pointer block
+├── .claude/
+│   ├── settings.json               ← permissions merged in (gate commands pre-allowed)
+│   └── skills/                     ← project-owned skills, generated to fit this repo
+│       ├── builder-run-local/          (fullstack / services)
+│       ├── builder-prototype/          (frontend)
+│       ├── builder-verify-ui/          (frontend / fullstack)
+│       └── builder-verify-api/         (API / backend)
+└── .harness/                       ← everything else the harness owns and maintains
+    ├── product.md                  ← what the product is, who uses it, what success means
+    ├── STATE.md                    ← durable memory: baselines, decisions, lessons, gotchas
+    ├── plugin-outbox.md            ← universal gotchas queued for the plugin itself
+    ├── agents/                     ← the indirection layer: canonical verbs → real commands
+    │   ├── tracker.md
+    │   ├── docs.md
+    │   ├── gates.md
+    │   ├── paths.md
+    │   ├── review.md
+    │   └── design.md                   (frontend / fullstack only)
+    ├── runs/                       ← one folder per in-flight feature
+    │   └── <YYYY-MM-DD>-<feature>/
+    │       ├── spec.md                 (from ALIGN)
+    │       ├── plan.md                 (from PLAN)
+    │       └── report.html             (from REPORT)
+    └── archive/                    ← runs moved here whole by /builder-ship
+```
+
+## `.harness/agents/` — the indirection layer (the heart of the design)
+
+Despite the name, these are **config-mapping files, not sub-agents.** Each answers "when a skill says *do X*, what's the real command in this repo?" This is what lets one universal skill run anywhere. The skills never hardcode a command; they always resolve it here.
+
+| File | What it maps | Why it exists |
+|---|---|---|
+| `gates.md` | "run the quick / full gate", "run the build" → the real commands, each with its expected test count. | The single most-used mapping. A run resolves every test invocation through here, and the expected counts let it catch silent test deletions. |
+| `tracker.md` | "fetch the ticket", "post the spec back", "mark ready" → the real MCP tool / CLI, plus your label vocabulary. | Ports the pipeline to whatever tracker you use — or records "no tracker" so `/builder-ship` skips that step cleanly. |
+| `docs.md` | Where specs, the glossary/CONTEXT, and ADRs live; plus a doc-sync checklist. | ALIGN reads context from here and REPORT writes updates back here, so docs never drift. |
+| `paths.md` | Protected / append-only paths and forbidden actions. | The scope fence. (Deterministic hook enforcement is a later phase; today it's read by the skills.) |
+| `review.md` | How "run the code review" resolves — the `pr-review-toolkit` agents if installed, else a `general-purpose` fallback reviewer. Also records your default branch. | Makes the review gate portable and records the branch that review scope diffs against. |
+| `design.md` | Where components live, which library/tokens to reuse, Storybook URL. *(frontend/fullstack only)* | What "reuse the design system, don't reinvent components" actually points at. |
+
+## `.harness/` top-level files
+
+| File | What it holds | Why it exists / how it helps |
+|---|---|---|
+| `product.md` | Purpose, personas, success signals, non-goals — one page. | The backbone of alignment. User-story roles come from its personas (never invented); a feature that serves no persona, crosses a non-goal, or moves no success signal gets challenged at ALIGN. |
+| `STATE.md` | Typed durable memory: the recorded gate **baseline**, architecture decisions (AD), lessons (L), rejected approaches (R), and workflow gotchas. Survives compaction and new sessions. | The project's long-term memory. Later runs diff against the baseline (a dropped test count is a red flag), don't re-derive recorded decisions, and don't relitigate rejected ones. |
+| `plugin-outbox.md` | A queue of **universal** gotchas — ones that would bite in *any* repo, not just this one. | The installed plugin is a frozen snapshot and can't edit itself, so lessons that belong in the plugin queue here until `/builder-improve` folds them into the source. This is how the harness gets better from real runs instead of relearning the same lesson per project. |
+| `settings-suggested.json` | *(only if present)* The permissions merge, written here when the direct `.claude/settings.json` write was blocked. | A fallback so the permissions snippet is never lost as chat text — you move it into place by hand. |
+
+## `.harness/runs/` and `archive/` — one folder per feature
+
+Every `/builder-feature` run owns a dated folder that colocates all three of its artifacts, so a run's spec, plan, and report always travel together and never overwrite a previous run's:
+
+| File | Written by | Purpose |
+|---|---|---|
+| `spec.md` | ALIGN | The behavior contract: objective, user stories, data & interfaces, acceptance criteria, out-of-scope. Durable, no file paths. |
+| `plan.md` | PLAN | **The source of truth for execution** (not the chat). Vertical slices with exact files, a scope guard, and a progress ledger that survives compaction — on resume, the ledger and `git log` are trusted over conversation memory. |
+| `report.html` | REPORT | The self-contained teaching report you review. Explains what changed and how well enough to retell the feature; every claim wears an evidence chip showing how it was verified. |
+
+Anything under `runs/` is by definition in flight. `/builder-ship` moves the whole folder to `archive/` once shipped, keeping resume scans clean.
+
+## The generated project skills (`.claude/skills/`)
+
+These are **project property**, not plugin property — generated once to fit this repo's real commands, then they live and evolve here (each grows a Gotchas section over time). Which ones you get depends on the detected repo type:
+
+| Skill | Generated for | What it does |
+|---|---|---|
+| `builder-run-local` | fullstack / services | The exact order, env, seeds, and health checks to bring the whole stack up for end-to-end verification. |
+| `builder-verify-ui` | frontend / fullstack | Drives the running app like a user, screenshots it, and asserts zero new console errors — proof beyond unit tests. |
+| `builder-verify-api` | API / backend | Makes real calls to the running API and asserts status and shape. |
+| `builder-prototype` | frontend | Explores a UI idea as a few throwaway variations before real code is written, so a direction is chosen first. |
+
+Setup also adds a **`## Harness` pointer block to your `CLAUDE.md`** (a few lines pointing at `.harness/`, never content) and merges gate commands into **`.claude/settings.json`** permissions so routine commands don't prompt.
+
+## Where it can live
+
+Three shapes, detected at setup: a **single repo** (the default), a **monorepo** (one git, many packages), or a **multi-repo workspace** — a root folder hosting nested git repos with their own remotes (say, a backend repo and a frontend repo side by side). In a workspace, gates and baselines are tracked per repo, a cross-repo feature ships one cross-linked PR per touched repo, and everything the harness itself writes stays at the workspace root — no harness files land in your work repos (your feature branches, commits, and PRs do, as intended).
+
+## The self-improvement loop
+
+The harness learns from its own runs without you re-teaching it per project:
+
+```
+run hits a universal gotcha → queued in .harness/plugin-outbox.md
+     → you run /builder-improve in the plugin source
+     → it truth-checks, folds the lesson into a skill or template, bumps the version, pushes
+     → auto-update carries the fix to every installed project
+```
+
+Repo-specific lessons stay local (in `STATE.md` or a project skill's Gotchas); only universal ones travel to the plugin.
+
+## Skills reference
+
+| Skill | Invoked by | What it does |
+|---|---|---|
+| `/builder-setup-harness` | you (once per project) | Instruments a project — detects the stack, generates the `.harness/` layer and project skills, proves the gates work. |
+| `/builder-feature` | you or the model | Runs the ALIGN → PLAN → BUILD → PROVE → REPORT pipeline. |
+| `/builder-ship` | **you only** | Commits, opens the PR with the report's evidence, updates the tracker — after you've reviewed. |
+| `/builder-improve` | you (in the plugin source) | Folds queued universal gotchas from real runs back into the plugin. |
+
+`setup-harness`, `ship`, and `improve` are human-invoke-only by design — instrumenting, shipping, and changing the plugin are decisions the model can't make on its own.
+
+---
 
 ## Design notes (for contributors)
 
-- **Plugin = process, project = facts.** The four skills are identical in every repo. Anything repo-specific — test commands, doc locations, the product itself — lives in the project under `.harness/`, reached through a thin indirection layer. Universal lessons go into `templates/` so future installs inherit them.
-- **Prompts + files, not code.** The workflow lives in skill instructions and state lives in markdown on disk; scripts may do mechanical work but never decide what happens next.
+The plugin source is organized to mirror the process/facts split:
+
+- **`skills/`** — the four universal skills. Identical in every install; contain no repo-specific facts.
+- **`templates/`** — the seeds setup stamps into a project (`spec.md`, `plan.md`, `product.md`, `STATE.md`, `plugin-outbox.md`, `report.html`, `reviewer-prompt.md`, `settings-snippet.json`, `goal-conditions.md`) plus `project-skills/` (the four generated skills). Universal lessons land here so **future installs inherit them**.
+- **`.claude-plugin/`** — `plugin.json` (name, version) and `marketplace.json` (distribution).
+
+Principles that govern changes:
+
+- **Plugin = process, project = facts.** Anything repo-specific belongs under a project's `.harness/`, reached through the `agents/` indirection layer — never hardcoded in a skill. If a fix needs a repo fact, the fix is a template or mapping change, not a skill edit.
+- **Prompts + files, not code.** The workflow lives in skill instructions; state lives in markdown on disk. Scripts may do mechanical work but never decide what happens next.
+- **Encode failures into the system**, not into longer prompts — a real pilot failure becomes a Gotcha entry or a template change, so it's fixed once for every install.
 - **Phase 1 (Crawl).** Completion verifiers, ticket routing, safety hooks, and worktrees are later phases — nothing speculative ships before its phase wires it up.
-- **Pre-1.0, single user: no back-compat.** Never add migration paths, "upgrading from ≤vX" steps, or breaking-change scaffolding — break freely; existing installs are fixed by rerunning setup or by hand. Version bumps exist only to propagate auto-update. Revisit if the plugin ever gets a second user.
+- **Pre-1.0, single user: no back-compat.** Never add migration paths or breaking-change scaffolding — break freely; existing installs are fixed by rerunning setup or by hand. Version bumps exist to propagate auto-update.

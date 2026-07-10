@@ -29,6 +29,7 @@
     genuinely non-linear flow (fan-out, branch, loop) may use a hand-drawn SVG instead — style it
     with currentColor and put it in a .card with overflow-x:auto.
   · Keep the CSS untouched — the template's look is plugin-owned and identical in every repo.
+    The .readpath line and the evidence legend are fixed text — keep them verbatim.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -99,6 +100,7 @@
   nav.top .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); margin-right: .5rem; flex: none; }
   nav.top a { color: var(--muted); text-decoration: none; font-weight: 500; padding: .2rem .55rem; border-radius: 6px; }
   nav.top a:hover { background: var(--surface-2); color: var(--ink); }
+  @media (max-width: 700px) { nav.top { position: static; } }
 
   /* Hero */
   header.hero { padding: 2.6rem 0 0; }
@@ -131,7 +133,9 @@
   .chip.live    { color: var(--pass); background: var(--pass-soft); border-color: color-mix(in srgb, var(--pass) 35%, var(--line)); }
   .chip.fixture { color: var(--warn); background: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 35%, var(--line)); }
   .chip.human   { color: var(--fail); background: var(--fail-soft); border-color: color-mix(in srgb, var(--fail) 35%, var(--line)); }
-  .legend { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 1.4rem; font-size: .78rem; color: var(--muted); align-items: center; }
+  .legend { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 .7rem; font-size: .78rem; color: var(--muted); align-items: center; }
+  .readpath { font-size: .78rem; color: var(--muted); margin: 0 0 1.4rem; }
+  .readpath, .legend { max-width: 46rem; }
 
   /* Stat tiles */
   .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: .8rem; margin: 0 0 2.4rem; }
@@ -143,10 +147,10 @@
 
   /* Sections */
   h2 {
-    font-size: 1.15rem; font-weight: 700; letter-spacing: -.01em;
-    margin: 2.8rem 0 .9rem; scroll-margin-top: 3.2rem;
+    font-size: 1.35rem; font-weight: 700; letter-spacing: -.015em;
+    margin: 3rem 0 .9rem; scroll-margin-top: 3.2rem;
   }
-  h2 .n { color: var(--muted); font-weight: 600; margin-right: .45rem; font-variant-numeric: tabular-nums; }
+  h2 .n { color: var(--accent); font-weight: 700; margin-right: .5rem; font-variant-numeric: tabular-nums; }
   h3 { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin: 1.6rem 0 .6rem; }
 
   .card {
@@ -214,6 +218,9 @@
   .pstep .n { font-family: "JetBrains Mono", monospace; font-size: .72rem; font-weight: 700; color: var(--accent); }
   .pstep h4 { margin: .3rem 0 .2rem; font-size: .88rem; font-weight: 700; letter-spacing: -.01em; }
   .pstep p { font-size: .78rem; color: var(--muted); line-height: 1.5; margin: 0; }
+  .pstep h4, .pstep p, .pstep code { overflow-wrap: anywhere; }
+  figure.flow { margin: 0 0 1rem; }
+  figure.flow figcaption { margin-top: .5rem; }
   .pstep .tag { display: inline-block; margin-top: .5rem; font-size: .64rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: .1rem .45rem; border-radius: 5px; color: var(--accent); background: var(--accent-soft); }
   .pstep .tag.new { color: var(--pass); background: var(--pass-soft); }
 
@@ -320,6 +327,7 @@
   <span class="chip fixture">◐ from fixture / inference</span>
   <span class="chip human">○ needs a human</span>
 </div>
+<p class="readpath">In a hurry? Pills &amp; tiles are the verdict · §1 and §4 explain it · §5 proves it · §6 lets you reproduce it · §11 checks you understood.</p>
 
 <div class="stats">
   <div class="stat"><div class="v num">REPLACE_TESTS<span class="d">+REPLACE_DELTA</span></div><div class="l">tests passing (baseline REPLACE_OLD)</div></div>
@@ -349,8 +357,8 @@
   <table>
     <thead><tr><th>Acceptance criterion</th><th>Met</th><th>Where / evidence</th></tr></thead>
     <tbody>
-      <tr><td>REPLACE</td><td><span class="chip live">✓</span></td><td>REPLACE</td></tr>
-      <tr><td>REPLACE</td><td><span class="chip fixture">◐</span></td><td>REPLACE — why partial, and what closes it</td></tr>
+      <tr><td>REPLACE</td><td><span class="chip live" title="verified live this run">✓</span></td><td>REPLACE</td></tr>
+      <tr><td>REPLACE</td><td><span class="chip fixture" title="from fixture / inference">◐</span></td><td>REPLACE — why partial, and what closes it</td></tr>
     </tbody>
   </table>
 </div>
@@ -381,12 +389,17 @@
   <div class="note">REPLACE — one sentence: what to notice here.</div>
 </div>
 
-<div class="pipe">
-  <div class="pstep"><span class="n">01</span><h4>REPLACE actor/step</h4><p>REPLACE — what happens, real route/function name.</p></div>
-  <div class="pstep"><span class="n">02</span><h4>REPLACE</h4><p>REPLACE</p><span class="tag">existing</span></div>
-  <div class="pstep"><span class="n">03</span><h4>REPLACE</h4><p>REPLACE</p><span class="tag new">this run</span></div>
-</div>
-<figcaption style="margin:-0.4rem 0 1rem"><span class="fig-n">Flow</span>REPLACE — one sentence: what this sequence shows.</figcaption>
+<figure class="flow">
+  <div class="pipe">
+    <!-- Tag ONLY the steps this run added (.tag.new "this run"); leave pre-existing steps untagged
+         unless the existing/new contrast is the point of the diagram (then a plain .tag on the one
+         neighbor that clarifies it — never tag every step, it reads as noise). -->
+    <div class="pstep"><span class="n">01</span><h4>REPLACE actor/step</h4><p>REPLACE — what happens, real route/function name.</p></div>
+    <div class="pstep"><span class="n">02</span><h4>REPLACE</h4><p>REPLACE</p></div>
+    <div class="pstep"><span class="n">03</span><h4>REPLACE</h4><p>REPLACE</p><span class="tag new">this run</span></div>
+  </div>
+  <figcaption><span class="fig-n">Flow</span>REPLACE — one sentence: what this sequence shows.</figcaption>
+</figure>
 
 <h2 id="proof"><span class="n">5</span>Proof of work</h2>
 
@@ -413,8 +426,8 @@ REPLACE</pre>
   <table>
     <thead><tr><th>Claim</th><th>How verified</th><th></th></tr></thead>
     <tbody>
-      <tr><td>REPLACE</td><td>REPLACE — command / file / observation</td><td><span class="chip live">✓</span></td></tr>
-      <tr><td>REPLACE</td><td>REPLACE</td><td><span class="chip fixture">◐</span></td></tr>
+      <tr><td>REPLACE</td><td>REPLACE — command / file / observation</td><td><span class="chip live" title="verified live this run">✓</span></td></tr>
+      <tr><td>REPLACE</td><td>REPLACE</td><td><span class="chip fixture" title="from fixture / inference">◐</span></td></tr>
     </tbody>
   </table>
 </div>
@@ -501,7 +514,7 @@ REPLACE</pre>
      and ends with a recommendation + chip (○ if it needs a human decision). Also list here any
      behavior deliberately descoped in section 7 that could become a follow-up ticket. -->
 <ul>
-  <li><strong>REPLACE</strong> — out-of-scope finding. <em>Proof: <code>REPLACE command/file that shows it</code>.</em> <em>Suggested: ticket / ignore / monitor.</em> <span class="chip human">○</span></li>
+  <li><strong>REPLACE</strong> — out-of-scope finding. <em>Proof: <code>REPLACE command/file that shows it</code>.</em> <em>Suggested: ticket / ignore / monitor.</em> <span class="chip human" title="needs a human">○</span></li>
 </ul>
 
 <h2 id="ship"><span class="n">10</span>How to ship it</h2>
@@ -531,7 +544,7 @@ REPLACE</pre>
 <div class="meta">
   <p><strong>Left running:</strong> REPLACE (dev server, DB, mocks) / nothing.</p>
   <p><strong>Related:</strong> REPLACE — ticket links, STATE entries, ADRs, predecessor branches.</p>
-  <p>Reflects the repo at <code>REPLACE_HEAD_COMMIT</code> on REPLACE_DATE — evidence chips record what was true at generation time; re-verify before relying on them later. Generated by the builder harness · report template v0.7.0.</p>
+  <p>Reflects the repo at <code>REPLACE_HEAD_COMMIT</code> on REPLACE_DATE — evidence chips record what was true at generation time; re-verify before relying on them later. Generated by the builder harness · report template v0.7.1.</p>
 </div>
 
 </body>

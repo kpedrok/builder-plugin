@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.7.1 — 2026-07-10
+
+Report polish pass — reviewed the v0.7.0 template filled with pilot-5's real content (not placeholders), rendered desktop + mobile. Fixes from that review:
+
+- **Section hierarchy** — h2 1.15→1.35rem with the section number in accent color; the 11 sections were disappearing under the new hero scale.
+- **Reading-path line** (fixed text, under the evidence legend): *"In a hurry? Pills & tiles are the verdict · §1 and §4 explain it · §5 proves it · §6 lets you reproduce it · §11 checks you understood."* — routes juniors and tech leads to their layer without either reading linearly.
+- **Pipeline-step overflow** — long code tokens (routes, class names) now wrap inside `.pstep` cards (`overflow-wrap: anywhere`); the strip + caption is now a proper `<figure class="flow">`.
+- **Tag noise rule** — tag only the steps this run added (`.tag.new`); tagging every step "existing" read as noise in the filled sample.
+- **Mobile** — the section nav goes static under 700px (3 sticky rows ate a quarter of the viewport).
+- **Chip tooltips** — `title` attributes on the bare ✓/◐/○ table chips, so hover explains them away from the legend.
+
 ## 0.7.0 — 2026-07-10
 
 Report v3 — evidence discipline + reproduce-it-yourself (design: `Design/Report v3 - Field Guide Steal-List.md` in the ai vault; source: pilot-5 run review + Pedro's hand-grown momentus `field-guide.html`, which beat the v0.6 report on presence and per-claim verification). Template restructured (now 11 sections), skill's report step rewritten to match.
