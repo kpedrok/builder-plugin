@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Builder — a harness for agentic software development</title>
 <meta name="description" content="Builder is a Claude Code plugin that takes a feature from request to a reviewed, tested pull request — with humans at the two points that matter.">
-<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <script>
 tailwind.config = {
   theme: {
@@ -59,6 +59,7 @@ tailwind.config = {
       <a class="hover:text-slate-100" href="#pipeline">Pipeline</a>
       <a class="hover:text-slate-100" href="#setup">What it installs</a>
       <a class="hover:text-slate-100" href="#loop">It learns</a>
+      <a class="hover:text-slate-100" href="https://github.com/kpedrok/builder-plugin">GitHub</a>
       <a class="rounded-lg bg-mint-500/15 px-3 py-1.5 font-medium text-mint-300 ring-1 ring-mint-500/40 hover:bg-mint-500/25" href="#start">Get started</a>
     </nav>
   </div>
@@ -349,7 +350,8 @@ tailwind.config = {
 └─ skills/               <span class="text-slate-600">← generated to fit THIS repo</span>
    ├─ builder-run-local/
    ├─ builder-verify-ui/
-   └─ builder-verify-api/
+   ├─ builder-verify-api/
+   └─ builder-prototype/
 <span class="text-sky2-300">.harness/</span>
 ├─ <span class="text-slate-200">product.md</span>            <span class="text-slate-600">← purpose · personas · success</span>
 ├─ <span class="text-slate-200">STATE.md</span>              <span class="text-slate-600">← baselines · decisions · lessons</span>
@@ -380,6 +382,188 @@ tailwind.config = {
         <div class="rounded-2xl border border-ink-700 bg-ink-900 p-5">
           <h3 class="font-semibold text-slate-100">🗺️ Works in three repo shapes</h3>
           <p class="mt-2 text-sm text-slate-400">Single repo, monorepo, or a multi-repo workspace (backend + frontend side by side): gates and baselines per repo, one cross-linked PR per touched repo, harness files only ever at the root.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ FILE REFERENCE ============ -->
+    <div class="mt-16">
+      <h3 class="text-2xl font-bold text-slate-50">Every file, explained</h3>
+      <p class="mt-2 max-w-3xl text-sm text-slate-400">The complete reference — what each file the harness writes holds, and why it exists.</p>
+
+      <!-- map/ -->
+      <div class="mt-8 overflow-hidden rounded-2xl border border-ink-700 bg-ink-900">
+        <div class="border-b border-ink-700 bg-ink-850 px-5 py-3">
+          <span class="font-mono text-sm text-sky2-300">.harness/map/</span>
+          <span class="ml-2 text-sm text-slate-400">— the indirection layer: canonical verbs → real commands. The heart of the design; skills never hardcode a command, they always resolve it here.</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[640px] text-left text-sm">
+            <thead>
+              <tr class="border-b border-ink-700 font-mono text-xs text-slate-500">
+                <th class="px-5 py-2.5 font-normal">file</th>
+                <th class="px-5 py-2.5 font-normal">what it maps</th>
+                <th class="px-5 py-2.5 font-normal">why it exists</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-ink-800 text-slate-400">
+              <tr>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">gates.md</td>
+                <td class="px-5 py-3">"run the quick / full gate", "run the build" → the real commands, each with its <strong class="text-slate-200">expected test count</strong>.</td>
+                <td class="px-5 py-3">The most-used mapping. Every test invocation resolves through here; the expected counts catch silent test deletions.</td>
+              </tr>
+              <tr>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">tracker.md</td>
+                <td class="px-5 py-3">"fetch the ticket", "post the spec back", "mark ready" → the real MCP tool / CLI, plus your label vocabulary.</td>
+                <td class="px-5 py-3">Ports the pipeline to whatever tracker you use — or records "no tracker" so shipping skips that step cleanly.</td>
+              </tr>
+              <tr>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">docs.md</td>
+                <td class="px-5 py-3">Where specs, the glossary, and ADRs live; plus a doc-sync checklist.</td>
+                <td class="px-5 py-3">ALIGN reads context from here and REPORT writes updates back — so docs never drift from the code.</td>
+              </tr>
+              <tr>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">paths.md</td>
+                <td class="px-5 py-3">Protected / append-only paths and forbidden actions.</td>
+                <td class="px-5 py-3">The scope fence — what a run must never touch (migrations, generated code, prod config).</td>
+              </tr>
+              <tr>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">review.md</td>
+                <td class="px-5 py-3">How "run the code review" resolves — <code class="font-mono text-xs">pr-review-toolkit</code> agents if installed, else a built-in fallback reviewer. Also records your default branch.</td>
+                <td class="px-5 py-3">Makes the review gate portable, and pins the branch review diffs are scoped against.</td>
+              </tr>
+              <tr>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">design.md</td>
+                <td class="px-5 py-3">Where components live, which library and tokens to reuse, Storybook URL. <em>(frontend / fullstack only)</em></td>
+                <td class="px-5 py-3">What "reuse the design system, don't reinvent components" actually points at.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- top-level -->
+      <div class="mt-5 overflow-hidden rounded-2xl border border-ink-700 bg-ink-900">
+        <div class="border-b border-ink-700 bg-ink-850 px-5 py-3">
+          <span class="font-mono text-sm text-sky2-300">.harness/</span>
+          <span class="ml-2 text-sm text-slate-400">— the project's durable memory and self-improvement queue.</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[640px] text-left text-sm">
+            <thead>
+              <tr class="border-b border-ink-700 font-mono text-xs text-slate-500">
+                <th class="px-5 py-2.5 font-normal">file</th>
+                <th class="px-5 py-2.5 font-normal">what it holds</th>
+                <th class="px-5 py-2.5 font-normal">why it exists</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-ink-800 text-slate-400">
+              <tr>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">product.md</td>
+                <td class="px-5 py-3">Purpose, personas, success signals, non-goals — one page.</td>
+                <td class="px-5 py-3">The backbone of alignment: user-story roles come from its personas, never invented; a feature crossing a non-goal gets challenged at ALIGN.</td>
+              </tr>
+              <tr>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">STATE.md</td>
+                <td class="px-5 py-3">Typed durable memory: the recorded gate <strong class="text-slate-200">baseline</strong>, architecture decisions (AD), lessons (L), rejected approaches (R), workflow gotchas.</td>
+                <td class="px-5 py-3">Survives compaction and new sessions. Later runs diff against the baseline, don't re-derive decisions, don't relitigate rejections.</td>
+              </tr>
+              <tr>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">plugin-outbox.md</td>
+                <td class="px-5 py-3">A queue of <strong class="text-slate-200">universal</strong> gotchas — ones that would bite in any repo, not just this one.</td>
+                <td class="px-5 py-3">The installed plugin is a frozen snapshot; lessons that belong in it queue here until <code class="font-mono text-xs">/builder-improve</code> folds them into the source (see §05).</td>
+              </tr>
+              <tr>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">settings-suggested.json</td>
+                <td class="px-5 py-3"><em>(only if present)</em> The permissions merge, written here when the direct <code class="font-mono text-xs">.claude/settings.json</code> write was blocked.</td>
+                <td class="px-5 py-3">A fallback so the permissions snippet is never lost as chat text — you move it into place by hand.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- runs -->
+      <div class="mt-5 overflow-hidden rounded-2xl border border-ink-700 bg-ink-900">
+        <div class="border-b border-ink-700 bg-ink-850 px-5 py-3">
+          <span class="font-mono text-sm text-sky2-300">.harness/runs/&lt;date&gt;-&lt;feature&gt;/</span>
+          <span class="ml-2 text-sm text-slate-400">— one folder per feature; its three artifacts always travel together. <code class="font-mono text-xs text-mint-300">/builder-ship</code> moves the whole folder to <code class="font-mono text-xs">archive/</code> once shipped.</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[640px] text-left text-sm">
+            <thead>
+              <tr class="border-b border-ink-700 font-mono text-xs text-slate-500">
+                <th class="px-5 py-2.5 font-normal">file</th>
+                <th class="px-5 py-2.5 font-normal">written by</th>
+                <th class="px-5 py-2.5 font-normal">purpose</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-ink-800 text-slate-400">
+              <tr>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">spec.md</td>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-xs text-sky2-300">ALIGN</td>
+                <td class="px-5 py-3">The behavior contract: objective, user stories, data &amp; interfaces, acceptance criteria, out-of-scope. Durable — no file paths.</td>
+              </tr>
+              <tr>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">plan.md</td>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-xs text-sky2-300">PLAN</td>
+                <td class="px-5 py-3"><strong class="text-slate-200">The source of truth for execution</strong> (not the chat): vertical slices with exact files, a scope guard, and a progress ledger that survives compaction — on resume, the ledger and <code class="font-mono text-xs">git log</code> are trusted over conversation memory.</td>
+              </tr>
+              <tr>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">report.html</td>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-xs text-mint-300">REPORT</td>
+                <td class="px-5 py-3">The self-contained teaching report you review — explains what changed well enough to retell the feature; every claim wears an evidence chip showing how it was verified.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- outside .harness -->
+      <div class="mt-5 overflow-hidden rounded-2xl border border-ink-700 bg-ink-900">
+        <div class="border-b border-ink-700 bg-ink-850 px-5 py-3">
+          <span class="font-mono text-sm text-sky2-300">outside .harness/</span>
+          <span class="ml-2 text-sm text-slate-400">— the two locations Claude Code dictates, plus the skills generated for this repo.</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[640px] text-left text-sm">
+            <thead>
+              <tr class="border-b border-ink-700 font-mono text-xs text-slate-500">
+                <th class="px-5 py-2.5 font-normal">file</th>
+                <th class="px-5 py-2.5 font-normal">what it holds</th>
+                <th class="px-5 py-2.5 font-normal">why it exists</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-ink-800 text-slate-400">
+              <tr>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">CLAUDE.md</td>
+                <td class="px-5 py-3">Gains a short <code class="font-mono text-xs">## Harness</code> block — a few lines pointing at <code class="font-mono text-xs">.harness/</code>, never content.</td>
+                <td class="px-5 py-3">CLAUDE.md stays lean; the harness is discoverable from it without bloating every session's context.</td>
+              </tr>
+              <tr>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">.claude/settings.json</td>
+                <td class="px-5 py-3">Gate commands merged into the permissions allowlist.</td>
+                <td class="px-5 py-3">Routine test and build commands run without permission prompts interrupting an autonomous phase.</td>
+              </tr>
+              <tr>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">.claude/skills/builder-run-local/</td>
+                <td class="px-5 py-3">The exact order, env, seeds, and health checks to bring the whole stack up. <em>(fullstack / services)</em></td>
+                <td class="px-5 py-3 align-top" rowspan="4">Project property, not plugin property — generated once to fit this repo's real commands (each verified by running it during setup), then they live and evolve here, each growing its own Gotchas section over time. Which ones you get depends on the detected repo type.</td>
+              </tr>
+              <tr>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">.claude/skills/builder-verify-ui/</td>
+                <td class="px-5 py-3">Drives the running app like a user, screenshots it, asserts zero new console errors. <em>(frontend / fullstack)</em></td>
+              </tr>
+              <tr>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">.claude/skills/builder-verify-api/</td>
+                <td class="px-5 py-3">Makes real calls to the running API and asserts status and shape. <em>(API / backend)</em></td>
+              </tr>
+              <tr>
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">.claude/skills/builder-prototype/</td>
+                <td class="px-5 py-3">Explores a UI idea as a few throwaway variations before real code is written. <em>(frontend)</em></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

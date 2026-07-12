@@ -1,6 +1,6 @@
 # Harness State
 
-Typed, durable memory for this project. Survives compaction and sessions. Keep entries terse; archive anything older than ~60 days into a `## Archive` section at the bottom.
+Typed, durable memory for this project. Survives compaction and sessions. Keep entries terse — detail belongs in the run folder, linked from the entry. **Growth rule:** Decisions and Rejected never age out (their whole job is stopping relitigation); when this file passes ~150 lines, move the oldest **Lessons and Gotchas** rows into `.harness/archive/state-<year>.md` (`/builder-ship` owns this sweep).
 
 ## Baseline
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.11.1 — 2026-07-12
+
+**Organization review round** (two fresh-context reviewers over the docs page and the plugin/generated structure — UX, discoverability, scale, maintainability; the high-severity findings shipped here):
+
+- **Report spec deduplicated — the template is now the single source.** `builder-feature`'s REPORT step 2 restated ~1,100 words of section/chip/triage/diagram rules that `templates/report.html`'s head comment and inline section comments also carried; v0.9.0–v0.11.0 each paid the double-edit tax and v0.5.1 caught a drift it caused. The step now says: read the template fresh, follow its comments, keep the CSS untouched, plus the two framing rules (teaching/ownership document; harvested-never-invented) and the workflow tail (`git add` the report, ledger, STOP). Cuts the skill by roughly a third; future report changes edit one file.
+- **STATE.md growth rule fixed and given an owner.** The template told installs to archive 60-day-old entries into an `## Archive` section *in the same file* (nothing ever shrank), aged out Decisions/Rejected (whose whole job is stopping relitigation), and no skill ever ran the prune. Now: Decisions/Rejected never age out; past ~150 lines, the oldest Lessons/Gotchas rows move to `.harness/archive/state-<year>.md`; `/builder-ship` step 6 owns the sweep. Also states the pilot-5 lesson: entries stay terse, detail lives in the run folder, linked.
+- **Docs page fixes:** generated-skills tree drift fixed (`builder-prototype` was missing — the page listed 3 skills in the tree and 4 in the reference table), Tailwind Play CDN pinned to 3.4.16, GitHub link added to the header nav. Per Pedro's call, the page keeps the full per-file reference (it's the self-serve explainer / future GitHub Pages site); the README overlap is accepted, and the README's contributor notes now document `docs/` as page-not-process.
+- Reviewers explicitly cleared (no change): the six `map/` files' granularity, `runs/`/`archive/` naming, generated `builder-*` skill names, templates stamped-vs-read-live split.
+
 ## 0.11.0 — 2026-07-12
 
 **Evidence-review round** (outside-in audit of the report against published evidence — learning science, NN/g document UX, visual-design practice, engineering-handoff prior art; `Research/Report Evidence Review` in the vault. The audit confirmed the template on most strong-evidence practice and found seven gaps, all shipped here):
