@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.10.0 — 2026-07-12
+
+**Report §4 diagram kit** (pilot 6, kondak manual-external-price: Pedro's ding — "the report doesn't have diagrams or data flows that are easy to visualize and understand." Root cause: v0.7.0 rightly demoted fragile hand-drawn SVGs to the CSS pipe strip, but the pendulum overshot — the template's only visual was one *linear* strip, so a write-then-read-back feature got flattened into five boxes with the loop hidden in the caption, and the new schema entity whose compound key *is* the mechanism had no visual at all — even though ALIGN's spec "Data & interfaces" section had captured every entity, key, and seam. The map died in the spec.)
+
+- **Flow figure now shapes itself to the real flow** (template rule + skeleton): linear request→response → one `.pipe` strip; **write-then-read-back (most features) → two strips with `.lane` labels (write path / read path) joined by a `.pipe-link` line naming the shared artifact** (the row/queue/file) that carries data between them; genuine branch/merge/fan-out → the SVG escape hatch, unchanged. Stated as a correctness rule: one linear strip that hides the loop misrepresents the feature.
+- **Data-model figure, required when the run touched schema:** `.model` cards — one `.ent` per entity (load-bearing fields only, `.f.key` on identity/join fields, `.src.new` tag on entities this run created) with a `.join` arrow stating the join condition in plain words. The mechanism a reader must see, not the whole schema; omitted entirely when no schema changed.
+- **Harvest rule:** both figures pull actors, entities, and keys from the spec's "Data & interfaces" section (the ALIGN v0.6.2 map) — never invented. Closes the chain: ALIGN maps the data → spec records it → REPORT renders it.
+- New plugin-owned CSS (`.lane`, `.pipe-link`, `.model`/`.ent`/`.join`), verified rendered with pilot-6's real content in light + dark + mobile before shipping (per the v0.7.1 meta-lesson) — deterministic components over freehand SVG, so diagram quality doesn't vary per generation.
+- `builder-feature` REPORT §4 section description updated to match.
+
 ## 0.9.0 — 2026-07-10
 
 **New report §5 "Rules & edge cases" — the behavioral contract** (Pedro's framing: as agents write more of the code, the report is the document through which a human comes to *own* what the agent spec'd, planned, and built; owning a solution means being able to answer "what does the system do when X?" without reading the code). Report is now 12 sections (5–11 renumbered to 6–12).

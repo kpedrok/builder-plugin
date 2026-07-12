@@ -26,9 +26,19 @@
     Target < 150 KB per image.
   · Code excerpts: real code, ≤ 20 lines each, 2–4 excerpts total. Use <mark> to highlight the
     lines that carry the idea.
-  · Flow diagrams: use the CSS pipeline strip (.pipe) with the REAL step/actor names. Only a
-    genuinely non-linear flow (fan-out, branch, loop) may use a hand-drawn SVG instead — style it
-    with currentColor and put it in a .card with overflow-x:auto.
+  · Flow diagram (§4): shape it like the REAL flow — harvest actors, entities, and keys from the
+    spec's "Data & interfaces" section, never invent structure.
+      – straight line (request → response, nothing read back later) → one .pipe strip.
+      – write-then-read-back (a save/enqueue that a LATER render, job, or consumer picks up —
+        most features) → two .pipe strips with .lane labels (write path / read path) joined by a
+        .pipe-link line naming the shared artifact (the row/queue/file). One linear strip that
+        hides the loop misrepresents the feature.
+      – genuine branch/merge/fan-out → hand-drawn SVG (currentColor, in a .card, overflow-x:auto).
+  · Data-model diagram (§4): REQUIRED when the run added or changed a schema entity — .model
+    cards: one .ent per entity (load-bearing fields only, .key on the identity/join fields,
+    .src.new on an entity this run created), a .join arrow stating the join condition in plain
+    words. Show the mechanism a reader must see, not the whole schema. Omit the figure entirely
+    when the run touched no schema.
   · Keep the CSS untouched — the template's look is plugin-owned and identical in every repo.
     The .readpath line and the evidence legend are fixed text — keep them verbatim.
 -->
@@ -225,6 +235,33 @@
   .pstep .tag { display: inline-block; margin-top: .5rem; font-size: .64rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: .1rem .45rem; border-radius: 5px; color: var(--accent); background: var(--accent-soft); }
   .pstep .tag.new { color: var(--pass); background: var(--pass-soft); }
 
+  /* Two-lane flow (write path / read path) — lane labels + the link naming the shared artifact */
+  figure.flow .lane { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); margin: .9rem 0 .35rem; }
+  figure.flow .lane:first-child { margin-top: 0; }
+  figure.flow .lane .who { color: var(--accent); }
+  .pipe-link { display: flex; align-items: baseline; gap: .5rem; margin: .55rem 0 0 .6rem; font-size: .8rem; color: var(--muted); }
+  .pipe-link::before { content: "↳"; color: var(--accent); font-weight: 700; font-size: 1.05rem; line-height: 1; flex: none; }
+
+  /* Data-model cards (§4, only when the run added/changed a schema entity) */
+  .model { display: flex; flex-wrap: wrap; gap: .9rem; align-items: stretch; margin: 0 0 1rem; }
+  .ent { flex: 1 1 16rem; min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .ent .name { display: flex; justify-content: space-between; align-items: baseline; gap: .8rem; padding: .5rem .9rem; background: var(--surface-2); border-bottom: 1px solid var(--line); font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .8rem; font-weight: 600; }
+  .ent .name .src { font-size: .62rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-family: Inter, sans-serif; text-align: right; }
+  .ent .name .src.new { color: var(--pass); }
+  .ent .f { display: flex; justify-content: space-between; gap: 1rem; padding: .32rem .9rem; border-bottom: 1px solid var(--line); font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .76rem; overflow-wrap: anywhere; }
+  .ent .f:last-child { border-bottom: none; }
+  .ent .f .t { color: var(--muted); flex: none; text-align: right; }
+  .ent .f.key { background: var(--accent-soft); font-weight: 600; }
+  .ent .f.key .n::before { content: "◆ "; color: var(--accent); }
+  .join { flex: 0 1 11rem; align-self: center; text-align: center; font-size: .76rem; color: var(--muted); line-height: 1.45; padding: 0 .2rem; }
+  .join .arr { display: block; font-size: 1.2rem; color: var(--accent); line-height: 1.1; }
+  @media (max-width: 700px) {
+    .model { flex-direction: column; }
+    .ent, .join { flex: 0 0 auto; }
+    .join { align-self: stretch; text-align: left; display: flex; align-items: center; gap: .55rem; }
+    .join .arr { transform: rotate(90deg); }
+  }
+
   /* Terminal blocks (window chrome) */
   .term { background: var(--term-bg); border: 1px solid var(--term-line); border-radius: 9px; overflow: hidden; margin: 0 0 .35rem; }
   .term .bar { display: flex; align-items: center; gap: .45rem; padding: .5rem .8rem; border-bottom: 1px solid var(--term-line); background: var(--term-bar); }
@@ -384,26 +421,57 @@
 <h2 id="how"><span class="n">4</span>How it works</h2>
 <!-- 2–4 REAL code excerpts (≤20 lines each) that carry the core idea: the data model, the
      central function, the UI hook. <mark> the load-bearing lines. Each snippet gets a
-     one-sentence .note saying what to see in it. Then the pipeline strip: the actual flow of
-     the user action in 3–6 steps with REAL actor/function/route names — tag the steps this
-     run added (.tag.new) vs pre-existing (.tag). Only a genuinely non-linear flow may use a
-     hand-drawn SVG instead. -->
+     one-sentence .note saying what to see in it. Then the DIAGRAMS — harvested from the spec's
+     "Data & interfaces" section (real entity/actor/function names and keys), never invented:
+     the data-model figure when the run touched schema, and the flow figure shaped like the
+     real flow (one strip / two lanes + link / SVG — see template rules). Tag the steps this
+     run added (.tag.new) vs pre-existing (.tag). -->
 <div class="snippet">
   <div class="snippet-head"><span class="path">REPLACE/file/path.ts</span><span>REPLACE — what this is</span></div>
   <pre>REPLACE real code, ≤20 lines, with <mark>the key lines marked</mark></pre>
   <div class="note">REPLACE — one sentence: what to notice here.</div>
 </div>
 
+<!-- DATA MODEL — include ONLY when the run added or changed a schema entity; DELETE the whole
+     figure otherwise. One .ent card per entity, load-bearing fields only (the identity/join
+     fields get .f.key; .src.new tags an entity this run created). The .join block states the
+     join/ownership in plain words — the reader should see the mechanism, not the whole schema. -->
 <figure class="flow">
-  <div class="pipe">
-    <!-- Tag ONLY the steps this run added (.tag.new "this run"); leave pre-existing steps untagged
-         unless the existing/new contrast is the point of the diagram (then a plain .tag on the one
-         neighbor that clarifies it — never tag every step, it reads as noise). -->
-    <div class="pstep"><span class="n">01</span><h4>REPLACE actor/step</h4><p>REPLACE — what happens, real route/function name.</p></div>
-    <div class="pstep"><span class="n">02</span><h4>REPLACE</h4><p>REPLACE</p></div>
-    <div class="pstep"><span class="n">03</span><h4>REPLACE</h4><p>REPLACE</p><span class="tag new">this run</span></div>
+  <div class="model">
+    <div class="ent">
+      <div class="name">REPLACE_NewEntity<span class="src new">new · this run</span></div>
+      <div class="f key"><span class="n">REPLACE_key_field</span><span class="t">REPLACE type</span></div>
+      <div class="f"><span class="n">REPLACE_field</span><span class="t">REPLACE type</span></div>
+    </div>
+    <div class="join"><span class="arr">⟶</span>REPLACE — the join in plain words ("matches a phase by part code + order")</div>
+    <div class="ent">
+      <div class="name">REPLACE_ExistingEntity<span class="src">existing</span></div>
+      <div class="f key"><span class="n">REPLACE_field</span><span class="t">REPLACE type</span></div>
+      <div class="f"><span class="n">REPLACE_field</span><span class="t">REPLACE type</span></div>
+    </div>
   </div>
-  <figcaption><span class="fig-n">Flow</span>REPLACE — one sentence: what this sequence shows.</figcaption>
+  <figcaption><span class="fig-n">Data model</span>REPLACE — one sentence: the key, the join, who owns what.</figcaption>
+</figure>
+
+<figure class="flow">
+  <!-- Shape this like the REAL flow (see template rules). Linear request→response: keep ONE
+       .pipe, delete the lanes and the .pipe-link. Write-then-read-back (most features): keep
+       both lanes; the .pipe-link names the shared artifact that carries data between them.
+       Tag ONLY the steps this run added (.tag.new "this run"); leave pre-existing steps untagged
+       unless the existing/new contrast is the point (then a plain .tag on the one neighbor that
+       clarifies it — never tag every step, it reads as noise). -->
+  <div class="lane">Write path · <span class="who">REPLACE — who acts ("estimator saves a price")</span></div>
+  <div class="pipe">
+    <div class="pstep"><span class="n">01</span><h4>REPLACE actor/step</h4><p>REPLACE — what happens, real route/function name.</p><span class="tag new">this run</span></div>
+    <div class="pstep"><span class="n">02</span><h4>REPLACE</h4><p>REPLACE</p></div>
+  </div>
+  <div class="pipe-link">REPLACE — the shared artifact ("the saved <code>REPLACE_Row</code> is what the read path picks up on the next render")</div>
+  <div class="lane">Read path · <span class="who">REPLACE — what consumes it ("next render / nightly job")</span></div>
+  <div class="pipe">
+    <div class="pstep"><span class="n">03</span><h4>REPLACE</h4><p>REPLACE</p></div>
+    <div class="pstep"><span class="n">04</span><h4>REPLACE</h4><p>REPLACE</p></div>
+  </div>
+  <figcaption><span class="fig-n">Flow</span>REPLACE — one sentence: what this sequence shows, including where it loops back.</figcaption>
 </figure>
 
 <h2 id="rules"><span class="n">5</span>Rules &amp; edge cases</h2>
@@ -614,7 +682,7 @@ REPLACE</pre>
 <div class="meta">
   <p><strong>Left running:</strong> REPLACE (dev server, DB, mocks) / nothing.</p>
   <p><strong>Related:</strong> REPLACE — ticket links, STATE entries, ADRs, predecessor branches.</p>
-  <p>Reflects the repo at <code>REPLACE_HEAD_COMMIT</code> on REPLACE_DATE — evidence chips record what was true at generation time; re-verify before relying on them later. Generated by the builder harness · report template v0.9.0.</p>
+  <p>Reflects the repo at <code>REPLACE_HEAD_COMMIT</code> on REPLACE_DATE — evidence chips record what was true at generation time; re-verify before relying on them later. Generated by the builder harness · report template v0.10.0.</p>
 </div>
 
 </body>
