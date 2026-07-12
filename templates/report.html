@@ -39,6 +39,30 @@
     .src.new on an entity this run created), a .join arrow stating the join condition in plain
     words. Show the mechanism a reader must see, not the whole schema. Omit the figure entirely
     when the run touched no schema.
+  · Captions state the CLAIM, not the topic: every figcaption (flow, data model, screenshots) is
+    a standalone sentence asserting what the figure is evidence FOR ("the override writes the two
+    fields every consumer already reads — so no consumer changed"), never a description of the
+    picture ("diagram of the override flow"). A reader who sees only figures + captions should
+    still get the argument.
+  · Worked example (§4): the flow figure's steps carry the run's REAL values where they exist —
+    the actual price, id, count from the evidence ("R$ 12,50 → 1250 cents"), not only function
+    names. One concrete traced value teaches more than abstract labels.
+  · Reviewer triage (hero, always present): the .triage block after the stat tiles —
+    (a) "Assessment": the agent's OWN one-sentence judgment of risk + the one thing to watch,
+    fenced here and nowhere else (evidence sections stay judgment-free);
+    (b) "Spend your review here": 2–3 anchor links, harvested from the riskiest §8 decision and
+    the ○ items, each with why HUMAN judgment matters there — this is the reviewer's attention
+    budget, not a duplicate of the readpath (which serves skimmers);
+    (c) "Not touched": the scary things this change provably does NOT do (auth, existing tables,
+    data deletion, prod config), harvested from the spec's out-of-scope + the diff. Never invent
+    reassurance — rule out only what the diff shows untouched.
+  · Ship-gates on ○: every ○ chip in §5's edge rows and §10 is followed by a .gate tag saying
+    WHEN the human must act — <span class="gate">decide before ship</span> /
+    <span class="gate watch">ship, then watch</span> / <span class="gate ok">fine as-is</span>.
+    Every "decide before ship" item must also appear in the hero triage links.
+  · Section verdict lines: §4, §5 and §6 open with a one-line .sectionlede stating the section's
+    takeaway ("Five rules, all pinned by tests; one edge left open — §10") so a heading-only
+    scanner still gets the verdict.
   · Keep the CSS untouched — the template's look is plugin-owned and identical in every repo.
     The .readpath line and the evidence legend are fixed text — keep them verbatim.
 -->
@@ -117,7 +141,7 @@
   header.hero { padding: 2.6rem 0 0; }
   .eyebrow {
     text-transform: uppercase; letter-spacing: .13em;
-    font-size: .7rem; font-weight: 700; color: var(--accent); margin: 0 0 .7rem;
+    font-size: .72rem; font-weight: 700; color: var(--accent); margin: 0 0 .7rem;
   }
   .eyebrow .path { color: var(--muted); }
   h1 { font-size: clamp(1.8rem, 4.5vw, 2.5rem); font-weight: 800; letter-spacing: -.02em; line-height: 1.15; margin: 0 0 .8rem; text-wrap: balance; }
@@ -156,6 +180,20 @@
   .stat .v .d { font-size: .8rem; font-weight: 600; color: var(--pass); margin-left: .25rem; }
   .stat .l { font-size: .76rem; color: var(--muted); margin-top: .1rem; }
 
+  /* Reviewer triage — the reviewer's attention budget (assessment · spend-here · not-touched) */
+  .triage { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; box-shadow: var(--shadow); padding: .9rem 1.15rem; margin: -1.2rem 0 2.4rem; font-size: .92rem; }
+  .triage p { margin: .3rem 0; }
+  .triage .k { font-size: .72rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--accent); margin-right: .35rem; }
+  .triage ol { margin: .25rem 0 .45rem; }
+  .triage ol li { margin: .2rem 0; }
+  .triage .notouch { color: var(--muted); font-size: .87rem; }
+  .triage .notouch strong { color: var(--ink); }
+
+  /* Ship-gate tags on ○ items — WHEN the human must act */
+  .gate { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: .1rem .45rem; border-radius: 5px; color: var(--fail); background: var(--fail-soft); white-space: nowrap; }
+  .gate.watch { color: var(--warn); background: var(--warn-soft); }
+  .gate.ok { color: var(--muted); background: var(--surface-2); }
+
   /* Sections */
   h2 {
     font-size: 1.35rem; font-weight: 700; letter-spacing: -.015em;
@@ -163,6 +201,8 @@
   }
   h2 .n { color: var(--accent); font-weight: 700; margin-right: .5rem; font-variant-numeric: tabular-nums; }
   h3 { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin: 1.6rem 0 .6rem; }
+  .sectionlede { color: var(--muted); font-size: .95rem; max-width: 46rem; margin: -.5rem 0 1rem; }
+  .sectionlede strong { color: var(--ink); }
 
   .card {
     background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
@@ -176,7 +216,7 @@
   /* Tables */
   table { border-collapse: collapse; width: 100%; font-size: .92rem; }
   th, td { text-align: left; vertical-align: top; padding: .5rem .7rem; border-bottom: 1px solid var(--line); }
-  th { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+  th { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
   tr:last-child td { border-bottom: none; }
   td.ok { color: var(--pass); font-weight: 600; }
   td.no { color: var(--fail); font-weight: 600; }
@@ -232,11 +272,11 @@
   .pstep h4, .pstep p, .pstep code { overflow-wrap: anywhere; }
   figure.flow { margin: 0 0 1rem; }
   figure.flow figcaption { margin-top: .5rem; }
-  .pstep .tag { display: inline-block; margin-top: .5rem; font-size: .64rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: .1rem .45rem; border-radius: 5px; color: var(--accent); background: var(--accent-soft); }
+  .pstep .tag { display: inline-block; margin-top: .5rem; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: .1rem .45rem; border-radius: 5px; color: var(--accent); background: var(--accent-soft); }
   .pstep .tag.new { color: var(--pass); background: var(--pass-soft); }
 
   /* Two-lane flow (write path / read path) — lane labels + the link naming the shared artifact */
-  figure.flow .lane { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); margin: .9rem 0 .35rem; }
+  figure.flow .lane { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); margin: .9rem 0 .35rem; }
   figure.flow .lane:first-child { margin-top: 0; }
   figure.flow .lane .who { color: var(--accent); }
   .pipe-link { display: flex; align-items: baseline; gap: .5rem; margin: .55rem 0 0 .6rem; font-size: .8rem; color: var(--muted); }
@@ -246,7 +286,7 @@
   .model { display: flex; flex-wrap: wrap; gap: .9rem; align-items: stretch; margin: 0 0 1rem; }
   .ent { flex: 1 1 16rem; min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
   .ent .name { display: flex; justify-content: space-between; align-items: baseline; gap: .8rem; padding: .5rem .9rem; background: var(--surface-2); border-bottom: 1px solid var(--line); font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .8rem; font-weight: 600; }
-  .ent .name .src { font-size: .62rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-family: Inter, sans-serif; text-align: right; }
+  .ent .name .src { font-size: .72rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-family: Inter, sans-serif; text-align: right; }
   .ent .name .src.new { color: var(--pass); }
   .ent .f { display: flex; justify-content: space-between; gap: 1rem; padding: .32rem .9rem; border-bottom: 1px solid var(--line); font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .76rem; overflow-wrap: anywhere; }
   .ent .f:last-child { border-bottom: none; }
@@ -302,7 +342,7 @@
   .tstep .head { display: flex; align-items: center; gap: .7rem; margin-bottom: .5rem; }
   .tstep .idx { flex: none; width: 26px; height: 26px; border-radius: 7px; background: var(--accent-soft); color: var(--accent); font-weight: 800; display: flex; align-items: center; justify-content: center; font-family: "JetBrains Mono", monospace; font-size: .8rem; }
   .tstep h4 { margin: 0; font-size: .98rem; font-weight: 700; letter-spacing: -.01em; }
-  .tstep .kind { margin-left: auto; flex: none; font-size: .64rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: .15rem .5rem; border-radius: 5px; color: var(--accent); background: var(--accent-soft); }
+  .tstep .kind { margin-left: auto; flex: none; font-size: .72rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: .15rem .5rem; border-radius: 5px; color: var(--accent); background: var(--accent-soft); }
   .tstep > p { color: var(--muted); font-size: .9rem; margin: 0 0 .6rem; }
   .tstep .expect { margin-bottom: 0; }
   .tstep .expect + .expect { margin-top: .5rem; }
@@ -380,6 +420,20 @@
        headline number (rows migrated, endpoints added, ms saved). Workspace shape: the tests tile
        may combine repos ("1,412 + 9,296"). -->
 </div>
+
+<!-- ALWAYS PRESENT — the reviewer's attention budget (the readpath serves skimmers; this serves
+     the REVIEWER). Assessment = the agent's OWN judgment, allowed here and nowhere else.
+     Spend-here links: 2–3 max, harvested from the riskiest §8 decision + the ○ items — each says
+     why HUMAN judgment matters there. Not touched: only what the diff provably doesn't touch. -->
+<div class="triage">
+  <p><span class="k">Assessment</span>REPLACE — one sentence, first person allowed: risk level, why, and the one thing to watch ("Low-risk and additive; the seam I'd re-read is the override precedence").</p>
+  <p><span class="k">Spend your review here</span></p>
+  <ol>
+    <li><a href="#REPLACE">REPLACE — riskiest seam/decision</a> — REPLACE why human judgment matters here</li>
+    <li><a href="#REPLACE">REPLACE — the open ○ item</a> — REPLACE what needs deciding</li>
+  </ol>
+  <p class="notouch"><strong>Not touched:</strong> REPLACE — the scary things this change does NOT do, from the spec's out-of-scope + the diff ("no existing table altered · no auth path · no data deletion · additive migration only").</p>
+</div>
 </header>
 
 <h2 id="story"><span class="n">1</span>The story</h2>
@@ -426,6 +480,7 @@
      the data-model figure when the run touched schema, and the flow figure shaped like the
      real flow (one strip / two lanes + link / SVG — see template rules). Tag the steps this
      run added (.tag.new) vs pre-existing (.tag). -->
+<p class="sectionlede">REPLACE — one-line takeaway of the mechanism ("<strong>One seam:</strong> the override overwrites the two fields every consumer already reads — nothing downstream changed").</p>
 <div class="snippet">
   <div class="snippet-head"><span class="path">REPLACE/file/path.ts</span><span>REPLACE — what this is</span></div>
   <pre>REPLACE real code, ≤20 lines, with <mark>the key lines marked</mark></pre>
@@ -450,7 +505,7 @@
       <div class="f"><span class="n">REPLACE_field</span><span class="t">REPLACE type</span></div>
     </div>
   </div>
-  <figcaption><span class="fig-n">Data model</span>REPLACE — one sentence: the key, the join, who owns what.</figcaption>
+  <figcaption><span class="fig-n">Data model</span>REPLACE — the CLAIM this figure proves, standalone ("one org-scoped row per (part, phase order) — a save in one org can never touch another's").</figcaption>
 </figure>
 
 <figure class="flow">
@@ -459,7 +514,9 @@
        both lanes; the .pipe-link names the shared artifact that carries data between them.
        Tag ONLY the steps this run added (.tag.new "this run"); leave pre-existing steps untagged
        unless the existing/new contrast is the point (then a plain .tag on the one neighbor that
-       clarifies it — never tag every step, it reads as noise). -->
+       clarifies it — never tag every step, it reads as noise).
+       WORKED EXAMPLE: step text carries the run's REAL values from the evidence where they exist
+       ("types 12.50, picks Peça" · "upserts 1250 cents") — trace one concrete value end-to-end. -->
   <div class="lane">Write path · <span class="who">REPLACE — who acts ("estimator saves a price")</span></div>
   <div class="pipe">
     <div class="pstep"><span class="n">01</span><h4>REPLACE actor/step</h4><p>REPLACE — what happens, real route/function name.</p><span class="tag new">this run</span></div>
@@ -471,7 +528,7 @@
     <div class="pstep"><span class="n">03</span><h4>REPLACE</h4><p>REPLACE</p></div>
     <div class="pstep"><span class="n">04</span><h4>REPLACE</h4><p>REPLACE</p></div>
   </div>
-  <figcaption><span class="fig-n">Flow</span>REPLACE — one sentence: what this sequence shows, including where it loops back.</figcaption>
+  <figcaption><span class="fig-n">Flow</span>REPLACE — the CLAIM this figure proves, standalone, including where it loops back ("one saved row is read back on every render — every consumer picks it up unchanged").</figcaption>
 </figure>
 
 <h2 id="rules"><span class="n">5</span>Rules &amp; edge cases</h2>
@@ -483,7 +540,9 @@
      Edges = boundary/degenerate inputs with the system's OBSERVED behavior — what a test or live
      run actually showed, never the intended behavior (chip says which). An edge nobody pinned gets
      ○ here AND a row in §10 — an unpinned edge is a decision the human hasn't made yet, and
-     surfacing it is this section's job, not a failure. -->
+     surfacing it is this section's job, not a failure. Every ○ row carries a .gate tag (see
+     template rules) saying when the human must act. -->
+<p class="sectionlede">REPLACE — one-line verdict of the contract ("<strong>Five rules, all pinned by tests;</strong> one edge left open — it's in the triage list").</p>
 <h3>The rules</h3>
 <div class="card twrap">
   <table>
@@ -501,12 +560,13 @@
     <tbody>
       <tr><td>REPLACE — e.g. "no past event matches any keyword"</td><td>REPLACE — e.g. "200, empty items, status stays Available"</td><td>REPLACE — which rule produces this</td><td><span class="chip live" title="verified live this run">✓</span></td></tr>
       <tr><td>REPLACE — e.g. "the data lake is unreachable"</td><td>REPLACE — e.g. "empty Unavailable response, not a 500"</td><td>REPLACE</td><td><span class="chip fixture" title="from fixture / inference">◐</span></td></tr>
-      <tr><td>REPLACE — an edge NOBODY pinned, stated honestly</td><td>REPLACE — "unpinned: no test or run covers this; expected X but unverified"</td><td>REPLACE</td><td><span class="chip human" title="needs a human">○</span></td></tr>
+      <tr><td>REPLACE — an edge NOBODY pinned, stated honestly</td><td>REPLACE — "unpinned: no test or run covers this; expected X but unverified"</td><td>REPLACE</td><td><span class="chip human" title="needs a human">○</span> <span class="gate watch">ship, then watch</span></td></tr>
     </tbody>
   </table>
 </div>
 
 <h2 id="proof"><span class="n">6</span>Proof of work</h2>
+<p class="sectionlede">REPLACE — one-line verdict of the evidence ("<strong>Gate green, feature driven live in the browser,</strong> every §2 claim traced below").</p>
 
 <h3>1 · Full gate</h3>
 <div class="term">
@@ -646,10 +706,12 @@ REPLACE</pre>
 
 <h2 id="noticed"><span class="n">10</span>Noticed but not touched</h2>
 <!-- Every item carries a PROOF ANCHOR — the command, file, or ticket that shows the issue exists —
-     and ends with a recommendation + chip (○ if it needs a human decision). Also list here any
-     behavior deliberately descoped in section 8 that could become a follow-up ticket. -->
+     and ends with a recommendation + chip (○ if it needs a human decision) + a .gate tag saying
+     WHEN (decide before ship / ship, then watch / fine as-is; "decide before ship" items must
+     also appear in the hero triage links). Also list here any behavior deliberately descoped in
+     section 8 that could become a follow-up ticket. -->
 <ul>
-  <li><strong>REPLACE</strong> — out-of-scope finding. <em>Proof: <code>REPLACE command/file that shows it</code>.</em> <em>Suggested: ticket / ignore / monitor.</em> <span class="chip human" title="needs a human">○</span></li>
+  <li><strong>REPLACE</strong> — out-of-scope finding. <em>Proof: <code>REPLACE command/file that shows it</code>.</em> <em>Suggested: ticket / ignore / monitor.</em> <span class="chip human" title="needs a human">○</span> <span class="gate watch">ship, then watch</span></li>
 </ul>
 
 <h2 id="ship"><span class="n">11</span>How to ship it</h2>
@@ -682,7 +744,7 @@ REPLACE</pre>
 <div class="meta">
   <p><strong>Left running:</strong> REPLACE (dev server, DB, mocks) / nothing.</p>
   <p><strong>Related:</strong> REPLACE — ticket links, STATE entries, ADRs, predecessor branches.</p>
-  <p>Reflects the repo at <code>REPLACE_HEAD_COMMIT</code> on REPLACE_DATE — evidence chips record what was true at generation time; re-verify before relying on them later. Generated by the builder harness · report template v0.10.0.</p>
+  <p>Reflects the repo at <code>REPLACE_HEAD_COMMIT</code> on REPLACE_DATE — evidence chips record what was true at generation time; re-verify before relying on them later. Generated by the builder harness · report template v0.11.0.</p>
 </div>
 
 </body>

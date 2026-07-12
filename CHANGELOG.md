@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.11.0 — 2026-07-12
+
+**Evidence-review round** (outside-in audit of the report against published evidence — learning science, NN/g document UX, visual-design practice, engineering-handoff prior art; `Research/Report Evidence Review` in the vault. The audit confirmed the template on most strong-evidence practice and found seven gaps, all shipped here):
+
+- **Reviewer triage block in the hero (always present):** the agent's one-sentence *assessment* (its own judgment — allowed here and nowhere else; SBAR's fence between facts and analysis), *"spend your review here"* — 2–3 anchor links harvested from the riskiest §8 decision + the ○ items, each saying why human judgment matters there (OpenAI verification-at-scale: budget the reviewer's attention), and *"not touched"* — the scary things the diff provably doesn't do, from the spec's out-of-scope + the diff (incident-comms rule-out; never invented reassurance).
+- **Ship-gates on every ○ chip** (§5 edges + §10): `decide before ship` / `ship, then watch` / `fine as-is` — ○ says *who* must act, the gate says *when* (Rust RFC's unresolved-questions split); every "decide before ship" item must appear in the triage links.
+- **Captions state the CLAIM, not the topic** — every figcaption is a standalone sentence asserting what the figure is evidence for (assertion-evidence method; Mayer redundancy: caption and picture must carry different information).
+- **Section verdict lines** — §4/§5/§6 open with a one-line `.sectionlede` takeaway so a heading-only scanner still gets the verdict (NN/g layer-cake scanning).
+- **Worked example in the flow figure** — step text carries the run's real values ("types 12.50" → "upserts 1250 cents"), tracing one concrete value end-to-end (Sweller's worked-example effect).
+- **12px floor on informational micro-text** — `.tag`, `.src`, `.kind`, `.lane`, `.eyebrow`, `th` bumped from 9.9–11.2px to the template's .72rem micro-tier (NN/g: nothing informational below ~12px; uppercase+bold compensates the remaining fraction).
+- Rendered-verification with pilot-6 content in light + dark before shipping (v0.7.1 rule). Deliberate rejection recorded: NLM labeled abstract for the lede — pills+tiles already carry Result/Verification/Risk; a labeled block would be Mayer-redundant.
+
 ## 0.10.0 — 2026-07-12
 
 **Report §4 diagram kit** (pilot 6, kondak manual-external-price: Pedro's ding — "the report doesn't have diagrams or data flows that are easy to visualize and understand." Root cause: v0.7.0 rightly demoted fragile hand-drawn SVGs to the CSS pipe strip, but the pendulum overshot — the template's only visual was one *linear* strip, so a write-then-read-back feature got flattened into five boxes with the loop hidden in the caption, and the new schema entity whose compound key *is* the mechanism had no visual at all — even though ALIGN's spec "Data & interfaces" section had captured every entity, key, and seam. The map died in the spec.)
