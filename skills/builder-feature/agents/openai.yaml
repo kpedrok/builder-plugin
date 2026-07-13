@@ -1,0 +1,4 @@
+interface:
+  display_name: "Builder — Feature"
+  short_description: "Run a feature/bug through ALIGN → PLAN → BUILD → PROVE → REPORT."
+  default_prompt: "Use $builder-feature to build this change: aligns on a spec + plan you approve, builds test-first, proves it runs, and stops at an HTML report."

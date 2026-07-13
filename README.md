@@ -14,11 +14,13 @@ ships until you say so.
 
 ## Requirements
 
-- Claude Code (desktop, CLI, or IDE extension).
-- Optional, recommended: the [`pr-review-toolkit`](https://github.com/anthropics/claude-plugins-official)
-  plugin. builder uses its review agents automatically if present, and falls back to a built-in reviewer if not.
+- **Claude Code** (desktop, CLI, or IDE extension) — or **OpenAI Codex** (the same skills run on both host; builder is dual-host as of v0.12.0).
+- Optional, recommended (Claude Code): the [`pr-review-toolkit`](https://github.com/anthropics/claude-plugins-official)
+  plugin. builder uses its review agents automatically if present, and falls back to a built-in reviewer if not. On Codex the review gate uses `codex review` / custom subagents instead.
 
 ## Install
+
+**Claude Code:**
 
 ```
 /plugin marketplace add kpedrok/builder-plugin
@@ -26,6 +28,17 @@ ships until you say so.
 ```
 
 Turn on auto-update once so you stay current: `/plugin` → **Marketplaces** → **builder** → **Enable auto-update**.
+
+**Codex:** copy the skills into the project (or `~/.agents/skills/` for all projects):
+
+```
+git clone https://github.com/kpedrok/builder-plugin /tmp/builder && \
+  mkdir -p .agents/skills && cp -R /tmp/builder/skills/builder-* .agents/skills/
+```
+
+Codex discovers `.agents/skills/` automatically; the invoke-only boundary on `setup-harness`/`ship`/`improve` comes from each skill's `agents/openai.yaml` (`policy.allow_implicit_invocation: false`). Invoke skills as `$builder-feature`, `$builder-setup-harness`, etc. — read every `/builder-…` below as `$builder-…`.
+
+> The one-command `codex plugin add builder@builder` (marketplace) path is not enabled yet: Codex's plugin-manifest validator currently rejects the `disable-model-invocation: true` frontmatter that Claude Code needs for its invoke-only skills. Until Codex tolerates that key, use the copy path above (it enforces the same boundary via `openai.yaml`).
 
 <details>
 <summary>Force an update mid-session</summary>
@@ -96,7 +109,7 @@ Two boundaries are deliberate: **you approve the plan** before autonomous work s
 
 # What setup generates
 
-Running `/builder-setup-harness` writes everything below. Harness-owned files live under **`.harness/`**; the two exceptions (`.claude/` and the `CLAUDE.md` block) are locations Claude Code dictates.
+Running `/builder-setup-harness` writes everything below. Harness-owned files live under **`.harness/`**; the two exceptions are host-dictated locations — shown here for Claude Code (`.claude/settings.json`, `.claude/skills/`, the `CLAUDE.md` block). On Codex the equivalents are the Codex config (`sandbox_mode`/`approval_policy`/project trust), `.agents/skills/`, and the `AGENTS.md` block; `.harness/` itself is identical on both.
 
 ```
 your-project/
@@ -208,14 +221,14 @@ Repo-specific lessons stay local (in `STATE.md` or a project skill's Gotchas); o
 
 The plugin source is organized to mirror the process/facts split:
 
-- **`skills/`** — the four universal skills. Identical in every install; contain no repo-specific facts.
-- **`templates/`** — plugin-owned seeds. Some are stamped into a project at **setup** (`product.md`, `STATE.md`, `settings-snippet.json` merged into `.claude/settings.json`) or instantiated then (`project-skills/`, the generated skills). The rest are **read live from the plugin** (via `${CLAUDE_PLUGIN_ROOT}/templates/…`) and never copied in — `report.html` at REPORT, `reviewer-prompt.md` at the review fallback, `goal-conditions.md` for `/goal`, the `spec.md`/`plan.md` shapes written into each run folder, `plugin-outbox.md` created on the first universal gotcha. Universal lessons land here so **future installs inherit them**.
-- **`.claude-plugin/`** — `plugin.json` (name, version) and `marketplace.json` (distribution).
+- **`skills/`** — the four universal skills. Identical in every install; contain no repo-specific facts. Each carries its own bundled seeds under `assets/` (stamped/instantiated into a project — `product.md`, `STATE.md`, `settings-snippet.json`, `config-snippet.toml`, `project-skills/`, the `spec.md`/`plan.md`/`plugin-outbox.md` shapes, `report.html`) and `references/` (read live from the skill — `reviewer-prompt.md`, `goal-conditions.md`, `doc-sync-checklist.md`), plus `agents/openai.yaml` (Codex UI metadata). **Bundled files live inside their one consuming skill** so both hosts resolve them the same way — Codex skills can only read their own directory, and this also drops `${CLAUDE_PLUGIN_ROOT}` from the Claude side. Universal lessons land in these seeds so **future installs inherit them**.
+- **Host neutrality** — each skill has a `## Host` section resolving the ~5 anchors that differ between Claude Code and Codex (bundled-file paths, autonomous loop, asking the human, review dispatch, invocation surface). Kept inline per skill (not a shared file — a shared plugin-root reference is unreachable from a Codex skill).
+- **`.claude-plugin/`** and **`.codex-plugin/`** — the two `plugin.json` manifests (same `name`/`version`, bumped in lockstep by `improve`). Distribution: `.claude-plugin/marketplace.json` for Claude Code, `.agents/plugins/marketplace.json` for Codex.
 - **`docs/`** — the GitHub Pages landing page (`index.html`, self-contained). Explains the framework to newcomers; not part of the installed process — skills never read it.
 
 Principles that govern changes:
 
-- **Plugin = process, project = facts.** Anything repo-specific belongs under a project's `.harness/`, reached through the `map/` indirection layer — never hardcoded in a skill. If a fix needs a repo fact, the fix is a template or mapping change, not a skill edit.
+- **Plugin = process, project = facts, host = an axis.** Anything repo-specific belongs under a project's `.harness/`, reached through the `map/` indirection layer — never hardcoded in a skill. Anything host-specific belongs in a skill's `## Host` section — never scattered through the steps. If a fix needs a repo fact, the fix is a seed or mapping change, not a skill edit.
 - **Prompts + files, not code.** The workflow lives in skill instructions; state lives in markdown on disk. Scripts may do mechanical work but never decide what happens next.
 - **Encode failures into the system**, not into longer prompts — a real pilot failure becomes a Gotcha entry or a template change, so it's fixed once for every install.
 - **Phase 1 (Crawl).** Completion verifiers, ticket routing, safety hooks, and worktrees are later phases — nothing speculative ships before its phase wires it up.

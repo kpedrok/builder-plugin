@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.12.0 — 2026-07-13
+
+**Dual-host: builder now runs on OpenAI Codex as well as Claude Code.** The `.harness/` project layer was already host-agnostic (plain markdown); this release makes the *plugin* (the process) host-neutral. One source of truth — the same four `SKILL.md` skills run on both hosts; only per-skill anchors differ.
+
+- **Shared templates moved into their consuming skill's `assets/`/`references/`.** Codex skills resolve only files inside their own directory (no `${CLAUDE_PLUGIN_ROOT}` equivalent), so `report.html`, `spec.md`, `plan.md`, `plugin-outbox.md`, `reviewer-prompt.md`, `goal-conditions.md`, `settings-snippet.json`, `product.md`, `STATE.md`, and `project-skills/` now live under the skill that uses them. `templates/` is retired. This also removes `${CLAUDE_PLUGIN_ROOT}` from the skills on the Claude side.
+- **Each skill gained a compact `## Host` section** resolving the ~5 host-specific anchors (bundled-file paths, autonomous loop, asking the human, review dispatch, invocation surface). Kept inline per skill rather than in a shared file — a shared plugin-root reference would be unreachable from a Codex skill, and self-contained skills are Codex's model.
+- **Host-aware setup:** `builder-setup-harness` detects the host and records it in `STATE.md`; writes `.claude/settings.json` on Claude Code or merges `assets/config-snippet.toml` into the Codex config (`sandbox_mode`/`approval_policy`/project trust) on Codex; generates project skills into `.claude/skills/` or `.agents/skills/`; writes the pointer block to `CLAUDE.md` or `AGENTS.md`; and maps the review gate to `pr-review-toolkit`/`general-purpose` or to `codex review`/custom subagents.
+- **Codex manifest + marketplace added** (`.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json`) alongside the Claude ones. `builder-improve` now bumps both manifests in lockstep and covers both hosts' update paths. Invoke-only skills (`setup-harness`/`ship`/`improve`) carry `allow_implicit_invocation: false` in `agents/openai.yaml` — the Codex analog of `disable-model-invocation: true`.
+- **Deferred (documented, not built):** the `/goal`↔`Stop`-hook + `codex exec --output-schema` autonomous-loop emulation, and Phase-4 guardrails as Codex `[hooks.*]` (the plugin validator rejects a manifest `hooks` field today).
+
 ## 0.11.1 — 2026-07-12
 
 **Organization review round** (two fresh-context reviewers over the docs page and the plugin/generated structure — UX, discoverability, scale, maintainability; the high-severity findings shipped here):

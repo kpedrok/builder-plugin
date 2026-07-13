@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Projects can't edit the installed plugin (it's a frozen snapshot), so universal gotchas they learn queue in each project's `.harness/plugin-outbox.md`. This skill, run against the **plugin source repo**, ingests them. This is the channel that makes the harness improve from its own runs instead of relearning the same lessons per project.
 
-**Preconditions:** the working directory is the plugin source (has `.claude-plugin/plugin.json` with `"name": "builder"`), and its git tree is clean. Not the source repo → stop and say where to run it.
+**Preconditions:** the working directory is the plugin source (has `.claude-plugin/plugin.json` **and** `.codex-plugin/plugin.json`, both with `"name": "builder"`), and its git tree is clean. Not the source repo → stop and say where to run it.
 
 ## Steps
 
@@ -17,8 +17,8 @@ Projects can't edit the installed plugin (it's a frozen snapshot), so universal 
 3. **Triage each surviving row.** For every gotcha: does it belong in a plugin skill's Gotchas, a template (so future installs inherit it), or a process change to a skill's steps? A row that is actually repo-specific → mark it `rejected: repo-specific` in the outbox and move it to the project's STATE.md instead. When unsure, ask — one question, recommended answer first.
 4. **Apply.** Edit the target plugin files. Rules: Gotcha entries follow symptom → cause → what to do instead, with source project + date; a process change must not add repo-specific lines to a plugin skill (that's what `.harness/map/` mappings and project skills are for — if the fix needs a repo fact, the fix is a template or mapping change).
 5. **Mark ingested.** Rewrite each consumed outbox row with `ingested: v<new version> (<date>)` so the next run skips it, and commit that outbox edit in its project.
-6. **Version + changelog.** Bump `plugin.json` (patch for gotcha-only batches, minor for process changes), append a line per change to `CHANGELOG.md` (create if missing), and commit the plugin repo: `improve: ingest <N> gotchas from <projects> → v<version>`.
-7. **Push.** `git push` the plugin repo (marketplace `kpedrok/builder-plugin`). Projects with auto-update on pick up the new version on their next Claude Code startup; others pull it with `/plugin marketplace update builder`. Already-instrumented projects keep their generated skills as-is (project property; only templates changed).
+6. **Version + changelog.** Bump **both** manifests in lockstep — `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` to the same version (patch for gotcha-only batches, minor for process changes) — append a line per change to `CHANGELOG.md` (create if missing), and commit the plugin repo: `improve: ingest <N> gotchas from <projects> → v<version>`. A version that differs between the two manifests is a bug.
+7. **Push.** `git push` the plugin repo (marketplace `kpedrok/builder-plugin`). Claude Code projects with auto-update on pick up the new version on their next startup (others: `/plugin marketplace update builder`); Codex projects pull it with `codex plugin marketplace upgrade` then `codex plugin add builder@<marketplace>`. Already-instrumented projects keep their generated skills as-is (project property; only templates changed).
 
 ## Rules
 
@@ -28,10 +28,11 @@ Projects can't edit the installed plugin (it's a frozen snapshot), so universal 
 
 ## Red Flags
 
-- Editing the installed plugin copy under `~/.claude/plugins/` instead of the source repo
+- Editing the installed plugin copy (under `~/.claude/plugins/` or Codex's plugin cache) instead of the source repo
 - A plugin skill gaining a repo-specific command/path/URL during ingestion
-- Version unchanged after applying changes
+- A plugin skill gaining a host-specific mechanic outside its `## Host` section (host anchors belong there, not scattered through the steps)
+- Version unchanged, or the two manifests' versions diverging, after applying changes
 
 ## Gotchas
 
-_(empty — populate from runs)_
+- **Codex's plugin validator rejects `disable-model-invocation: true`** → running `validate_plugin.py` (or `codex plugin add`) flags the three invoke-only skills' frontmatter "must be false". This is an irreducible cross-host conflict, **not a bug to fix by removing the key**: Claude Code *requires* `disable-model-invocation: true` for the setup/ship/improve invoke-only boundary; Codex enforces the same boundary via `agents/openai.yaml` `policy.allow_implicit_invocation: false`. Keep both. Codex distribution is the `.agents/skills/` copy path (loader honors `openai.yaml`; no manifest validation) until Codex tolerates the key. Never strip the Claude boundary to make the Codex packager pass (v0.12.0, 2026-07-13).

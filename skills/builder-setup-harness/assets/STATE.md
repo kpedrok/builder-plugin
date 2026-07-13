@@ -7,6 +7,7 @@ Typed, durable memory for this project. Survives compaction and sessions. Keep e
 Recorded by `/builder-setup-harness`. Later sessions diff against this — a drop in the test count without an explicit reason is a red flag.
 
 - **Installed harness:** `builder v<version>` (from the plugin's `plugin.json`; makes drift vs the plugin source visible)
+- **Host:** `<Claude Code | Codex>` (detected at setup; `builder-feature`/`builder-ship` read it instead of re-detecting)
 - **Quick gate:** `<command>` → exit 0, `<N>` tests passing (recorded <date>)
 - **Full gate:** `<command>` → exit 0, `<N>` tests passing (recorded <date>) — the literal command run once as-is, not assembled from its components
 - **Build:** `<command>` → exit 0 (recorded <date>)

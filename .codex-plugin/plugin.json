@@ -1,0 +1,25 @@
+{
+  "name": "builder",
+  "version": "0.12.0",
+  "description": "Builder harness — product, design, and software in one pipeline. Instrument any project once, then run features through ALIGN → PLAN → BUILD → PROVE → REPORT.",
+  "author": {
+    "name": "Pedro Kondak"
+  },
+  "repository": "https://github.com/kpedrok/builder-plugin",
+  "license": "MIT",
+  "keywords": ["harness", "workflow", "tdd", "code-review", "spec-driven"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Builder",
+    "shortDescription": "Request → reviewed, tested PR, with an ownership-transfer report.",
+    "longDescription": "Builder takes a feature or bug fix from request to a reviewed, tested pull request. It aligns before coding (a spec and plan you approve), builds in small test-first steps, proves the result actually runs, and hands you a self-contained HTML report to review — nothing ships until you say so. Instrument a project once with $builder-setup-harness, then run work through $builder-feature.",
+    "developerName": "Pedro Kondak",
+    "category": "Coding",
+    "capabilities": ["Interactive", "Write"],
+    "defaultPrompt": [
+      "Set up the builder harness for this project.",
+      "Build this feature with the builder pipeline.",
+      "Ship the reviewed feature."
+    ]
+  }
+}

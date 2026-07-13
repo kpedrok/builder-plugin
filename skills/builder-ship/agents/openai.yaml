@@ -1,0 +1,8 @@
+interface:
+  display_name: "Builder — Ship"
+  short_description: "Ship a reviewed feature: commit, open the PR, update the tracker."
+  default_prompt: "Use $builder-ship to ship the feature I just reviewed: reads the report, opens the PR with its evidence, updates the tracker."
+policy:
+  # Human-invoke-only: nothing ships without the human's review of the report.
+  # Codex analog of Claude Code's `disable-model-invocation: true`.
+  allow_implicit_invocation: false

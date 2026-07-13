@@ -11,6 +11,16 @@ ALIGN ──────── PLAN ─┃─ BUILD ── PROVE ── REPORT  
                  human gate
 ```
 
+## Host (Claude Code or Codex — resolve once, at entry)
+
+This skill runs on either host; `.harness/STATE.md`'s baseline records which one this project was set up for (setup detects it). Everything below is host-neutral except these anchors — resolve them for the active host and don't mix them up:
+
+- **Bundled files.** Paths written `assets/…` or `references/…` are inside *this skill's own directory*. Resolve to an absolute path before reading: **Claude Code** → `${CLAUDE_PLUGIN_ROOT}/skills/builder-feature/<path>`; **Codex** → this installed skill's own folder (the one holding this SKILL.md) + `/<path>`.
+- **Autonomous loop** (starts at plan approval). **Claude Code** → `/goal` with the conditions in `references/goal-conditions.md`. **Codex** → no native `/goal`; the conditions in `references/goal-conditions.md` are still the end-state contract — run the post-approval phases in-session (or headless via `codex exec --output-schema`) and self-check against them before REPORT. Either way the artifacts, not a loop primitive, are the proof.
+- **Asking the human.** **Claude Code** → batch via `AskUserQuestion`. **Codex** → ask in chat, one batched message.
+- **Review dispatch** resolves through `.harness/map/review.md` (setup wrote the host's real reviewers there) — see PROVE.
+- **Invocation surface** in prose (`/builder-ship`, `/builder-feature`) is Claude Code's; on Codex the same skills are `$builder-ship`, `$builder-feature`.
+
 **Not instrumented?** No `.harness/` directory here → say so in one line, offer `/builder-setup-harness`, and handle the request as a normal coding task — don't improvise the pipeline without the harness.
 
 Every phase has an exit criterion that must appear **in the conversation** — shown output, file contents, test results, screenshots — not merely exist on disk. Canonical verbs below ("run the full gate", "fetch the ticket") resolve through `.harness/map/` mappings; never hardcode a real command here.
@@ -50,7 +60,7 @@ Understand, then grill. Do NOT run inside an autonomous goal loop.
 
 **Bug fixes — red-command gate:** no hypothesizing about the cause until you can paste the invocation and output of a deterministic command that reproduces the bug (this becomes the failing regression test). No red command, no diagnosis.
 
-**Exit:** a spec with an **objective**, **user stories**, a **data & interfaces** summary (entities/shapes, contracts consumed/produced, what's unavailable — from step 2), **testable acceptance criteria** (each traceable to a story), an **out-of-scope section**, and any new glossary terms. Durable → **no file paths**. (Use the `spec.md` template; write it to the specs location in `.harness/map/docs.md` — default `<run>/spec.md` — and show the path.) For a title-only ticket, also post the spec back.
+**Exit:** a spec with an **objective**, **user stories**, a **data & interfaces** summary (entities/shapes, contracts consumed/produced, what's unavailable — from step 2), **testable acceptance criteria** (each traceable to a story), an **out-of-scope section**, and any new glossary terms. Durable → **no file paths**. (Use this skill's `assets/spec.md` as the shape; write it to the specs location in `.harness/map/docs.md` — default `<run>/spec.md` — and show the path.) For a title-only ticket, also post the spec back.
 
 ## PLAN (interactive — the human gate)
 
@@ -59,9 +69,9 @@ Understand, then grill. Do NOT run inside an autonomous goal loop.
 - Each slice: exact files, the acceptance criterion it satisfies, the verification step (which gate + expected test count). **Workspace shape: each slice names its repo, and cross-repo work is ordered contract-first** — the slice that defines the shared shape (backend type, endpoint, schema) lands before the slices that consume it, all in this one run: splitting a cross-repo change across sessions re-derives the contract decisions per repo.
 - **Exact paths, no placeholders. A TBD/TODO in the plan is a failure.**
 - List the scope guard (files the plan may touch) and open assumptions.
-- **Write the plan to `<run>/plan.md` (from the `plan.md` template) BEFORE asking for approval, and show the path.** The file — not the chat — is the source of truth: the human may approve in chat, edit the file directly, or ask for changes. **After approval, re-read the file** and work from it — it may differ from what you presented. Mark its Status line APPROVED.
+- **Write the plan to `<run>/plan.md` (from this skill's `assets/plan.md` shape) BEFORE asking for approval, and show the path.** The file — not the chat — is the source of truth: the human may approve in chat, edit the file directly, or ask for changes. **After approval, re-read the file** and work from it — it may differ from what you presented. Mark its Status line APPROVED.
 
-**Exit: the human explicitly approves the plan (and the file's Status says so).** Hedged responses — "looks reasonable", "I guess", "sure, whatever" — are **not** approval; ask for an explicit yes. Autonomous mode (`/goal`) begins here — see the `goal-conditions.md` template.
+**Exit: the human explicitly approves the plan (and the file's Status says so).** Hedged responses — "looks reasonable", "I guess", "sure, whatever" — are **not** approval; ask for an explicit yes. The autonomous run begins here — see this skill's `references/goal-conditions.md` and the Host section's autonomous-loop row.
 
 ## BUILD (autonomous, per slice — TDD)
 
@@ -82,7 +92,7 @@ Never write implementation before its test. If you did, delete it and start from
 
 ## PROVE (autonomous)
 
-- **Review gate first** — fresh-context reviewers are cheaper than a wasted e2e. Resolve "run the code review" via `.harness/map/review.md` (preferred: `pr-review-toolkit` agents; fallback: `general-purpose` + `${CLAUDE_PLUGIN_ROOT}/templates/reviewer-prompt.md`). Scope = `git diff $(git merge-base <default-branch> HEAD)...HEAD` — never `HEAD~1`; empty diff → skip and say so. Dispatch the applicable reviewers **in parallel, one message**, each given the exact file list + the spec's acceptance criteria — never the builder's narrative, and never a "do not flag X" instruction: `code-reviewer` and `pr-test-analyzer` always; `silent-failure-hunter` if error handling changed; `type-design-analyzer` if types were added/changed. Reviewers are read-only — never dispatch `code-simplifier` here. **Fix loop, max 2 rounds:** fix Critical + Important findings (normal slice-style commits), re-dispatch only the agents that had findings. Still dirty after round 2 → proceed, but the run is DONE_WITH_CONCERNS and the open findings go in the report. Minor/suggestions → report, never the diff. Verdicts + fix commits go in the PROVE ledger row.
+- **Review gate first** — fresh-context reviewers are cheaper than a wasted e2e. Resolve "run the code review" via `.harness/map/review.md` (setup wrote the host's reviewers there — Claude Code: `pr-review-toolkit` agents, else `general-purpose` subagents; Codex: `codex review` / custom subagents; both fall back to this skill's `references/reviewer-prompt.md`, resolved per the Host section). Scope = `git diff $(git merge-base <default-branch> HEAD)...HEAD` — never `HEAD~1`; empty diff → skip and say so. Dispatch the applicable reviewers **in parallel, one message**, each given the exact file list + the spec's acceptance criteria — never the builder's narrative, and never a "do not flag X" instruction: `code-reviewer` and `pr-test-analyzer` always; `silent-failure-hunter` if error handling changed; `type-design-analyzer` if types were added/changed. Reviewers are read-only — never dispatch `code-simplifier` here. **Fix loop, max 2 rounds:** fix Critical + Important findings (normal slice-style commits), re-dispatch only the agents that had findings. Still dirty after round 2 → proceed, but the run is DONE_WITH_CONCERNS and the open findings go in the report. Minor/suggestions → report, never the diff. Verdicts + fix commits go in the PROVE ledger row.
 - **Run the full gate** — show the command, exit code, and the **expected test count** (from `.harness/map/gates.md`). A count below baseline without an explicit reason is a red flag — stop and explain.
 - **E2E** via the project's verify skill when one exists: interact like a user, assert observable state, screenshot. No verify skill (CLI/library repos) → demonstrate a real invocation of the changed behavior and show its output — the gate alone is not proof of usability. Two evidence-capture gotchas (pilot 4): a Node helper script that imports a project dep must live **inside that repo's directory** (copy in, run, `rm`) — ESM resolves bare specifiers from the script's location, not cwd, so a scratchpad-located helper fails with `ERR_MODULE_NOT_FOUND`; and transient UI (hover cards, toasts) vanishes before a separate screenshot call — pin the state via eval or capture within the same eval, don't hover-then-screenshot.
 - **Zero new console errors/warnings** (UI surfaces).
@@ -110,13 +120,13 @@ Walk this checklist (doc locations resolve via `.harness/map/docs.md`); update w
 
 Fix wrong content immediately (a wrong CLAUDE.md is worse than a missing one). Respect purity: glossary stays glossary; CLAUDE.md stays <200 lines (push detail into pointed-to docs).
 
-**Gotcha routing:** before writing any gotcha, ask *"would this bite in a different repo?"* Repo-specific → the relevant project skill's Gotchas or STATE.md. Universal (about the process, Claude Code, or common tooling) → *also* append a row to `.harness/plugin-outbox.md` (date · symptom → cause → fix · target plugin file · status `queued`; create from the `plugin-outbox.md` template if missing). The installed plugin is a frozen snapshot — the human runs `/builder-improve` against the plugin source to ingest the outbox.
+**Gotcha routing:** before writing any gotcha, ask *"would this bite in a different repo?"* Repo-specific → the relevant project skill's Gotchas or STATE.md. Universal (about the process, Claude Code, or common tooling) → *also* append a row to `.harness/plugin-outbox.md` (date · symptom → cause → fix · target plugin file · status `queued`; create from this skill's `assets/plugin-outbox.md` if missing). The installed plugin is a frozen snapshot — the human runs `/builder-improve` against the plugin source to ingest the outbox.
 
 **Mapping self-heal:** if this run successfully used a tool that a `.harness/map/` mapping says is "not wired" or "manual" (e.g. a tracker MCP that has since connected), update that mapping now with the verb → real command you actually ran.
 
 ### 2. Write the HTML report
 
-One self-contained file at `<run>/report.html`, built from the template at `${CLAUDE_PLUGIN_ROOT}/templates/report.html` — **read that file fresh with the Read tool; never reconstruct it from memory** (the template is versioned and evolves — a remembered copy drifts from the current CSS and section set).
+One self-contained file at `<run>/report.html`, built from this skill's `assets/report.html` (resolve per the Host section) — **read that file fresh with the Read tool; never reconstruct it from memory** (the template is versioned and evolves — a remembered copy drifts from the current CSS and section set).
 
 **The template is the single spec for the report's content and look.** Its head comment and each section's inline comments carry every rule — sections and which are always-present, evidence chips (✓ live · ◐ fixture/inference · ○ needs a human — never ✓ for something this run didn't observe) and their ship-gate tags, the reviewer triage block, diagram and caption rules, §5's harvest-never-invent contract, §7's reproduce/inspect/explore steps. Follow them from the file you just read, not from memory, and **keep the CSS untouched**. Two framing rules worth holding the whole time: the report is a *teaching document* that transfers ownership — a reviewer should finish it able to retell how the feature works and answer "what does the system do when X?" without reading the code; and everything in it is **harvested from the run's artifacts** (spec, plan, tests, marked code, shown output) — real output, real code, never fabricated or invented.
 

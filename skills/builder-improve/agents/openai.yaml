@@ -1,0 +1,9 @@
+interface:
+  display_name: "Builder — Improve"
+  short_description: "Fold queued universal gotchas from real runs into the plugin source."
+  default_prompt: "Use $builder-improve in the plugin source to ingest queued plugin-outbox gotchas, bump both manifests, and push."
+policy:
+  # Human-invoke-only: changing the plugin is a human decision (same trust
+  # boundary as plan approval). Codex analog of Claude Code's
+  # `disable-model-invocation: true`.
+  allow_implicit_invocation: false

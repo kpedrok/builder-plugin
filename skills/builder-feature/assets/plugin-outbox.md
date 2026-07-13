@@ -6,6 +6,6 @@ One row per gotcha (routing rule lives in the skills that write here):
 
 | Date | Symptom → cause → fix | Target plugin file | Status |
 | --- | --- | --- | --- |
-| <!-- YYYY-MM-DD --> | <!-- what broke → why → what to do instead --> | <!-- e.g. skills/builder-feature/SKILL.md, templates/project-skills/builder-run-local/SKILL.md --> | queued |
+| <!-- YYYY-MM-DD --> | <!-- what broke → why → what to do instead --> | <!-- e.g. skills/builder-feature/SKILL.md, skills/builder-setup-harness/assets/project-skills/builder-run-local/SKILL.md --> | queued |
 
 Status values: `queued` → `ingested: v<version> (date)` or `rejected: <reason>` (set by `/builder-improve`).

@@ -10,6 +10,8 @@ The pipeline stopped at the HTML report for the human's review. This skill takes
 
 Canonical verbs ("update the tracker") resolve through `.harness/map/` mappings; never hardcode a real command here.
 
+**Host.** Runs on Claude Code or Codex (`.harness/STATE.md`'s baseline records which). Invocation surfaces in prose (`/builder-ship`, `/builder-feature`) are Claude Code's; on Codex read them as `$builder-ship`, `$builder-feature`. Everything else here is host-neutral (git, `.harness/map/` verbs, the report).
+
 **Workspace shape** (gates.md opens with a repo registry): steps 2–4 run **per touched repo** (the repos the run's sizing line/slices named — the report's "How to ship it" section lists them). Code PRs come from the nested repos; harness artifacts (report, STATE, outbox, run archive) commit to the **workspace root**, which gets no PR — direct to its default branch. Whether that root commit is **pushed** follows gates.md's registry: private root remote → push; **shared** root (other contributors) → ask the human first; no remote → local commit only; `no root repo` recorded → skip root commits and the archive move, and say so. Single-repo installs: ignore this paragraph.
 
 ## Steps
@@ -22,7 +24,7 @@ Canonical verbs ("update the tracker") resolve through `.harness/map/` mappings;
 6. **Archive the run.** `git mv` the **whole run folder** `.harness/runs/<date>-<feature>/` to `.harness/archive/` (the plan's Status is DONE from REPORT) so resume scans stay clean and spec/plan/report travel together — and commit the move; the ship must end with a clean tree. Moving only part of the folder is a bug (pilot 3 orphaned an untracked report this way). While here: **if `.harness/STATE.md` is over ~150 lines, sweep its oldest Lessons and Gotchas rows into `.harness/archive/state-<year>.md`** (Decisions and Rejected never age out) and include the sweep in this commit.
 7. **Surface the outbox.** If `.harness/plugin-outbox.md` has rows still marked `queued`, tell the human in one line: "N plugin-level gotchas queued — run `/builder-improve` in the plugin source when convenient."
 8. **Offer teardown.** If the run left a local stack running for the e2e (services, DB, preview server), list what's up and offer to stop it — never assume.
-9. **Offer to babysit.** Suggest a recurring CI/review-comment check (e.g. `/loop 10m` where available) while the next ticket starts.
+9. **Offer to babysit.** Suggest a recurring CI/review-comment check while the next ticket starts — `/loop 10m` on Claude Code where available; on Codex, a scheduled `codex exec` check or an automation. Skip if neither is available.
 
 ## Rules
 

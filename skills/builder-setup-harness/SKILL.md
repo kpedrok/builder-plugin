@@ -8,6 +8,21 @@ disable-model-invocation: true
 
 Instrument the current project so work can flow through the `builder-feature` pipeline. Explicit invocation only. Target: ≤10 minutes, mostly detection.
 
+## Host (Claude Code or Codex — identify first, it changes where things land)
+
+The harness runs on either host. Detect which one is running this setup (Claude Code exposes `${CLAUDE_PLUGIN_ROOT}` / a `.claude/` home; Codex exposes `$CODEX_HOME` / `.agents/skills/` discovery / was installed via `codex plugin`). **Record the host in `.harness/STATE.md`'s baseline** (Step 3) so `builder-feature`/`builder-ship` don't re-detect. The `.harness/` layer itself is identical on both hosts; only these anchors differ, and each step below says which to use:
+
+| What | Claude Code | Codex |
+|---|---|---|
+| Bundled files (`assets/…`, `references/…`) | `${CLAUDE_PLUGIN_ROOT}/skills/builder-setup-harness/<path>` | this installed skill's own folder + `/<path>` |
+| Generated project skills go to | `.claude/skills/` | `.agents/skills/` (repo-shared scope) |
+| Permissions / config artifact | merge `assets/settings-snippet.json` → `.claude/settings.json` | merge `assets/config-snippet.toml` → the project's Codex config (`.codex/config.toml`, or `$CODEX_HOME/config.toml` `[projects."<path>"]`) — sets `sandbox_mode`/`approval_policy` and trusts the gate commands |
+| Instructions/pointer file | `CLAUDE.md` | `AGENTS.md` |
+| Review reviewers (written into `review.md`) | `pr-review-toolkit` agents if present, else `general-purpose` subagents | `codex review` / `codex exec review`, or custom subagents (`.codex/agents/*.toml`) |
+| Invocation surface (prose) | `/builder-feature` … | `$builder-feature` … |
+
+Where a step names a Claude Code path (`.claude/…`, `CLAUDE.md`), substitute the Codex column when the host is Codex.
+
 **Hard rule that governs everything below: run every command before you write it into a skill, mapping, or STATE.md. An unverified command is a liability, not an asset.** If a command you expected to exist doesn't work, stop and ask — never write a guessed command.
 
 **Interactive commands hang autonomous runs.** Some CLIs prompt and block forever (e.g. `prisma migrate dev`, unscoped `git rebase -i`, first-run auth). Prefer the non-interactive variant (`prisma migrate deploy` / `migrate status`), and when you write such a command into a skill, record the non-interactive form + a Gotcha noting the interactive one hangs. If a setup command stalls, don't wait it out — kill it, find the non-interactive path, and move on.
@@ -41,31 +56,31 @@ Stop asking as soon as the gaps are closed.
 
 ## Step 3 — Scaffold (write config, state, pointers)
 
-Everything the harness installs and maintains lives under **`.harness/`** (plus generated skills in `.claude/skills/` and the pointer block in CLAUDE.md — locations Claude Code dictates). One directory answers "what did the harness put here?".
+Everything the harness installs and maintains lives under **`.harness/`** (plus generated skills and the pointer block, which go in host-dictated locations — see the Host table). One directory answers "what did the harness put here?".
 
-**Workspace shape — everything harness-owned stays at the workspace root.** Nested repos have their own remotes, owners, and reviewers; never write `.harness/`, skills, or CLAUDE.md blocks into them. Runs, reports, STATE, outbox, generated skills — root only. Per-repo CLAUDE.md files (conventions local to one repo, loaded on demand when Claude reads there) are worth **recommending to the human** at the end of setup — but they're that repo's property; never auto-write one into a nested repo without an explicit yes.
+**Workspace shape — everything harness-owned stays at the workspace root.** Nested repos have their own remotes, owners, and reviewers; never write `.harness/`, skills, or pointer blocks into them. Runs, reports, STATE, outbox, generated skills — root only. Per-repo instructions files (`CLAUDE.md`/`AGENTS.md` — conventions local to one repo, loaded on demand when the agent reads there) are worth **recommending to the human** at the end of setup — but they're that repo's property; never auto-write one into a nested repo without an explicit yes.
 
 Create in the target project:
 
 - **`.harness/map/` mappings** — the config-indirection layer. Canonical verbs → real commands for THIS repo. At minimum:
   - `.harness/map/tracker.md` — "fetch the ticket", "post the spec back", "mark ready", label vocabulary → the real MCP tool / CLI. No tracker? Record that here — `builder-ship` then skips its tracker step.
-  - `.harness/map/docs.md` — where docs live: specs write path (default: the run folder, `.harness/runs/<YYYY-MM-DD>-<feature>/spec.md` — each `/builder-feature` run colocates its spec, plan, and report in one dated folder; `/builder-ship` archives the folder whole), glossary/CONTEXT location, ADR dir. ALIGN and the doc-sync step resolve through this. Include a short **Doc-sync checklist** section — condense the `builder-feature` skill's REPORT doc-sync table (read it from `${CLAUDE_PLUGIN_ROOT}/skills/builder-feature/SKILL.md`) so ad hoc sessions have something concrete to walk.
+  - `.harness/map/docs.md` — where docs live: specs write path (default: the run folder, `.harness/runs/<YYYY-MM-DD>-<feature>/spec.md` — each `/builder-feature` run colocates its spec, plan, and report in one dated folder; `/builder-ship` archives the folder whole), glossary/CONTEXT location, ADR dir. ALIGN and the doc-sync step resolve through this. Include a short **Doc-sync checklist** section — condense it from this skill's `references/doc-sync-checklist.md` (resolve per the Host table) so ad hoc sessions have something concrete to walk.
   - `.harness/map/gates.md` — "run the quick gate" / "run the full gate" / "run the build" → the real commands, each with its expected test count. **Workspace shape:** open the file with the workspace shape line and a **repo registry** (one row per nested repo: path · remote · default branch · kind), then one verb→command block **per repo** — gates are per-repo by definition; a run resolves "run the gate" through the repo(s) its sizing line names. Single shape: one block, unchanged.
   - `.harness/map/paths.md` — protected/append-only paths, forbidden actions.
-  - `.harness/map/review.md` — how "run the code review" resolves. Probe whether the `pr-review-toolkit` agents are available (is `pr-review-toolkit:code-reviewer` a listed agent type?). Not installed → ask the human once, recommended yes: "Install Anthropic's pr-review-toolkit (specialized review agents the pipeline uses before e2e and before the PR)? `/plugin marketplace add anthropics/claude-plugins-official` then `/plugin install pr-review-toolkit@claude-plugins-official` — takes effect after a restart." Write the mapping either way: **preferred** = the plugin's agents; **fallback** (not installed / declined) = one `general-purpose` subagent per axis using `${CLAUDE_PLUGIN_ROOT}/templates/reviewer-prompt.md`. Record the default branch name here too — review scope diffs against its merge-base. (Workspace shape: default branches live per-repo in gates.md's registry; point at that instead of duplicating.)
+  - `.harness/map/review.md` — how "run the code review" resolves. **Claude Code:** probe whether the `pr-review-toolkit` agents are available (is `pr-review-toolkit:code-reviewer` a listed agent type?). Not installed → ask the human once, recommended yes: "Install Anthropic's pr-review-toolkit (specialized review agents the pipeline uses before e2e and before the PR)? `/plugin marketplace add anthropics/claude-plugins-official` then `/plugin install pr-review-toolkit@claude-plugins-official` — takes effect after a restart." Preferred = the plugin's agents; fallback (not installed / declined) = one `general-purpose` subagent per axis. **Codex:** map the axes to `codex review` / `codex exec review` for the always-on pass, and to custom subagents (`.codex/agents/*.toml`) for the conditional axes; note that `codex review` is coarser than the per-axis agents. **Both:** the fallback subagent prompt is this skill's `references/reviewer-prompt.md` (resolve per the Host table). Record the default branch name here too — review scope diffs against its merge-base. (Workspace shape: default branches live per-repo in gates.md's registry; point at that instead of duplicating.)
   - `.harness/map/design.md` *(frontend/fullstack only)* — where components live, which library/tokens to reuse, Storybook URL if any. Pointers to the detected inventory, not a style guide — this is what "reuse the design system" resolves to.
 - **`.harness/product.md`** — from the `product.md` template: purpose, personas, success signals, non-goals ("not doing, and why"), as confirmed in Step 2. One page max. If the project already has an equivalent doc, point to it from here instead of duplicating.
-- **`.harness/STATE.md`** — from the `STATE.md` template. Record the installed harness version (from this plugin's `plugin.json`) in the baseline section; leave the gate baselines for Step 5.
-- **Permissions** — merge `templates/settings-snippet.json` into the project's `.claude/settings.json`. Tune the permissions allowlist to the detected stack (add the gate commands so they don't prompt), and the Read-deny list to what's actually generated/vendored here — drop a deny that would block real source (e.g. a repo whose `build/` is hand-written), add ones detection found (committed codegen dirs, vendored SDKs). Merge — never clobber an existing settings.json; show the diff. **Expect this write to be denied** in auto mode (the classifier blocks self-modification of permission rules — pilot 2). Fallback ladder: (1) ask the human via `AskUserQuestion` to approve the write interactively; (2) still blocked → write the merged JSON to `.harness/settings-suggested.json` and tell the human in one line to move it. Never leave the snippet only as chat text.
-- **`## Harness` block in CLAUDE.md** — pointers only, not content. A few lines: "this project uses the builder harness; run features via the `builder-feature` skill; gate commands live in `.harness/map/gates.md`; state in `.harness/STATE.md`." **Workspace shape:** the block goes in the **root** CLAUDE.md and includes a one-line repo map ("`<path>` — <kind, stack>; PR per repo" per nested repo) so any session is oriented before it reads anything else. Plus two session-hygiene rules that catch work done OUTSIDE the pipeline (the pipeline's REPORT step already enforces them; ad hoc sessions have nothing else):
+- **`.harness/STATE.md`** — from this skill's `assets/STATE.md` shape. Record the installed harness version (from this plugin's `plugin.json`) **and the detected host** (Claude Code / Codex) in the baseline section; leave the gate baselines for Step 5.
+- **Permissions / config** — **Claude Code:** merge this skill's `assets/settings-snippet.json` into the project's `.claude/settings.json`. Tune the permissions allowlist to the detected stack (add the gate commands so they don't prompt), and the Read-deny list to what's actually generated/vendored here — drop a deny that would block real source (e.g. a repo whose `build/` is hand-written), add ones detection found (committed codegen dirs, vendored SDKs). Merge — never clobber an existing settings.json; show the diff. **Expect this write to be denied** in auto mode (the classifier blocks self-modification of permission rules — pilot 2). Fallback ladder: (1) ask the human to approve the write interactively; (2) still blocked → write the merged JSON to `.harness/settings-suggested.json` and tell the human in one line to move it. **Codex:** merge this skill's `assets/config-snippet.toml` instead — set `sandbox_mode = "workspace-write"` and an `approval_policy` the human accepts, and trust the project path so gate commands don't prompt; write it to the project's Codex config (or, if that write is blocked, to `.harness/config-suggested.toml` with the same one-line fallback). Never leave the snippet only as chat text.
+- **`## Harness` pointer block** in the host's instructions file — `CLAUDE.md` on Claude Code, `AGENTS.md` on Codex. Pointers only, not content. A few lines: "this project uses the builder harness; run features via the `builder-feature` skill; gate commands live in `.harness/map/gates.md`; state in `.harness/STATE.md`." **Workspace shape:** the block goes in the **root** instructions file and includes a one-line repo map ("`<path>` — <kind, stack>; PR per repo" per nested repo) so any session is oriented before it reads anything else. Plus two session-hygiene rules that catch work done OUTSIDE the pipeline (the pipeline's REPORT step already enforces them; ad hoc sessions have nothing else):
   - "**After finishing any piece of work** — even outside `/builder-feature` — walk the doc-sync checklist in `.harness/map/docs.md`: update whatever the session invalidated, STATE.md always, and route gotchas (universal ones also go to `.harness/plugin-outbox.md`)."
-  - "If this file itself became wrong during the session, fix it now — a wrong CLAUDE.md is worse than a missing one."
+  - "If this file itself became wrong during the session, fix it now — a wrong instructions file is worse than a missing one."
 
   Phrase the trigger as "after finishing any piece of work", never "at the end of the session" — session end is not a moment the model can observe.
 
 ## Step 4 — Generate project-owned skills
 
-Based on the detected repo type, instantiate templates from `${CLAUDE_PLUGIN_ROOT}/templates/project-skills/` into the project's `.claude/skills/` (names keep the `builder-` prefix so every harness skill groups together in the `/` typeahead):
+Based on the detected repo type, instantiate templates from this skill's `assets/project-skills/` (resolve per the Host table) into the host's project-skill location — `.claude/skills/` on Claude Code, `.agents/skills/` on Codex (names keep the `builder-` prefix so every harness skill groups together in the `/` or `$` typeahead):
 
 | Detected             | Generate                                                      |
 | -------------------- | ------------------------------------------------------------- |
@@ -76,7 +91,7 @@ Based on the detected repo type, instantiate templates from `${CLAUDE_PLUGIN_ROO
 
 Fill every `<!-- setup fills -->` marker and ALLCAPS placeholder with the real commands and URLs for this repo — **and run each one to confirm it works before writing it in.** These skills are project property; they live in the project and evolve there.
 
-**Workspace shape:** generate per nested repo (a frontend repo gets `builder-verify-ui`, an API repo `builder-verify-api`, …) but install them all in the **root** `.claude/skills/` — never inside a nested repo (Step 3's workspace rule). Scope each by uncommenting the template's `paths:` frontmatter line with its repo's glob (e.g. `paths: ["frontend-repo/**"]`) so it auto-loads when working with that repo's files, and suffix colliding names with the repo (`builder-verify-ui-<repo>`) if two repos need the same skill.
+**Workspace shape:** generate per nested repo (a frontend repo gets `builder-verify-ui`, an API repo `builder-verify-api`, …) but install them all in the **root** project-skill location (`.claude/skills/` or `.agents/skills/` per host) — never inside a nested repo (Step 3's workspace rule). On Claude Code, scope each by uncommenting the template's `paths:` frontmatter line with its repo's glob (e.g. `paths: ["frontend-repo/**"]`) so it auto-loads when working with that repo's files; if the host doesn't support path-scoped auto-load (Codex today), leave them explicit-invoke and note it. Suffix colliding names with the repo (`builder-verify-ui-<repo>`) if two repos need the same skill.
 
 The project may already have equivalent skills (its own verify/run/test skills). **Reuse, don't duplicate:** map the harness verb to the existing skill in the relevant `.harness/map/` mapping and skip generating that template — note the reuse in the setup report.
 
@@ -88,7 +103,7 @@ The project may already have equivalent skills (its own verify/run/test skills).
 
 ## Step 6 — Commit the install
 
-An unstaged improvement didn't happen. Stage everything the setup wrote (`.harness/`, `.claude/skills/`, CLAUDE.md, settings) and commit: `chore: install builder harness v<version>`. If anything (including this skill's own later edits in the same session) changes a harness file after this commit, re-stage and amend or add a follow-up commit — never leave harness files drifting between index and worktree.
+An unstaged improvement didn't happen. Stage everything the setup wrote (`.harness/`, the generated skills, the instructions file, the permissions/config artifact) and commit: `chore: install builder harness v<version>`. If anything (including this skill's own later edits in the same session) changes a harness file after this commit, re-stage and amend or add a follow-up commit — never leave harness files drifting between index and worktree.
 
 ## Done
 
@@ -117,8 +132,8 @@ Before writing a gotcha, ask: **"would this bite in a different repo?"**
 - A gate command recorded without its expected test count
 - Recording a full-gate baseline assembled from separately-run components
 - Finishing without having exercised each generated skill end-to-end
-- Clobbering an existing `.claude/settings.json` instead of merging
-- Workspace shape: any harness-owned file (`.harness/`, skills, CLAUDE.md block) written inside a nested repo
+- Clobbering an existing permissions/config file (`.claude/settings.json` or the Codex config) instead of merging
+- Workspace shape: any harness-owned file (`.harness/`, skills, pointer block) written inside a nested repo
 - Workspace shape: a gates.md without the repo registry, or a baseline not recorded per-repo
 - CLAUDE.md `## Harness` block growing past a few pointer lines
 - Ending the session with harness files unstaged or uncommitted

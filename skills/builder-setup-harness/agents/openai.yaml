@@ -1,0 +1,9 @@
+interface:
+  display_name: "Builder — Setup Harness"
+  short_description: "Instrument a project for the builder pipeline (run once)."
+  default_prompt: "Use $builder-setup-harness to instrument this project: detect the stack, generate the .harness/ layer + project skills, and prove the gates work."
+policy:
+  # Human-invoke-only: the model must never trigger instrumenting a project.
+  # This is the Codex analog of Claude Code's `disable-model-invocation: true`
+  # in the SKILL.md frontmatter.
+  allow_implicit_invocation: false

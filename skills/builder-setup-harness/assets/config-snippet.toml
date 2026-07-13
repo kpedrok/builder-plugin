@@ -1,0 +1,24 @@
+# Codex config snippet — merge into the project's Codex config
+# (`.codex/config.toml` in the repo, or `$CODEX_HOME/config.toml`).
+# This is the Codex analog of `settings-snippet.json` for Claude Code:
+# it lets the pipeline run its gates without prompting on every command.
+#
+# Codex uses an OS-level sandbox + an approval policy instead of Claude Code's
+# allow/deny permission lists — so there is no direct equivalent of the
+# Read-deny globs; the sandbox already scopes writes to the workspace.
+#
+# Setup tunes these to the human's comfort and the detected stack, then merges
+# (never clobbers) — show the diff first.
+
+# Scope file writes to the workspace; ask before anything outside it.
+sandbox_mode = "workspace-write"
+
+# How often Codex pauses for approval. "on-request" is the safe default;
+# "on-failure" runs more autonomously (closer to the pipeline's post-approval
+# phases). Pick with the human.
+approval_policy = "on-request"
+
+# Trust this project's path so routine gate commands don't re-prompt.
+# Replace <ABSOLUTE_PROJECT_PATH> with the repo/workspace root.
+[projects."<ABSOLUTE_PROJECT_PATH>"]
+trust_level = "trusted"
