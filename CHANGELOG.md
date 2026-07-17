@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.13.0 — 2026-07-17
+
+**Standalone `builder-report` skill + §12 comprehension quiz.** Inputs: Geoffrey Litt's AIE thread ("understanding is the new bottleneck") + his `explain-diff-html` gist, a survey of 8 framework repos, and the in-house momentus `product-decision-brief` skill (`Design/Report v5` note in the vault).
+
+- **`builder-report` extracted as the fifth skill** — the report now works without the pipeline. Owns `assets/report.html` (moved from `builder-feature`); input ladder: run folder → user-passed diff/PR/branch → this session's merge-base diff. **Degradation contract:** a missing artifact downgrades provenance, never invents — no spec ⇒ §2 "asked" harvested from conversation/ticket and marked ◐; no PROVE evidence ⇒ run the gate now (✓) or mark ○. Standalone reports are naturally ◐/○-heavier; that's the honest shape. Prior art: mattpocock `code-review` (standalone + pipeline-invoked, spec-discovery ladder, optional axes skip); negative example avoided: official `feature-dev` re-implementing `pr-review-toolkit`'s reviewer — two divergent copies of one capability.
+- **`builder-feature` REPORT step 2 now delegates by skill name** (`/builder-report` / `$builder-report`) — never by cross-skill file path, so the v0.12.0 Codex constraint (skills resolve only their own directory) is never re-triggered. Doc sync stays pipeline-side; ledger tick + STOP unchanged.
+- **§12 "To internalize" → interactive multiple-choice quiz** (first `<script>` in the template; vanilla, self-contained, file://-safe). Questions harvested from §5 rules/edges + spec ACs; the correct answer is pinned to run evidence and the reveal links to the proving section ("you saw this in §7 step N"); **distractors are explicitly exempt from harvest-never-invent** (labeled wrong by construction — stated in the template so a future run doesn't refuse to write them) and must be plausible (○/◐ edges, §8's rejected option); all options same length/register so formatting leaks no clue (mattpocock `teach`). Retrieval practice over re-reading — the mechanism behind the report's ownership-transfer purpose, not decoration.
+- **"Needed:" line on every ○** (§5 edge rows, §10, hero triage): the exact question a one-line reply resolves — a ○ without it is a flag, not an ask (stolen from `product-decision-brief`). §10 items additionally label pre-existing issues "pre-existing, not caused here" so the section doesn't read as defects of this PR.
+- **§1 opens with a "before" rung** — 2–3 sentences on what the existing system did pre-change and where the change sits (Litt's Background: broad → narrow), for reviewers who don't know that corner of the repo.
+- **Report verification hardened** (in `builder-report`): tag-balance count check (`file://` pages don't surface a broken tree), light+dark render, one quiz click-through.
+- Deferred (recorded in the design note): §7 micro-worlds (reproduce/inspect/explore already covers learn-by-doing); promoting `product-decision-brief` into the plugin (wait for a second consumer repo). Open validation: pilot 7 must exercise both the pipeline delegation and a standalone spec-less `/builder-report`; Codex end-to-end remains untested (standing v0.12.0 caveat).
+
 ## 0.12.0 — 2026-07-13
 
 **Dual-host: builder now runs on OpenAI Codex as well as Claude Code.** The `.harness/` project layer was already host-agnostic (plain markdown); this release makes the *plugin* (the process) host-neutral. One source of truth — the same four `SKILL.md` skills run on both hosts; only per-skill anchors differ.

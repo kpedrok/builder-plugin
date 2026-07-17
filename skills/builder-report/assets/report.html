@@ -7,8 +7,8 @@
 <!--
   TEMPLATE RULES (delete this comment block in the generated report):
   · Fill every REPLACE. OMIT a whole section if it's genuinely empty (don't leave "n/a" headers) —
-    except sections 2, 5, 6, 7 and 9, which are always present. Keep the nav links in sync with the
-    sections you keep (delete links to omitted sections).
+    except the hero triage block and sections 2, 5, 6, 7, 9 and 12, which are always present.
+    Keep the nav links in sync with the sections you keep (delete links to omitted sections).
   · EVIDENCE CHIPS — every claim wears how it was verified:
       <span class="chip live">✓</span>   verified live this run (command ran, test passed, UI driven)
       <span class="chip fixture">◐</span> from fixture/inference (test data, code reading, derived)
@@ -60,6 +60,25 @@
     WHEN the human must act — <span class="gate">decide before ship</span> /
     <span class="gate watch">ship, then watch</span> / <span class="gate ok">fine as-is</span>.
     Every "decide before ship" item must also appear in the hero triage links.
+  · "Needed:" on ○: every ○ item (§5 edge rows, §10, hero triage links) also carries
+    "Needed: <the exact question>" — phrased so a ONE-LINE reply from the human resolves it
+    ("Needed: is 200-empty the right response when the lake is down, or should it 503?").
+    A ○ without a Needed line is a flag, not an ask — the reader shouldn't have to derive
+    the question themselves.
+  · Quiz (§12, always present): 3–5 interactive multiple-choice questions. HARVEST the questions
+    from §5's rules/edges and the spec's acceptance criteria — never invented trivia; at least one
+    targets the §7 explore step's business rule. The CORRECT answer is pinned to run evidence and
+    the .why box links to the proving section/chip ("you saw this in §7 step N"). DISTRACTORS are
+    exempt from harvest-never-invent — they are labeled wrong by construction; make them PLAUSIBLE
+    (the behavior a reviewer would assume without reading; good sources: the ○/◐ edges, the
+    rejected option in §8). All options in a question must be the SAME length and register — no
+    formatting clue to the answer. Keep the inline <script> at the bottom verbatim.
+  · Standalone runs (no spec/plan/run folder — invoked via the builder-report skill on a bare
+    diff/PR/session): every section still applies; harvest each from the best available source
+    (conversation, ticket, git log, a test run you trigger) and DOWNGRADE the chip to match
+    (◐ for inferred asks, ○ for anything unobserved) — a sparser, honest report beats an
+    invented complete one. §9 rows that reference the `.harness/` layer are n/a in an
+    uninstrumented repo — mark them n/a, never stamp their default ✓.
   · Section verdict lines: §4, §5 and §6 open with a one-line .sectionlede stating the section's
     takeaway ("Five rules, all pinned by tests; one edge left open — §10") so a heading-only
     scanner still gets the verdict.
@@ -354,18 +373,26 @@
   figcaption .fig-n { font-weight: 700; color: var(--ink); margin-right: .3rem; }
   svg { max-width: 100%; height: auto; }
 
-  /* Internalize */
-  details { border-bottom: 1px solid var(--line); padding: .55rem 0; }
-  details:last-child { border-bottom: none; }
-  summary { cursor: pointer; font-weight: 600; font-size: .95rem; }
-  details p { margin: .5rem 0 .2rem; color: var(--muted); font-size: .92rem; }
-
   ul { padding-left: 1.25rem; } li { margin: .3rem 0; }
   ol { padding-left: 1.35rem; } ol li { margin: .35rem 0; }
 
   /* Footer meta */
   .meta { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: .82rem; color: var(--muted); }
   .meta p { margin: .25rem 0; }
+  /* §12 quiz */
+  .quiz .q { margin: 0 0 1.25rem; }
+  .quiz .q:last-child { margin-bottom: 0; }
+  .quiz .stem { font-weight: 600; margin: 0 0 .55rem; }
+  .quiz .opt {
+    display: block; width: 100%; text-align: left; margin: 0 0 .45rem; padding: .5rem .75rem;
+    border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2);
+    color: var(--ink); font: inherit; font-size: .92rem; line-height: 1.5; cursor: pointer;
+  }
+  .quiz .opt:hover:not(:disabled) { border-color: var(--accent); }
+  .quiz .opt:disabled { cursor: default; opacity: .65; }
+  .quiz .opt.right { border-color: var(--pass); background: var(--pass-soft); color: var(--ink); opacity: 1; }
+  .quiz .opt.wrong { border-color: var(--fail); background: var(--fail-soft); color: var(--ink); opacity: 1; }
+  .quiz .why { margin: .6rem 0 .2rem; padding: .6rem .8rem; border-left: 3px solid var(--pass); background: var(--pass-soft); border-radius: 0 8px 8px 0; font-size: .92rem; }
 </style>
 </head>
 <body>
@@ -430,7 +457,7 @@
   <p><span class="k">Spend your review here</span></p>
   <ol>
     <li><a href="#REPLACE">REPLACE — riskiest seam/decision</a> — REPLACE why human judgment matters here</li>
-    <li><a href="#REPLACE">REPLACE — the open ○ item</a> — REPLACE what needs deciding</li>
+    <li><a href="#REPLACE">REPLACE — the open ○ item</a> — REPLACE what needs deciding. <em>Needed: REPLACE — the question a one-line reply resolves.</em></li>
   </ol>
   <p class="notouch"><strong>Not touched:</strong> REPLACE — the scary things this change does NOT do, from the spec's out-of-scope + the diff ("no existing table altered · no auth path · no data deletion · additive migration only").</p>
 </div>
@@ -438,10 +465,13 @@
 
 <h2 id="story"><span class="n">1</span>The story</h2>
 <div class="story">
-  <!-- 5–10 sentences of PROSE, no tables/bullets. The problem as the user experiences it →
-       the shape of the solution → how data flows end-to-end. This is what the reader
-       should be able to retell from memory. -->
-  <p>REPLACE</p>
+  <!-- 5–10 sentences of PROSE, no tables/bullets. OPEN with 2–3 sentences of BEFORE: what the
+       existing system did in this area pre-change and where this change sits in it (broad →
+       narrow) — written for a reviewer who doesn't know this corner of the repo. Then: the
+       problem as the user experiences it → the shape of the solution → how data flows
+       end-to-end. This is what the reader should be able to retell from memory. -->
+  <p>REPLACE — before: what the system did here until now, and where this change plugs in.</p>
+  <p>REPLACE — the problem, the solution's shape, the end-to-end flow.</p>
 </div>
 
 <h2 id="acs"><span class="n">2</span>Asked vs. built</h2>
@@ -560,7 +590,7 @@
     <tbody>
       <tr><td>REPLACE — e.g. "no past event matches any keyword"</td><td>REPLACE — e.g. "200, empty items, status stays Available"</td><td>REPLACE — which rule produces this</td><td><span class="chip live" title="verified live this run">✓</span></td></tr>
       <tr><td>REPLACE — e.g. "the data lake is unreachable"</td><td>REPLACE — e.g. "empty Unavailable response, not a 500"</td><td>REPLACE</td><td><span class="chip fixture" title="from fixture / inference">◐</span></td></tr>
-      <tr><td>REPLACE — an edge NOBODY pinned, stated honestly</td><td>REPLACE — "unpinned: no test or run covers this; expected X but unverified"</td><td>REPLACE</td><td><span class="chip human" title="needs a human">○</span> <span class="gate watch">ship, then watch</span></td></tr>
+      <tr><td>REPLACE — an edge NOBODY pinned, stated honestly</td><td>REPLACE — "unpinned: no test or run covers this; expected X but unverified". <em>Needed: REPLACE — the one-line question that pins it.</em></td><td>REPLACE</td><td><span class="chip human" title="needs a human">○</span> <span class="gate watch">ship, then watch</span></td></tr>
     </tbody>
   </table>
 </div>
@@ -711,7 +741,7 @@ REPLACE</pre>
      also appear in the hero triage links). Also list here any behavior deliberately descoped in
      section 8 that could become a follow-up ticket. -->
 <ul>
-  <li><strong>REPLACE</strong> — out-of-scope finding. <em>Proof: <code>REPLACE command/file that shows it</code>.</em> <em>Suggested: ticket / ignore / monitor.</em> <span class="chip human" title="needs a human">○</span> <span class="gate watch">ship, then watch</span></li>
+  <li><strong>REPLACE</strong> — out-of-scope finding (label pre-existing issues "pre-existing, not caused here" so this list doesn't read as defects of this PR). <em>Proof: <code>REPLACE command/file that shows it</code>.</em> <em>Suggested: ticket / ignore / monitor.</em> <em>Needed: REPLACE — the question a one-line reply resolves.</em> <span class="chip human" title="needs a human">○</span> <span class="gate watch">ship, then watch</span></li>
 </ul>
 
 <h2 id="ship"><span class="n">11</span>How to ship it</h2>
@@ -731,20 +761,45 @@ REPLACE</pre>
 </div>
 
 <h2 id="internalize"><span class="n">12</span>To internalize</h2>
-<!-- 3–5 questions a reviewer should be able to answer after reading this report. One-line answers
-     behind <details>. Where the answer was SEEN in §7 (a step's output, the predict-vs-actual gap),
-     end the answer with "(you saw this in §7 step N)" — a question whose answer the reader
-     discovered with their own hands sticks; at least one question should target the §7 explore
-     step's business rule. -->
-<div class="card">
-  <details><summary>REPLACE — e.g. "Why a dedicated table instead of columns on the existing one?"</summary><p>REPLACE one-line answer.</p></details>
-  <details><summary>REPLACE — target the §7 explore step's rule, e.g. "What limits the fan-out when history is huge?"</summary><p>REPLACE one-line answer (you saw this in §7 step 4).</p></details>
+<!-- 3–5 interactive multiple-choice questions the reader answers by CLICKING — retrieval practice,
+     not re-reading (see the quiz rule in the template head: harvested questions, evidence-pinned
+     correct answer, plausible same-length distractors — distractors are exempt from
+     harvest-never-invent, they're labeled wrong by construction). Exactly one option per question
+     has data-k="1". The .why box opens after any pick: restate the right answer, say why the
+     tempting distractor is wrong, and link the proving section ("you saw this in §7 step N").
+     At least one question targets the §7 explore step's business rule. -->
+<div class="card quiz">
+  <div class="q">
+    <p class="stem">1. REPLACE — a "what does the system do when X?" question from §5, e.g. "What happens when no past event matches any keyword?"</p>
+    <button class="opt" data-k="0">REPLACE — plausible distractor, same length and register as the others</button>
+    <button class="opt" data-k="1">REPLACE — the observed behavior, pinned by a test or live run</button>
+    <button class="opt" data-k="0">REPLACE — plausible distractor (a ◐/○ edge or the §8 rejected option works well)</button>
+    <div class="why" hidden><strong>REPLACE — the right answer restated in one line.</strong> REPLACE — why, and why the tempting distractor is wrong. Evidence: <a href="#rules">§5</a> · <a href="#try">§7 step N</a> (you saw this in §7 step N).</div>
+  </div>
+  <div class="q">
+    <p class="stem">2. REPLACE — target the §7 explore step's rule, e.g. "What limits the fan-out when history is huge?"</p>
+    <button class="opt" data-k="1">REPLACE — correct</button>
+    <button class="opt" data-k="0">REPLACE — distractor</button>
+    <button class="opt" data-k="0">REPLACE — distractor</button>
+    <div class="why" hidden><strong>REPLACE.</strong> REPLACE. Evidence: <a href="#try">§7 step N</a>.</div>
+  </div>
 </div>
+<script>
+for (const q of document.querySelectorAll('.quiz .q')) {
+  for (const o of q.querySelectorAll('.opt')) o.addEventListener('click', () => {
+    if (q.classList.contains('done')) return;
+    q.classList.add('done');
+    for (const b of q.querySelectorAll('.opt')) { b.disabled = true; if (b.dataset.k === '1') b.classList.add('right'); }
+    if (o.dataset.k !== '1') o.classList.add('wrong');
+    q.querySelector('.why').hidden = false;
+  });
+}
+</script>
 
 <div class="meta">
   <p><strong>Left running:</strong> REPLACE (dev server, DB, mocks) / nothing.</p>
   <p><strong>Related:</strong> REPLACE — ticket links, STATE entries, ADRs, predecessor branches.</p>
-  <p>Reflects the repo at <code>REPLACE_HEAD_COMMIT</code> on REPLACE_DATE — evidence chips record what was true at generation time; re-verify before relying on them later. Generated by the builder harness · report template v0.11.0.</p>
+  <p>Reflects the repo at <code>REPLACE_HEAD_COMMIT</code> on REPLACE_DATE — evidence chips record what was true at generation time; re-verify before relying on them later. Generated by the builder harness · report template v0.13.0.</p>
 </div>
 
 </body>

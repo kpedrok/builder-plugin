@@ -81,7 +81,7 @@ Commits the work, opens a PR with the report's evidence linked, and updates your
 
 ## The one idea behind everything: process vs. facts
 
-The plugin is **process** — the four skills are byte-for-byte identical in every repo you install it into. They never contain a real test command, a real branch name, or a real tracker call. Instead they speak in **canonical verbs** ("run the full gate", "fetch the ticket", "run the code review").
+The plugin is **process** — the five skills are byte-for-byte identical in every repo you install it into. They never contain a real test command, a real branch name, or a real tracker call. Instead they speak in **canonical verbs** ("run the full gate", "fetch the ticket", "run the code review").
 
 Each project holds the **facts** — everything specific to *this* repo — in a `.harness/` directory. Setup writes a thin indirection layer there that maps each canonical verb to the real command for this repo. So the same skill drives a Bun monorepo, a Django API, and a Rust CLI without a line of difference: only the facts under `.harness/` change.
 
@@ -101,7 +101,7 @@ ALIGN → PLAN → [ you approve ] → BUILD → PROVE → REPORT → [ you revi
 | **PLAN** | Weigh 2–3 approaches, break the spec into small vertical slices, name exact files per slice. **You approve before any code is written** — this is the human gate. | A **plan** file with a scope guard and a progress ledger; its Status line reads `APPROVED`. |
 | **BUILD** | Per slice, strictly test-first: failing test shown → minimal code to pass → commit. One commit per slice, staging only that slice's files. | Each slice's failing-then-passing test, shown in the transcript; the ledger updated per commit. |
 | **PROVE** | Fresh-context review agents on the diff (a bounded fix loop), the full test suite, then the feature driven end-to-end like a user. | Review verdicts, gate output with test count, screenshots / real invocation output. |
-| **REPORT** | Sync docs, then write a teaching HTML report of what changed and how. **Then it stops.** | A self-contained `report.html`; nothing committed to main. |
+| **REPORT** | Sync docs, then delegate to `/builder-report` for a teaching HTML report of what changed and how. **Then it stops.** | A self-contained `report.html`; nothing committed to main. |
 
 Two boundaries are deliberate: **you approve the plan** before autonomous work starts, and **you review the report** before anything ships. `/builder-ship` is the only thing that commits to main, opens PRs, and touches your tracker — and it can only be run by you, never by the model.
 
@@ -210,6 +210,7 @@ Repo-specific lessons stay local (in `STATE.md` or a project skill's Gotchas); o
 |---|---|---|
 | `/builder-setup-harness` | you (once per project) | Instruments a project — detects the stack, generates the `.harness/` layer and project skills, proves the gates work. |
 | `/builder-feature` | you or the model | Runs the ALIGN → PLAN → BUILD → PROVE → REPORT pipeline. |
+| `/builder-report` | you, the model, or the pipeline | Writes the ownership-transfer HTML report — from a run folder when the pipeline calls it, or standalone on any diff/PR/session (missing artifacts downgrade evidence chips, never get invented). |
 | `/builder-ship` | **you only** | Commits, opens the PR with the report's evidence, updates the tracker — after you've reviewed. |
 | `/builder-improve` | you (in the plugin source) | Folds queued universal gotchas from real runs back into the plugin. |
 
@@ -221,7 +222,7 @@ Repo-specific lessons stay local (in `STATE.md` or a project skill's Gotchas); o
 
 The plugin source is organized to mirror the process/facts split:
 
-- **`skills/`** — the four universal skills. Identical in every install; contain no repo-specific facts. Each carries its own bundled seeds under `assets/` (stamped/instantiated into a project — `product.md`, `STATE.md`, `settings-snippet.json`, `config-snippet.toml`, `project-skills/`, the `spec.md`/`plan.md`/`plugin-outbox.md` shapes, `report.html`) and `references/` (read live from the skill — `reviewer-prompt.md`, `goal-conditions.md`, `doc-sync-checklist.md`), plus `agents/openai.yaml` (Codex UI metadata). **Bundled files live inside their one consuming skill** so both hosts resolve them the same way — Codex skills can only read their own directory, and this also drops `${CLAUDE_PLUGIN_ROOT}` from the Claude side. Universal lessons land in these seeds so **future installs inherit them**.
+- **`skills/`** — the five universal skills. Identical in every install; contain no repo-specific facts. Each carries its own bundled seeds under `assets/` (stamped/instantiated into a project — `product.md`, `STATE.md`, `settings-snippet.json`, `config-snippet.toml`, `project-skills/`, the `spec.md`/`plan.md`/`plugin-outbox.md` shapes, `report.html`) and `references/` (read live from the skill — `reviewer-prompt.md`, `goal-conditions.md`, `doc-sync-checklist.md`), plus `agents/openai.yaml` (Codex UI metadata). **Bundled files live inside their one consuming skill** so both hosts resolve them the same way — Codex skills can only read their own directory, and this also drops `${CLAUDE_PLUGIN_ROOT}` from the Claude side. Universal lessons land in these seeds so **future installs inherit them**.
 - **Host neutrality** — each skill has a `## Host` section resolving the ~5 anchors that differ between Claude Code and Codex (bundled-file paths, autonomous loop, asking the human, review dispatch, invocation surface). Kept inline per skill (not a shared file — a shared plugin-root reference is unreachable from a Codex skill).
 - **`.claude-plugin/`** and **`.codex-plugin/`** — the two `plugin.json` manifests (same `name`/`version`, bumped in lockstep by `improve`). Distribution: `.claude-plugin/marketplace.json` for Claude Code, `.agents/plugins/marketplace.json` for Codex.
 - **`docs/`** — the GitHub Pages landing page (`index.html`, self-contained). Explains the framework to newcomers; not part of the installed process — skills never read it.

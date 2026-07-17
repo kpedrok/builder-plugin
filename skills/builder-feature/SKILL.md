@@ -124,13 +124,11 @@ Fix wrong content immediately (a wrong CLAUDE.md is worse than a missing one). R
 
 **Mapping self-heal:** if this run successfully used a tool that a `.harness/map/` mapping says is "not wired" or "manual" (e.g. a tracker MCP that has since connected), update that mapping now with the verb → real command you actually ran.
 
-### 2. Write the HTML report
+### 2. Write the HTML report — delegate to the `builder-report` skill
 
-One self-contained file at `<run>/report.html`, built from this skill's `assets/report.html` (resolve per the Host section) — **read that file fresh with the Read tool; never reconstruct it from memory** (the template is versioned and evolves — a remembered copy drifts from the current CSS and section set).
+Invoke the **`builder-report` skill by name** (`/builder-report` on Claude Code, `$builder-report` on Codex — never by reaching into that skill's files from here), pointing it at this run's `<run>/` folder. It owns the template (`assets/report.html` in *its* directory), the writing rules, and the tag-balance/render verification; on this rung it harvests from the run's real artifacts — spec, plan, ledger, PROVE evidence — and `git add`s the finished `<run>/report.html` (staged so `/builder-ship` step 2 commits it — an untracked report gets orphaned; pilot 3).
 
-**The template is the single spec for the report's content and look.** Its head comment and each section's inline comments carry every rule — sections and which are always-present, evidence chips (✓ live · ◐ fixture/inference · ○ needs a human — never ✓ for something this run didn't observe) and their ship-gate tags, the reviewer triage block, diagram and caption rules, §5's harvest-never-invent contract, §7's reproduce/inspect/explore steps. Follow them from the file you just read, not from memory, and **keep the CSS untouched**. Two framing rules worth holding the whole time: the report is a *teaching document* that transfers ownership — a reviewer should finish it able to retell how the feature works and answer "what does the system do when X?" without reading the code; and everything in it is **harvested from the run's artifacts** (spec, plan, tests, marked code, shown output) — real output, real code, never fabricated or invented.
-
-When done: **`git add` the report** (staged so `/builder-ship` step 2 commits it — an untracked report gets orphaned; pilot 3), **show the report's path**, and tick the ledger's REPORT row with the path and set the plan's Status line to DONE (small path: no ledger/plan — skip, the report is the record).
+When it returns: **show the report's path**, tick the ledger's REPORT row with the path, and set the plan's Status line to DONE (small path: no ledger/plan — skip, the report is the record).
 
 **STOP HERE.** The human reviews the HTML, then decides to `/builder-ship`. Do not commit-to-main, open a PR, or update the tracker in this skill. `/builder-ship` is human-invoke-only — if the human asks to ship in prose ("ship it", "open the PR"), tell them to type `/builder-ship`; **never improvise the shipping steps yourself.**
 

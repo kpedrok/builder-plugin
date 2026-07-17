@@ -1,0 +1,4 @@
+interface:
+  display_name: "Builder — Report"
+  short_description: "Write the ownership-transfer HTML report for a run, diff, PR, or session."
+  default_prompt: "Use $builder-report to write the builder HTML report for this work: harvests spec/plan/tests when they exist, degrades honestly to the bare diff when they don't."

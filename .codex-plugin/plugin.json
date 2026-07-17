@@ -1,6 +1,6 @@
 {
   "name": "builder",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "Builder harness — product, design, and software in one pipeline. Instrument any project once, then run features through ALIGN → PLAN → BUILD → PROVE → REPORT.",
   "author": {
     "name": "Pedro Kondak"
