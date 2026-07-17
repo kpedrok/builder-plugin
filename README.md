@@ -81,7 +81,7 @@ Commits the work, opens a PR with the report's evidence linked, and updates your
 
 ## The one idea behind everything: process vs. facts
 
-The plugin is **process** — the five skills are byte-for-byte identical in every repo you install it into. They never contain a real test command, a real branch name, or a real tracker call. Instead they speak in **canonical verbs** ("run the full gate", "fetch the ticket", "run the code review").
+The plugin is **process** — the six skills are byte-for-byte identical in every repo you install it into. They never contain a real test command, a real branch name, or a real tracker call. Instead they speak in **canonical verbs** ("run the full gate", "fetch the ticket", "run the code review").
 
 Each project holds the **facts** — everything specific to *this* repo — in a `.harness/` directory. Setup writes a thin indirection layer there that maps each canonical verb to the real command for this repo. So the same skill drives a Bun monorepo, a Django API, and a Rust CLI without a line of difference: only the facts under `.harness/` change.
 
@@ -118,7 +118,6 @@ your-project/
 │   ├── settings.json               ← permissions merged in (gate commands pre-allowed)
 │   └── skills/                     ← project-owned skills, generated to fit this repo
 │       ├── builder-run-local/          (fullstack / services)
-│       ├── builder-prototype/          (frontend)
 │       ├── builder-verify-ui/          (frontend / fullstack)
 │       └── builder-verify-api/         (API / backend)
 └── .harness/                       ← everything else the harness owns and maintains
@@ -183,7 +182,6 @@ These are **project property**, not plugin property — generated once to fit th
 | `builder-run-local` | fullstack / services | The exact order, env, seeds, and health checks to bring the whole stack up for end-to-end verification. |
 | `builder-verify-ui` | frontend / fullstack | Drives the running app like a user, screenshots it, and asserts zero new console errors — proof beyond unit tests. |
 | `builder-verify-api` | API / backend | Makes real calls to the running API and asserts status and shape. |
-| `builder-prototype` | frontend | Explores a UI idea as a few throwaway variations before real code is written, so a direction is chosen first. |
 
 Setup also adds a **`## Harness` pointer block to your `CLAUDE.md`** (a few lines pointing at `.harness/`, never content) and merges gate commands into **`.claude/settings.json`** permissions so routine commands don't prompt.
 
@@ -210,6 +208,7 @@ Repo-specific lessons stay local (in `STATE.md` or a project skill's Gotchas); o
 |---|---|---|
 | `/builder-setup-harness` | you (once per project) | Instruments a project — detects the stack, generates the `.harness/` layer and project skills, proves the gates work. |
 | `/builder-feature` | you or the model | Runs the ALIGN → PLAN → BUILD → PROVE → REPORT pipeline. |
+| `/builder-prototype` | you, the model, or the pipeline | Explores a UI feature as 5 genuinely distinct variations in one disposable self-contained HTML file (tabbed switcher, bundled scaffold); you pick a winner, only that gets built. Works with or without an installed harness. |
 | `/builder-report` | you, the model, or the pipeline | Writes the ownership-transfer HTML report — from a run folder when the pipeline calls it, or standalone on any diff/PR/session (missing artifacts downgrade evidence chips, never get invented). |
 | `/builder-ship` | **you only** | Commits, opens the PR with the report's evidence, updates the tracker — after you've reviewed. |
 | `/builder-improve` | you (in the plugin source) | Folds queued universal gotchas from real runs back into the plugin. |
@@ -222,7 +221,7 @@ Repo-specific lessons stay local (in `STATE.md` or a project skill's Gotchas); o
 
 The plugin source is organized to mirror the process/facts split:
 
-- **`skills/`** — the five universal skills. Identical in every install; contain no repo-specific facts. Each carries its own bundled seeds under `assets/` (stamped/instantiated into a project — `product.md`, `STATE.md`, `settings-snippet.json`, `config-snippet.toml`, `project-skills/`, the `spec.md`/`plan.md`/`plugin-outbox.md` shapes, `report.html`) and `references/` (read live from the skill — `reviewer-prompt.md`, `goal-conditions.md`, `doc-sync-checklist.md`), plus `agents/openai.yaml` (Codex UI metadata). **Bundled files live inside their one consuming skill** so both hosts resolve them the same way — Codex skills can only read their own directory, and this also drops `${CLAUDE_PLUGIN_ROOT}` from the Claude side. Universal lessons land in these seeds so **future installs inherit them**.
+- **`skills/`** — the six universal skills. Identical in every install; contain no repo-specific facts. Each carries its own bundled seeds under `assets/` (stamped/instantiated into a project — `product.md`, `STATE.md`, `settings-snippet.json`, `config-snippet.toml`, `project-skills/`, the `spec.md`/`plan.md`/`plugin-outbox.md` shapes, `report.html`) and `references/` (read live from the skill — `reviewer-prompt.md`, `goal-conditions.md`, `doc-sync-checklist.md`), plus `agents/openai.yaml` (Codex UI metadata). **Bundled files live inside their one consuming skill** so both hosts resolve them the same way — Codex skills can only read their own directory, and this also drops `${CLAUDE_PLUGIN_ROOT}` from the Claude side. Universal lessons land in these seeds so **future installs inherit them**.
 - **Host neutrality** — each skill has a `## Host` section resolving the ~5 anchors that differ between Claude Code and Codex (bundled-file paths, autonomous loop, asking the human, review dispatch, invocation surface). Kept inline per skill (not a shared file — a shared plugin-root reference is unreachable from a Codex skill).
 - **`.claude-plugin/`** and **`.codex-plugin/`** — the two `plugin.json` manifests (same `name`/`version`, bumped in lockstep by `improve`). Distribution: `.claude-plugin/marketplace.json` for Claude Code, `.agents/plugins/marketplace.json` for Codex.
 - **`docs/`** — the GitHub Pages landing page (`index.html`, self-contained). Explains the framework to newcomers; not part of the installed process — skills never read it.

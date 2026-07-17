@@ -1,0 +1,4 @@
+interface:
+  display_name: "Builder — Prototype"
+  short_description: "Explore a UI feature as 5 distinct variations in one HTML file; pick one, build it."
+  default_prompt: "Use $builder-prototype to mock this UI feature up as 5 genuinely distinct variations in one self-contained HTML file, so I can pick a direction before you build it for real."

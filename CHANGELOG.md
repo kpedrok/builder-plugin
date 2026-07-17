@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.14.0 — 2026-07-17
+
+**`builder-prototype` promoted to the sixth plugin skill.** Input: the standalone `prototype` skill Pedro liked from the rewritepal repo. The technique is pure process (plugin=process contract), and as a generated project skill it only existed after setup ran on a frontend repo — but "mock this up" is useful anywhere. Same extraction argument as `builder-report` in v0.13.0: works with or without the harness.
+
+- **New `skills/builder-prototype/`** — explore a UI feature as **5 genuinely distinct variations in ONE self-contained HTML file**: tabbed pill switcher (tabs named by idea, keys 1–5, full-width in-situ panels), distinctness axes made explicit (structure / tone / density / metaphor — "differ on a real axis, not a recolor"), real-looking domain content (never lorem ipsum), each variation a one-line *bet*. Human picks a winner or a blend; only that gets built; the file is disposable. Bundles the `assets/variations.html` scaffold (house layout + tab JS pre-wired) resolved per the Host section; model-invocable on both hosts (it ships nothing).
+- **Project facts via a degradation ladder** (mirrors `builder-report`'s input ladder): `.harness/map/design.md` present → accent/tokens/entities from there, output to `.harness/prototypes/`; no harness → infer from the codebase, output to `prototypes/`; greenfield → stated defaults.
+- **The generated project-skill template is retired.** Setup's Step 4 no longer generates `builder-prototype` (frontend now gets only `builder-verify-ui`); per-repo prototype gotchas route through `design.md`/the outbox like any other. `builder-feature`'s UI step routes by skill name — the Codex-safe composition mechanism, no cross-skill paths.
+- README (skills reference, counts, setup tree) and the docs page updated to the six-skill shape.
+
 ## 0.13.0 — 2026-07-17
 
 **Standalone `builder-report` skill + §12 comprehension quiz.** Inputs: Geoffrey Litt's AIE thread ("understanding is the new bottleneck") + his `explain-diff-html` gist, a survey of 8 framework repos, and the in-house momentus `product-decision-brief` skill (`Design/Report v5` note in the vault).

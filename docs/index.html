@@ -162,7 +162,7 @@ tailwind.config = {
     <p class="font-mono text-sm text-mint-400">02 · The one idea behind everything</p>
     <h2 class="mt-2 max-w-2xl text-3xl font-bold text-slate-50 md:text-4xl">Process vs. facts</h2>
     <p class="mt-4 max-w-3xl text-slate-400">
-      The plugin is <strong class="text-slate-200">process</strong> — five skills, byte-for-byte identical in every repo. They never contain a real test
+      The plugin is <strong class="text-slate-200">process</strong> — six skills, byte-for-byte identical in every repo. They never contain a real test
       command or branch name; they speak in <strong class="text-slate-200">canonical verbs</strong>. Each project holds the <strong class="text-slate-200">facts</strong> in a
       <code class="rounded bg-ink-800 px-1.5 py-0.5 font-mono text-sm text-sky2-300">.harness/</code> directory: a thin indirection layer mapping each verb to the real command for <em>this</em> repo.
       The same skill drives a Bun monorepo, a Django API, and a Rust CLI without a line of difference.
@@ -350,8 +350,7 @@ tailwind.config = {
 └─ skills/               <span class="text-slate-600">← generated to fit THIS repo</span>
    ├─ builder-run-local/
    ├─ builder-verify-ui/
-   ├─ builder-verify-api/
-   └─ builder-prototype/
+   └─ builder-verify-api/
 <span class="text-sky2-300">.harness/</span>
 ├─ <span class="text-slate-200">product.md</span>            <span class="text-slate-600">← purpose · personas · success</span>
 ├─ <span class="text-slate-200">STATE.md</span>              <span class="text-slate-600">← baselines · decisions · lessons</span>
@@ -548,7 +547,7 @@ tailwind.config = {
               <tr>
                 <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">.claude/skills/builder-run-local/</td>
                 <td class="px-5 py-3">The exact order, env, seeds, and health checks to bring the whole stack up. <em>(fullstack / services)</em></td>
-                <td class="px-5 py-3 align-top" rowspan="4">Project property, not plugin property — generated once to fit this repo's real commands (each verified by running it during setup), then they live and evolve here, each growing its own Gotchas section over time. Which ones you get depends on the detected repo type.</td>
+                <td class="px-5 py-3 align-top" rowspan="3">Project property, not plugin property — generated once to fit this repo's real commands (each verified by running it during setup), then they live and evolve here, each growing its own Gotchas section over time. Which ones you get depends on the detected repo type.</td>
               </tr>
               <tr>
                 <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">.claude/skills/builder-verify-ui/</td>
@@ -557,10 +556,6 @@ tailwind.config = {
               <tr>
                 <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">.claude/skills/builder-verify-api/</td>
                 <td class="px-5 py-3">Makes real calls to the running API and asserts status and shape. <em>(API / backend)</em></td>
-              </tr>
-              <tr>
-                <td class="whitespace-nowrap px-5 py-3 font-mono text-sky2-300">.claude/skills/builder-prototype/</td>
-                <td class="px-5 py-3">Explores a UI idea as a few throwaway variations before real code is written. <em>(frontend)</em></td>
               </tr>
             </tbody>
           </table>

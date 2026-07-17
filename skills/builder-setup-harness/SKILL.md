@@ -84,8 +84,8 @@ Based on the detected repo type, instantiate templates from this skill's `assets
 
 | Detected             | Generate                                                      |
 | -------------------- | ------------------------------------------------------------- |
-| Frontend             | `builder-prototype` + `builder-verify-ui`                     |
-| Fullstack / services | `builder-run-local` + `builder-prototype` (if it has a UI) + `builder-verify-ui` / `builder-verify-api` |
+| Frontend             | `builder-verify-ui`                                           |
+| Fullstack / services | `builder-run-local` + `builder-verify-ui` / `builder-verify-api` |
 | API backend          | `builder-verify-api`                                          |
 | CLI / library        | (none templated yet — note it and move on)                    |
 
